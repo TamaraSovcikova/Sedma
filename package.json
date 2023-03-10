@@ -2,7 +2,9 @@
   "name": "tnt-react",
   "version": "0.0.0",
   "license": "MIT",
-  "scripts": {},
+  "scripts": {
+    "start": "nx run tntapp:serve:production"
+  },
   "private": true,
   "dependencies": {
     "react": "18.2.0",
