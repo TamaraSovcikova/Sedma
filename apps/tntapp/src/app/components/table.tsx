@@ -6,15 +6,17 @@ interface TableProps {
   table: TableType;
   takeCard: (player: Player) => void;
   playCard: (player: Player, card: Card) => void;
+  currentPlayer: number;
 }
 
 export function Table(props: TableProps) {
-  const { table, takeCard, playCard } = props;
+  const { table, takeCard, playCard, currentPlayer } = props;
   const lastCard =
     table.discard.length > 0
       ? table.discard[table.discard.length - 1]
       : undefined;
   const players = table.players;
+
   return (
     <div>
       {players.map((player, index) => (
@@ -23,6 +25,7 @@ export function Table(props: TableProps) {
             player={player}
             playCard={(card) => playCard(player, card)}
             takeCard={() => takeCard(player)}
+            current={currentPlayer == index}
           />
         </div>
       ))}

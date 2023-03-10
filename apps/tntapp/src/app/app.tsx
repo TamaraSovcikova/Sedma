@@ -44,6 +44,7 @@ function createTable(): TableType {
 
 export function App() {
   const [table, setTable] = useState<TableType>(createTable());
+  const [currentPlayer, setCurrentPlayer] = useState<number>(0);
 
   const handleTakeCard = (player: Player) => {
     setTable((table) => {
@@ -54,6 +55,7 @@ export function App() {
       }
       return newTable;
     });
+    setCurrentPlayer((currentPlayer + 1) % table.players.length);
   };
 
   const handlePlayCard = (player: Player, card: Card) => {
@@ -74,6 +76,7 @@ export function App() {
         table={table}
         playCard={handlePlayCard}
         takeCard={handleTakeCard}
+        currentPlayer={currentPlayer}
       />
     </div>
   );
