@@ -1,7 +1,5 @@
 import { useState } from 'react';
-import { ClickCounter } from './click-counter';
 import { Table } from './components/table';
-import { ShowOnlyEven } from './show-only-even';
 import { Card, Player, Table as TableType } from './types';
 
 function createPlayer(name: string): Player {
@@ -12,7 +10,7 @@ function createPlayer(name: string): Player {
 }
 
 function createTable(): TableType {
-  let d: Card[] = [];
+  const d: Card[] = [];
   const suits: Card['suit'][] = ['spades', 'hearts', 'diamonds', 'clubs'];
   const faces: Card['face'][] = [
     'seven',
