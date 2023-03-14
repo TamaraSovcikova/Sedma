@@ -53,11 +53,10 @@ export function App() {
   const handleTakeCard = (player: Player) => {
     setTable((table) => {
       const newTable = { ...table };
-      const newPlayer = newTable.players.find((p) => p.name === player.name);
-      if (newPlayer) {
+      if (player) {
         const c = newTable.deck.pop();
         if (c) {
-          newPlayer.hand.push(c);
+          player.hand.push(c);
         }
       }
       return newTable;
