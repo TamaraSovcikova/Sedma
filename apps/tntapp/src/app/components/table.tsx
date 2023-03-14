@@ -2,7 +2,6 @@ import { Card, Player, Table as TableType } from '../types';
 import { ShowCard } from './show-card';
 import { ShowPlayer } from './show-player';
 
-
 interface TableProps {
   table: TableType;
   takeCard: (player: Player) => void;
@@ -26,7 +25,7 @@ export function Table(props: TableProps) {
             player={player}
             playCard={(i) => playCard(player, i)}
             takeCard={() => takeCard(player)}
-            current={currentPlayer == index}
+            current={currentPlayer === index}
           />
         </div>
       ))}

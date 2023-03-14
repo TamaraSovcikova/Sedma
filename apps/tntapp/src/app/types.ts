@@ -1,6 +1,6 @@
 export interface Card {
-  suit: 'spades' | 'hearts' | 'diamonds' | 'clubs';
-  face: 'seven' | 'eight' | 'nine' | 'ten' | 'jack' | 'queen' | 'king' | 'ace';
+  suit: 'heart' | 'leaf' | 'acorn' | 'bell';
+  face: 'seven' | 'eight' | 'nine' | 'ten' | 'lower' | 'upper' | 'king' | 'ace';
 }
 
 /**

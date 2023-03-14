@@ -11,14 +11,14 @@ function createPlayer(name: string): Player {
 
 function createTable(): TableType {
   const d: Card[] = [];
-  const suits: Card['suit'][] = ['spades', 'hearts', 'diamonds', 'clubs'];
+  const suits: Card['suit'][] = ['heart', 'acorn', 'leaf', 'bell'];
   const faces: Card['face'][] = [
     'seven',
     'eight',
     'nine',
     'ten',
-    'jack',
-    'queen',
+    'lower',
+    'upper',
     'king',
     'ace',
   ];
@@ -49,7 +49,10 @@ export function App() {
       const newTable = { ...table };
       const newPlayer = newTable.players.find((p) => p.name === player.name);
       if (newPlayer) {
-        newPlayer.hand.push(newTable.deck.pop()!);
+        const c = newTable.deck.pop();
+        if (c) {
+          newPlayer.hand.push(c);
+        }
       }
       return newTable;
     });
@@ -57,15 +60,11 @@ export function App() {
   };
 
   const handlePlayCard = (player: Player, card: Card) => {
-    setTable((table) => {
-      const newTable = { ...table };
-      const newPlayer = newTable.players.find((p) => p.name === player.name);
-      if (newPlayer) {
-        newPlayer.hand = newPlayer.hand.filter((c) => c !== card);
-        newTable.discard.push(card);
-      }
-      return newTable;
-    });
+    const newTable = { ...table };
+    player.hand = player.hand.filter((c) => c !== card);
+    newTable.discard.push(card);
+
+    setTable(newTable);
   };
 
   return (
