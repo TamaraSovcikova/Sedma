@@ -10,7 +10,7 @@ function createPlayer(name: string): Player {
 }
 
 function createTable(): TableType {
-  const d: Card[] = [];
+  const deck: Card[] = [];
   const suits: Card['suit'][] = ['heart', 'acorn', 'leaf', 'bell'];
   const faces: Card['face'][] = [
     'seven',
@@ -24,8 +24,14 @@ function createTable(): TableType {
   ];
   for (const suit of suits) {
     for (const face of faces) {
-      d.push({ suit, face });
+      deck.push({ suit, face });
     }
+  }
+  for (let i = deck.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * i);
+    const temp = deck[i];
+    deck[i] = deck[j];
+    deck[j] = temp;
   }
 
   return {
@@ -36,7 +42,7 @@ function createTable(): TableType {
       createPlayer('Player 4'),
     ],
     discard: [],
-    deck: d,
+    deck: deck,
   };
 }
 
