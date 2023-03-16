@@ -4,13 +4,13 @@ import { ShowPlayer } from './show-player';
 
 interface TableProps {
   table: TableType;
-  takeCard: (player: Player) => void;
+  handOutCard: (player: Player) => void;
   playCard: (player: Player, card: Card) => void;
   currentPlayer: number;
 }
 
 export function Table(props: TableProps) {
-  const { table, takeCard, playCard, currentPlayer } = props;
+  const { table, handOutCard, playCard, currentPlayer } = props;
   const lastCard =
     table.discard.length > 0
       ? table.discard[table.discard.length - 1]
@@ -24,7 +24,7 @@ export function Table(props: TableProps) {
           <ShowPlayer
             player={player}
             playCard={(i) => playCard(player, i)}
-            takeCard={() => takeCard(player)}
+            handOutCard={() => handOutCard(player)}
             current={currentPlayer === index}
           />
         </div>

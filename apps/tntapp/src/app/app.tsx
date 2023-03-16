@@ -50,18 +50,19 @@ export function App() {
   const [table, setTable] = useState<TableType>(createTable());
   const [currentPlayer, setCurrentPlayer] = useState<number>(0);
 
-  const handleTakeCard = (player: Player) => {
+  const handOutCard = () => {
     setTable((table) => {
       const newTable = { ...table };
-      if (player) {
-        const c = newTable.deck.pop();
-        if (c) {
-          player.hand.push(c);
+      for (const player of newTable.players) {
+        while (player.hand.length < 4 && newTable.deck.length > 0) {
+          const c = newTable.deck.pop();
+          if (c) {
+            player.hand.push(c);
+          }
         }
       }
       return newTable;
     });
-    setCurrentPlayer((currentPlayer + 1) % table.players.length);
   };
 
   const handlePlayCard = (player: Player, card: Card) => {
@@ -70,6 +71,7 @@ export function App() {
     newTable.discard.push(card);
 
     setTable(newTable);
+    setCurrentPlayer((currentPlayer + 1) % table.players.length);
   };
 
   return (
@@ -77,8 +79,8 @@ export function App() {
       <Table
         table={table}
         playCard={handlePlayCard}
-        takeCard={handleTakeCard}
         currentPlayer={currentPlayer}
+        handOutCard={handOutCard}
       />
     </div>
   );
