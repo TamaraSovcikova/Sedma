@@ -9,7 +9,7 @@ interface ShowPlayerProps {
 }
 
 export function ShowPlayer(props: ShowPlayerProps) {
-  const { player, playCard, handOutCard, current } = props;
+  const { player, playCard, current } = props;
 
   return (
     <div>
@@ -17,7 +17,13 @@ export function ShowPlayer(props: ShowPlayerProps) {
         {current ? <strong>Player</strong> : 'Player'} {player.name}
       </div>
       {player.hand.map((card, index) => (
-        <ShowCard key={index} card={card} onPlay={() => playCard(card)} />
+        <ShowCard
+          key={index}
+          card={card}
+          onPlay={() => {
+            if (current) playCard(card);
+          }}
+        />
       ))}
     </div>
   );
