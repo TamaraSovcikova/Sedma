@@ -16,15 +16,6 @@ export function ShowPlayer(props: ShowPlayerProps) {
       <div>
         {current ? <strong>Player</strong> : 'Player'} {player.name}
       </div>
-      <button
-        onClick={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          if (current) handOutCard();
-        }}
-      >
-        Take
-      </button>
       {player.hand.map((card, index) => (
         <ShowCard key={index} card={card} onPlay={() => playCard(card)} />
       ))}

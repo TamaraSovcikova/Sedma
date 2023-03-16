@@ -30,6 +30,7 @@ export function Table(props: TableProps) {
         </div>
       ))}
       <div>Last card: {lastCard ? <ShowCard card={lastCard} /> : '-none-'}</div>
+      <button onClick={() => handOutCard(players[currentPlayer])}>Take</button>
     </div>
   );
 }
