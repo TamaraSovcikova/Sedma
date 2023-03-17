@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Table } from './components/table';
 import { Card, Player, Table as TableType } from './types';
+import { getGlobal } from './global';
 
 function createPlayer(name: string): Player {
   return {
@@ -48,6 +49,7 @@ function createTable(): TableType {
 
 export function App() {
   const [table, setTable] = useState<TableType>(createTable());
+  const [message, setMessage] = useState<string>();
   const [currentPlayer, setCurrentPlayer] = useState<number>(0);
 
   const handOutCard = () => {
@@ -72,6 +74,13 @@ export function App() {
 
     setTable(newTable);
     setCurrentPlayer((currentPlayer + 1) % table.players.length);
+    postData(getGlobal().tableUrl, card);
+  };
+
+  const handleServer = async () => {
+    const data = await fetchData(getGlobal().serverUrl);
+    setMessage(data.message);
+    console.log(data);
   };
 
   return (
@@ -82,8 +91,25 @@ export function App() {
         currentPlayer={currentPlayer}
         handOutCard={handOutCard}
       />
+      <button onClick={handleServer}>Server</button>
+      <p>{message}</p>
     </div>
   );
+}
+
+async function fetchData(url: RequestInfo | URL) {
+  const response = await fetch(url);
+  const data = await response.json();
+  return data;
+}
+async function postData(url: string, data: any) {
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: [['Content-Type', 'application/json']],
+    body: JSON.stringify(data),
+  });
+  const responseData = await response.json();
+  return responseData;
 }
 
 export default App;
