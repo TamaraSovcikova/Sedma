@@ -1,5 +1,5 @@
-import { Card } from '../types';
 import '../styles/cardStyle.css';
+import { Card } from '../types';
 
 interface ShowCardProps {
   card: Card;
