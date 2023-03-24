@@ -20,7 +20,7 @@ app.use(bodyParser.json())
 app.get('/api', (req, res) => {
   res.json({message:'Hello API'});
 });
-app.post("/table", (req, res) => {
+app.post("/table/:id", (req, res) => {
   const data = req.body;
   console.log("table recieved", data);
   res.send({status: "okey"});
