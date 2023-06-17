@@ -14,7 +14,6 @@ const router = createBrowserRouter([
   },
   {
     path: '/table/:id',
-
     element: <TablePage />,
   },
 ]);

@@ -30,7 +30,7 @@ export function createTable(): Table {
     deck[i] = deck[j];
     deck[j] = temp;
   }
-    return {
+  return {
     players: [
       createPlayer('Player 1'),
       createPlayer('Player 2'),
@@ -39,5 +39,8 @@ export function createTable(): Table {
     ],
     discard: [],
     deck: deck,
+    id: '111',
   }
 }
+
+

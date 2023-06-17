@@ -23,6 +23,7 @@ export function ShowPlayer(props: ShowPlayerProps) {
           onPlay={() => {
             if (current) playCard(card);
           }}
+          size={'large'}
         />
       ))}
     </div>

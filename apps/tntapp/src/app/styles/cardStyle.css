@@ -16,14 +16,14 @@
     position: absolute;
     top: 5px;
     left: 5px;
-    font-size: 24px;
+    font-size: 100%;
 }
 
 .card-corner-bottom-right {
     position: absolute;
     bottom: 5px;
     right: 5px;
-    font-size: 24px;
+    font-size: 100%;
     transform: rotate(180deg);
 }
 
@@ -32,8 +32,8 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 40px;
-    height: 40px;
+    width: 60%;
+    height: 60%;
 }
 .card-image{
     max-height: 100%;

@@ -4,6 +4,7 @@ import { Card } from '../types';
 interface ShowCardProps {
   card: Card;
   onPlay?: (card: Card) => void;
+  size: 'small' | 'large';
 }
 
 const images = {
@@ -15,9 +16,14 @@ const images = {
 
 export function ShowCard(props: ShowCardProps) {
   const { card, onPlay } = props;
+  const [sizeX, sizeY] = props.size === 'small' ? [20, 30] : [80, 110];
 
   return (
-    <div className="card" onClick={() => onPlay && onPlay(card)}>
+    <div
+      className="card"
+      onClick={() => onPlay && onPlay(card)}
+      style={{ width: sizeX, height: sizeY }}
+    >
       <div className="card-face card-corner-top-left">{card.face}</div>
       <div className="card-suit">
         <img
