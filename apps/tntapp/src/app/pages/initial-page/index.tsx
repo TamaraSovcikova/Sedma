@@ -4,7 +4,8 @@ import '../../styles/inicial-page.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 export function InitialPage() {
-  const [tableID, setTableID] = useState<string>();
+  const [tableID, setTableID] = useState<string>('');
+  const [error, setError] = useState<boolean>(false);
   const navigate = useNavigate();
   console.log(tableID);
 
@@ -12,8 +13,20 @@ export function InitialPage() {
     const currentDate = new Date();
     const randomNum = Math.floor(Math.random() * 1000000);
     const newTableID = currentDate.toISOString() + '_' + randomNum.toString();
-    createTable(newTableID);
+    //createTable(newTableID);
     navigate(`/table/${newTableID}`);
+  };
+
+  const joinGame = () => {
+    if (tableIDExists(tableID)) {
+      navigate(`/table/${tableID}`);
+    } else {
+      setError(true);
+    }
+  };
+
+  const tableIDExists = (id: string) => {
+    return false;
   };
 
   return (
@@ -41,13 +54,15 @@ export function InitialPage() {
               value={tableID}
               onChange={(e) => setTableID(e.target.value)}
             />
-            <button
-              className="btn btn-secondary"
-              onClick={() => navigate('/table')}
-            >
+            <button className="btn btn-secondary" onClick={joinGame}>
               JOIN GAME
             </button>
           </div>
+          {error && (
+            <p className="text-danger">
+              The entered table ID does not exist. Please try again.
+            </p>
+          )}
           <div className="mt-6 separator"></div>
           <h3 className="mt-6">CREATE GAME</h3>
           <p>
@@ -56,7 +71,9 @@ export function InitialPage() {
             the rules and enjoy the thrill of playing Sedma. Simply click the
             "Click to Create Game" button below to get started.
           </p>
-          <button className="mt-3 btn btn-primary">Click to Create Game</button>
+          <button className="mt-3 btn btn-primary" onClick={handleCreateTable}>
+            Click to Create Game
+          </button>
         </div>
         <div className="col-lg-4">
           <img
