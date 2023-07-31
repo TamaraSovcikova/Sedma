@@ -1,3 +1,24 @@
+
+import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import { InitialPage } from './pages/initial-page';
+import { LobbyPage } from './pages/lobby-page';
+import { TablePage } from './pages/table-page';
+
+const router = createBrowserRouter([
+  {
+    path: '/',
+    element: <InitialPage />,
+  },
+  {
+    path: '/lobby',
+    element: <LobbyPage />,
+  },
+  {
+    path: '/table/:id',
+    element: <TablePage />,
+  },
+]);
+=======
 import { useState } from 'react';
 import { Table } from './components/table';
 import { Card, Player, Table as TableType } from './types';
@@ -40,42 +61,11 @@ function createTable(): TableType {
   };
 }
 
+
 export function App() {
-  const [table, setTable] = useState<TableType>(createTable());
-  const [currentPlayer, setCurrentPlayer] = useState<number>(0);
-
-  const handleTakeCard = (player: Player) => {
-    setTable((table) => {
-      const newTable = { ...table };
-      const newPlayer = newTable.players.find((p) => p.name === player.name);
-      if (newPlayer) {
-        newPlayer.hand.push(newTable.deck.pop()!);
-      }
-      return newTable;
-    });
-    setCurrentPlayer((currentPlayer + 1) % table.players.length);
-  };
-
-  const handlePlayCard = (player: Player, card: Card) => {
-    setTable((table) => {
-      const newTable = { ...table };
-      const newPlayer = newTable.players.find((p) => p.name === player.name);
-      if (newPlayer) {
-        newPlayer.hand = newPlayer.hand.filter((c) => c !== card);
-        newTable.discard.push(card);
-      }
-      return newTable;
-    });
-  };
-
   return (
     <div>
-      <Table
-        table={table}
-        playCard={handlePlayCard}
-        takeCard={handleTakeCard}
-        currentPlayer={currentPlayer}
-      />
+      <RouterProvider router={router} />
     </div>
   );
 }

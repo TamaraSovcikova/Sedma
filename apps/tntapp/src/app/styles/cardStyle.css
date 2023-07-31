@@ -1,0 +1,46 @@
+.card {
+    position: relative;  
+    display: inline-block;    
+    width: 70px;
+    height: 110px;
+    border-radius: 10px;
+    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-10px);
+}
+
+.card-corner-top-left {
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    font-size: 100%;
+}
+
+.card-corner-bottom-right {
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    font-size: 100%;
+    transform: rotate(180deg);
+}
+
+.card-suit {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 60%;
+    height: 60%;
+}
+.card-image{
+    max-height: 100%;
+    max-width: 100%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+

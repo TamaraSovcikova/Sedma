@@ -4,6 +4,7 @@ const host = process.env.HOST ?? 'localhost';
 const port = process.env.PORT ? Number(process.env.PORT) : 3000;
 
 const app = express();
+
 import bodyParser from 'body-parser';
 
 app.use(bodyParser.json());
@@ -12,17 +13,21 @@ app.get('/api', (req, res) => {
   res.json({ message: 'Hello API' });
 });
 app.post('/table/:id', (req, res) => {
+
   const data = req.body;
   const params = req.params;
   const id = params.id;
   console.log(id);
+
   console.log('table recieved', data);
   switch (data.cmd) {
     case 'Play':
+
       //TODO const t = playCard(); // add data
       res.send();
       break;
   }
+
   res.send({ status: 'okey' }); //program play card
 });
 app.get('/table/:id', (req, res) => {
@@ -49,6 +54,7 @@ app.get('/table/:id', (req, res) => {
   };
   res.send(data);
 });
+
 
 app.listen(port, host, () => {
   console.log(`[ ready ] http://${host}:${port}`);

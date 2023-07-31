@@ -1,0 +1,93 @@
+:root{
+    --backdrop: rgb(37, 37, 37);
+}
+.extra-space{
+    height: 100px;
+}
+body {
+    background: var(--backdrop);
+    color: aliceblue;
+    line-height: 2.5rem;
+    font-family: 'Bodoni';
+}
+.row{
+    gap: 15rem;
+}
+img{
+    width: 500px;
+    height:400px;
+    overflow: cover;
+}
+h1{
+    font-size: 85px;
+}
+h3{
+    font-size: 30px;
+}
+h4{
+    font-size: 30px;
+}
+h5 {
+    font-size: 13px;
+}
+p{
+    font-size: 14px;
+}
+h1,h2,h3{
+    font-family: 'Cinzel-Black'!important;
+}
+h4,h5 {
+    font-family:'Cinzel-Regular'!important;
+}
+
+.linebreak{
+    width: 100px;
+    height: 1px;
+    background-color: rgb(255, 255, 255);
+    border-radius: 15px;
+}
+.separator{
+    background-color: aliceblue;
+    border-radius: 30px;
+    width:35px;
+    height:15px;
+}
+
+.mt-12{
+    margin-top: 120px;
+}
+.mt-6{
+    margin-top: 60px;
+}
+@font-face {
+    font-family: 'Bodoni-Italic';
+    src: url(../fonts/BodoniModa-Italic.ttf);
+}
+@font-face {
+    font-family: 'Bodoni';
+    src: url(../fonts/BodoniModa.ttf);
+}
+@font-face {
+    font-family: 'Cinzel-Black';
+    src: url(../fonts/CinzelDecorative-Black.ttf);
+}
+@font-face {
+    font-family: 'Cinzel-Bold';
+    src: url(../fonts/CinzelDecorative-Bold.ttf);
+}
+@font-face {
+    font-family: 'Cinzel-Regular';
+    src: url(../fonts/CinzelDecorative-Regular.ttf);
+}
+@font-face {
+    font-family: 'Cormorant-Italic';
+    src: url(../fonts/Cormorant-Italic-VariableFont_wght.ttf);
+}
+@font-face {
+    font-family: 'Cormorant';
+    src: url(../fonts/Cormorant-VariableFont_wght.ttf);
+}
+@font-face {
+    font-family: 'Foldit';
+    src: url(../fonts/Foldit-VariableFont_wght.ttf);
+}
