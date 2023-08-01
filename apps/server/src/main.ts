@@ -13,7 +13,6 @@ app.get('/api', (req, res) => {
   res.json({ message: 'Hello API' });
 });
 app.post('/table/:id', (req, res) => {
-
   const data = req.body;
   const params = req.params;
   const id = params.id;
@@ -22,7 +21,6 @@ app.post('/table/:id', (req, res) => {
   console.log('table recieved', data);
   switch (data.cmd) {
     case 'Play':
-
       //TODO const t = playCard(); // add data
       res.send();
       break;
@@ -54,7 +52,6 @@ app.get('/table/:id', (req, res) => {
   };
   res.send(data);
 });
-
 
 app.listen(port, host, () => {
   console.log(`[ ready ] http://${host}:${port}`);

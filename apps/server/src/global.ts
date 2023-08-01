@@ -1,3 +1,3 @@
-export const getGlobal = () => ({
-    clientUrl: "http://localhost:4200"
-})
+export const getGlobalServer = () => ({
+  clientUrl: 'http://localhost:4200',
+});

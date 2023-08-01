@@ -4,7 +4,7 @@ import { ShowCard } from './show-card';
 interface ShowPlayerProps {
   player: Player;
   playCard: (card: Card) => void;
-  handOutCard: () => void;
+  takeCard: () => void;
   current: boolean;
 }
 
