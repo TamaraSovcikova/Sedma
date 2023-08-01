@@ -1,27 +1,5 @@
-
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
-import { InitialPage } from './pages/initial-page';
-import { LobbyPage } from './pages/lobby-page';
-import { TablePage } from './pages/table-page';
-
-const router = createBrowserRouter([
-  {
-    path: '/',
-    element: <InitialPage />,
-  },
-  {
-    path: '/lobby',
-    element: <LobbyPage />,
-  },
-  {
-    path: '/table/:id',
-    element: <TablePage />,
-  },
-]);
-=======
-import { useState } from 'react';
-import { Table } from './components/table';
 import { Card, Player, Table as TableType } from './types';
+import AppRouter from './routes/router';
 
 function createPlayer(name: string): Player {
   return {
@@ -32,15 +10,15 @@ function createPlayer(name: string): Player {
 
 function createTable(): TableType {
   const d: Card[] = [];
-  const suits: Card['suit'][] = ['spades', 'hearts', 'diamonds', 'clubs'];
+  const suits: Card['suit'][] = ['heart', 'leaf', 'bell', 'acorn'];
   const faces: Card['face'][] = [
     'seven',
     'eight',
     'nine',
     'ten',
-    'jack',
-    'queen',
     'king',
+    'upper',
+    'lower',
     'ace',
   ];
   for (const suit of suits) {
@@ -61,11 +39,10 @@ function createTable(): TableType {
   };
 }
 
-
 export function App() {
   return (
     <div>
-      <RouterProvider router={router} />
+      <AppRouter />
     </div>
   );
 }
