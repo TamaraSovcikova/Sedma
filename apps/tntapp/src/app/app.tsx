@@ -1,5 +1,6 @@
 import { Card, Player, Table as TableType } from './types';
 import AppRouter from './routes/router';
+import { v4 as uuidv4 } from 'uuid';
 
 function createPlayer(name: string): Player {
   return {
@@ -23,7 +24,12 @@ function createTable(): TableType {
   ];
   for (const suit of suits) {
     for (const face of faces) {
-      d.push({ suit, face });
+      const card: Card = {
+        id: uuidv4(),
+        suit,
+        face,
+      };
+      d.push(card);
     }
   }
 
@@ -48,3 +54,5 @@ export function App() {
 }
 
 export default App;
+
+//TODO: Look at creating table and sending client to table page

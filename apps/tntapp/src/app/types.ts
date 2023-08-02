@@ -1,6 +1,7 @@
 export interface Card {
   suit: 'heart' | 'leaf' | 'acorn' | 'bell';
   face: 'seven' | 'eight' | 'nine' | 'ten' | 'lower' | 'upper' | 'king' | 'ace';
+  id: string;
 }
 
 export interface Player {
@@ -9,7 +10,7 @@ export interface Player {
 }
 
 export interface Table {
-  players: Player[];  
-  deck: Card[];  
+  players: Player[];
+  deck: Card[];
   discard: Card[];
 }

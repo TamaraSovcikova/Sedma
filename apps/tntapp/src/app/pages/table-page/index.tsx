@@ -43,7 +43,12 @@ export function TablePage() {
           <div className="player body"></div>
           <div className="name">{data.players[0]}</div>
           <div className="on-chair last-played-card">
-            <ShowCard card={data.lastPlayedCards[0]} size="small" />
+            <ShowCard
+              key="lastPCard1"
+              onPlay={handlePlayCard}
+              card={data.lastPlayedCards[0]}
+              size="small"
+            />
           </div>
         </div>
         <div className="chair left">
@@ -51,7 +56,12 @@ export function TablePage() {
           <div className="player body"></div>
           <div className="name">{data.players[1]}</div>
           <div className="on-chair last-played-card">
-            <ShowCard card={data.lastPlayedCards[1]} size="small" />
+            <ShowCard
+              key="lastPCard2"
+              onPlay={handlePlayCard}
+              card={data.lastPlayedCards[1]}
+              size="small"
+            />
           </div>
         </div>
         <div className="chair right">
@@ -59,7 +69,12 @@ export function TablePage() {
           <div className="player body"></div>
           <div className="name">{data.players[2]}</div>
           <div className="on-chair last-played-card">
-            <ShowCard card={data.lastPlayedCards[2]} size="small" />
+            <ShowCard
+              key="lastPCard3"
+              onPlay={handlePlayCard}
+              card={data.lastPlayedCards[2]}
+              size="small"
+            />
           </div>
         </div>
         <div className="chair bottom">
@@ -70,7 +85,12 @@ export function TablePage() {
       </div>
       <div className="cards">
         {data.hand.map((card) => (
-          <ShowCard onPlay={handlePlayCard} card={card} size="large" />
+          <ShowCard
+            key={card.id}
+            onPlay={handlePlayCard}
+            card={card}
+            size="large"
+          />
         ))}
       </div>
     </div>

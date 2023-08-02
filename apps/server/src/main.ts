@@ -1,5 +1,5 @@
 import express from 'express';
-
+import cors from 'cors';
 const host = process.env.HOST ?? 'localhost';
 const port = process.env.PORT ? Number(process.env.PORT) : 3000;
 
@@ -8,6 +8,11 @@ const app = express();
 import bodyParser from 'body-parser';
 
 app.use(bodyParser.json());
+app.use(
+  cors({
+    origin: 'http://localhost:4200',
+  })
+);
 
 app.get('/api', (req, res) => {
   res.json({ message: 'Hello API' });
