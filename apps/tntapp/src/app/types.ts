@@ -13,4 +13,5 @@ export interface Table {
   players: Player[];
   deck: Card[];
   discard: Card[];
+  tableId: string;
 }

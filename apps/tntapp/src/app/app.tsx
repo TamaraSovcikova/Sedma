@@ -2,14 +2,14 @@ import { Card, Player, Table as TableType } from './types';
 import AppRouter from './routes/router';
 import { v4 as uuidv4 } from 'uuid';
 
-function createPlayer(name: string): Player {
+export function createPlayer(name: string): Player {
   return {
     name,
     hand: [],
   };
 }
 
-function createTable(): TableType {
+export function createTable(id: string): TableType {
   const d: Card[] = [];
   const suits: Card['suit'][] = ['heart', 'leaf', 'bell', 'acorn'];
   const faces: Card['face'][] = [
@@ -42,6 +42,7 @@ function createTable(): TableType {
     ],
     discard: [],
     deck: d,
+    tableId: id,
   };
 }
 

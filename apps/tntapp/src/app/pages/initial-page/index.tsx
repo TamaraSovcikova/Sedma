@@ -1,19 +1,32 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { createTable } from '../../app';
 import '../../styles/inicial-page.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { useTableContext } from '../../context/tableContext';
 
 export function InitialPage() {
   const [tableID, setTableID] = useState<string>('');
   const [error, setError] = useState<boolean>(false);
   const navigate = useNavigate();
-  console.log(tableID);
+  const [, setTableIDs] = useTableContext();
+  const [tableIDs] = useTableContext();
 
   const handleCreateTable = () => {
     const currentDate = new Date();
     const randomNum = Math.floor(Math.random() * 1000000);
     const newTableID = currentDate.toISOString() + '_' + randomNum.toString();
-    //createTable(newTableID);
+    createTable(newTableID);
+    console.log(`Created new table with id: ${tableID}`);
+
+    setTableIDs((prevTableIDs) => [...prevTableIDs, newTableID]);
+    console.log('Added the table to the group:');
+    //temporary
+
+    tableIDs.forEach((element) => {
+      console.log(element);
+    });
+
     navigate(`/table/${newTableID}`);
   };
 
@@ -25,9 +38,7 @@ export function InitialPage() {
     }
   };
 
-  const tableIDExists = (id: string) => {
-    return false;
-  };
+  const tableIDExists = (id: string) => tableIDs.includes(id);
 
   return (
     <div className="container p-0">
