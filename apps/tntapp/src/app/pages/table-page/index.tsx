@@ -24,7 +24,7 @@ interface ChairProps {
 function Chair(props: ChairProps) {
   const { chairPosition, playerName, onPlay, lastPlayedCard } = props;
   return (
-    <div className={'chair' + { chairPosition }}>
+    <div className={`chair ${chairPosition}`}>
       <div className="player on-chair"></div>
       <div className="player body"></div>
       <div className="name">{playerName}</div>
@@ -102,3 +102,12 @@ export function TablePage() {
     </div>
   );
 }
+
+/*
+playCard
+pass
+newGame
+
+
+
+*/
