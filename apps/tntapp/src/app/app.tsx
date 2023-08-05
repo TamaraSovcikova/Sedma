@@ -32,7 +32,6 @@ export function createTable(id: string): TableType {
       d.push(card);
     }
   }
-
   return {
     players: [
       createPlayer('Player 1'),
