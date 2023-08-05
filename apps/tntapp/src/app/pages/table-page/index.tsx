@@ -13,6 +13,33 @@ interface TableData {
   hand: Card[];
   lastPlayedCards: Card[];
 }
+
+interface ChairProps {
+  chairPosition: string;
+  playerName: string;
+  onPlay: (c: Card) => void;
+  lastPlayedCard: Card;
+}
+
+function Chair(props: ChairProps) {
+  const { chairPosition, playerName, onPlay, lastPlayedCard } = props;
+  return (
+    <div className={'chair' + { chairPosition }}>
+      <div className="player on-chair"></div>
+      <div className="player body"></div>
+      <div className="name">{playerName}</div>
+      <div className="on-chair last-played-card">
+        <ShowCard
+          key="lastPCard1"
+          onPlay={onPlay}
+          card={lastPlayedCard}
+          size="small"
+        />
+      </div>
+    </div>
+  );
+}
+
 export function TablePage() {
   const params = useParams();
   const id = params.id;
@@ -38,45 +65,24 @@ export function TablePage() {
         <h1 className="name-header">{data.players[3]}</h1>
       </div>
       <div className="table">
-        <div className="chair top">
-          <div className="player on-chair"></div>
-          <div className="player body"></div>
-          <div className="name">{data.players[0]}</div>
-          <div className="on-chair last-played-card">
-            <ShowCard
-              key="lastPCard1"
-              onPlay={handlePlayCard}
-              card={data.lastPlayedCards[0]}
-              size="small"
-            />
-          </div>
-        </div>
-        <div className="chair left">
-          <div className="player on-chair"></div>
-          <div className="player body"></div>
-          <div className="name">{data.players[1]}</div>
-          <div className="on-chair last-played-card">
-            <ShowCard
-              key="lastPCard2"
-              onPlay={handlePlayCard}
-              card={data.lastPlayedCards[1]}
-              size="small"
-            />
-          </div>
-        </div>
-        <div className="chair right">
-          <div className="player on-chair"></div>
-          <div className="player body"></div>
-          <div className="name">{data.players[2]}</div>
-          <div className="on-chair last-played-card">
-            <ShowCard
-              key="lastPCard3"
-              onPlay={handlePlayCard}
-              card={data.lastPlayedCards[2]}
-              size="small"
-            />
-          </div>
-        </div>
+        <Chair
+          chairPosition="top"
+          playerName={data.players[0]}
+          onPlay={handlePlayCard}
+          lastPlayedCard={data.lastPlayedCards[0]}
+        />
+        <Chair
+          chairPosition="left"
+          playerName={data.players[1]}
+          onPlay={handlePlayCard}
+          lastPlayedCard={data.lastPlayedCards[1]}
+        />
+        <Chair
+          chairPosition="right"
+          playerName={data.players[2]}
+          onPlay={handlePlayCard}
+          lastPlayedCard={data.lastPlayedCards[2]}
+        />
         <div className="chair bottom">
           <div className="player on-chair"></div>
           <div className="player body"></div>
