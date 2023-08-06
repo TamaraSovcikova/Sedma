@@ -3,6 +3,7 @@ import cors from 'cors';
 import bodyParser from 'body-parser';
 import { createWebSocketServer } from './lib/wsServer';
 import { createRoutes } from './routes/routes';
+import { createDummyData } from './lib/dummy-data';
 
 const host = process.env.HOST ?? 'localhost';
 const port = process.env.PORT ? Number(process.env.PORT) : 3000;
@@ -18,6 +19,7 @@ app.use(
 );
 
 createRoutes(app);
+createDummyData();
 
 app.listen(port, host, () => {
   console.log(`[ ready ] http://${host}:${port}`);
