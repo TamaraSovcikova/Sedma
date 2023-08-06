@@ -1,11 +1,19 @@
+import { error } from 'console';
+import { getTable } from '../lib/game';
+
 export function createRoutes(app: any) {
   app.get('/api', (req, res) => {
     res.json({ message: 'Hello API' });
   });
-  app.post('/api/login', (req, res) => {
-    console.log(req.body);
-    res.send('Client logged in');
+  app.post('/api/table/Lobby', (req, res) => {
+    const tableId = req.body.tableId;
+    const table = getTable(tableId);
+    if (table !== null) {
+      const response = table.players.map((p) => p.name);
+      res.json(response);
+    } else res.send(404);
   });
+
   app.post('/table/:id', (req, res) => {
     const data = req.body;
     const params = req.params;

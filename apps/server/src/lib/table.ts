@@ -1,4 +1,11 @@
-import { Card, Player, Table } from "./types";
+import { Card, Player, Table } from './types';
+
+export function addPlayer(name: string, table: Table, seatPosition: number) {
+  const player = createPlayer(name);
+  const seat = table.players[seatPosition];
+  if (seat === null) table.players[seatPosition] = player;
+  else throw new Error('seat position is occupied');
+}
 
 function createPlayer(name: string): Player {
   return {
@@ -40,7 +47,5 @@ export function createTable(): Table {
     discard: [],
     deck: deck,
     id: '111',
-  }
+  };
 }
-
-
