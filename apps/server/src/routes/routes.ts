@@ -1,17 +1,28 @@
-import { error } from 'console';
 import { getTable } from '../lib/game';
+import { addPlayer } from '../lib/table';
 
 export function createRoutes(app: any) {
   app.get('/api', (req, res) => {
     res.json({ message: 'Hello API' });
   });
-  app.post('/api/table/Lobby', (req, res) => {
-    const tableId = req.body.tableId;
+  app.get('/table/Lobby/:id', (req, res) => {
+    const params = req.params;
+    const tableId = params.id;
     const table = getTable(tableId);
+    console.log('found table: ', table);
     if (table !== null) {
       const response = table.players.map((p) => p.name);
       res.json(response);
-    } else res.send(404);
+    } else res.status(404);
+  });
+  app.post('/table/Lobby/:id', (req, res) => {
+    const data = req.body;
+    const params = req.params;
+    const tableId = params.id;
+    const { username, seatId } = data;
+    const table = getTable(tableId);
+    addPlayer(username, table, seatId - 1);
+    res.status(200);
   });
 
   app.post('/table/:id', (req, res) => {
@@ -34,8 +45,9 @@ export function createRoutes(app: any) {
     const params = req.params;
     const id = params.id;
     console.log(id);
-    //const table = getTable(id);
-    //use the data from the table to set data
+    const table = getTable(id);
+    const players = table.players.map((p) => p.name);
+    const lastPlayedCards = table.players.map((p) => p.lastPlayedCard);
 
     const data = {
       players: ['Tim', 'Pim', 'Jim', 'Kim'],
