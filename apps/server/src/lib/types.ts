@@ -6,11 +6,12 @@ export interface Card {
 export interface Player {
   name: string;
   hand: Card[];
+  lastPlayedCard?: Card;
 }
 
 export interface Table {
-  players: Player[];  
-  deck: Card[];  
+  players: Player[];
+  deck: Card[];
   discard: Card[];
   id: string;
 }

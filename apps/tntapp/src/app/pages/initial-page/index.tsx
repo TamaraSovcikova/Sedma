@@ -3,14 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import { createTable } from '../../app';
 import '../../styles/inicial-page.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { useTableContext } from '../../context/tableContext';
 
 export function InitialPage() {
   const [tableID, setTableID] = useState<string>('');
   const [error, setError] = useState<boolean>(false);
   const navigate = useNavigate();
-  const [, setTableIDs] = useTableContext();
-  const [tableIDs] = useTableContext();
 
   const handleCreateTable = () => {
     const currentDate = new Date();
@@ -19,26 +16,12 @@ export function InitialPage() {
     createTable(newTableID);
     console.log(`Created new table with id: ${tableID}`);
 
-    setTableIDs((prevTableIDs) => [...prevTableIDs, newTableID]);
-    console.log('Added the table to the group:');
-    //temporary
-
-    tableIDs.forEach((element) => {
-      console.log(element);
-    });
-
     navigate(`/table/${newTableID}`);
   };
 
   const joinGame = () => {
-    if (tableIDExists(tableID)) {
-      navigate(`/table/${tableID}`);
-    } else {
-      setError(true);
-    }
+    navigate(`/table/lobby/${tableID}`);
   };
-
-  const tableIDExists = (id: string) => tableIDs.includes(id);
 
   return (
     <div className="container p-0">

@@ -6,7 +6,7 @@ export function createDummyData() {
   const table2 = createTable('table2');
   const table3 = createTable('table3');
 
-  addPlayer('Tinky Winky', table2, 1);
+  addPlayer('Tinky-Winky', table2, 1);
   addPlayer('Dipsy', table2, 3);
   addPlayer('Lalla', table3, 0);
   addPlayer('Poe', table3, 1);

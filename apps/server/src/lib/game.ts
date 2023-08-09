@@ -1,4 +1,4 @@
-import { Table } from './types';
+import { Player, Table } from './types';
 
 let tables: Table[] = [];
 
@@ -8,9 +8,13 @@ export function getTable(id: string): Table {
 }
 
 export function createTable(id: string): Table {
+  const emptyPlayer: Player = {
+    name: '',
+    hand: [],
+  };
   const newTable = {
     id: id,
-    players: [null, null, null, null],
+    players: [emptyPlayer, emptyPlayer, emptyPlayer, emptyPlayer],
     lastPlayedCards: null,
     deck: [],
     discard: [],

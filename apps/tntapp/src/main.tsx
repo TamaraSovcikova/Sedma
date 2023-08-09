@@ -1,6 +1,6 @@
 import { StrictMode } from 'react';
 import * as ReactDOM from 'react-dom/client';
-import { TableProvider } from './app/context/tableContext';
+import { UserContextProvider } from './app/components/auth/auth-context';
 import App from './app/app';
 
 const root = ReactDOM.createRoot(
@@ -8,8 +8,8 @@ const root = ReactDOM.createRoot(
 );
 root.render(
   <StrictMode>
-    <TableProvider>
+    <UserContextProvider>
       <App />
-    </TableProvider>
+    </UserContextProvider>
   </StrictMode>
 );

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { ShowCard } from '../../components/show-card';
-import { getGlobalApp } from '../../global';
+import { getServerUrl } from '../../global';
 import { fetchData } from '../../lib/api';
 import { Card } from '../../types';
 import '../../styles/cardStyle.css';
@@ -48,12 +48,12 @@ export function TablePage() {
   console.log('data', data);
 
   useEffect(() => {
-    if (id) fetchData(getGlobalApp().tableUrl(id)).then((d) => setData(d));
+    if (id) fetchData(getServerUrl().tableUrl(id)).then((d) => setData(d));
   }, [id]);
 
   const handlePlayCard = (c: Card) => {
     if (!id) return;
-    postData(getGlobalApp().tableUrl(id), { ...c, cmd: 'Play' });
+    postData(getServerUrl().tableUrl(id), { ...c, cmd: 'Play' });
 
     console.log(c, 'handlePlayCard');
   };
