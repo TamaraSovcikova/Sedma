@@ -3,6 +3,7 @@ import '../../styles/table.lobby-page.css';
 import { useNavigate, useParams } from 'react-router-dom';
 import { fetchData, postData } from '../../lib/api';
 import { getServerUrl } from '../../global';
+import { useAuthToken } from '../../components/auth/auth-context';
 
 interface Seat {
   id: number;
@@ -45,6 +46,7 @@ export function LobbyPage() {
   const params = useParams();
   const navigate = useNavigate();
   const id = params.id ?? '0';
+  const token = useAuthToken();
 
   useEffect(() => {
     if (id)
@@ -90,7 +92,7 @@ export function LobbyPage() {
     setSeatStatus(seatId, { name: username, taken: true });
     setSelectedSeatId(seatId);
 
-    postData(getServerUrl().lobbyUrl(id), { username, seatId });
+    postData(getServerUrl().lobbyUrl(id), { username, seatId }, token);
   };
 
   const setSeatStatus = (

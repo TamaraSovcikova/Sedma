@@ -1,7 +1,16 @@
 import { getTable } from '../lib/game';
 import { addPlayer } from '../lib/table';
 
+function extractAuthorization(req, res, next) {
+  const token = req.get('authorization');
+  console.log(token);
+  req.user = { id: token };
+  next();
+}
+
 export function createRoutes(app: any) {
+  app.use(extractAuthorization);
+
   app.get('/api', (req, res) => {
     res.json({ message: 'Hello API' });
   });
