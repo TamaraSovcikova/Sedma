@@ -1,6 +1,6 @@
 export async function fetchData(url: RequestInfo | URL, token?: string) {
   const response = await fetch(url, {
-    headers: [['authorization: ', token ?? '']],
+    headers: [['authorization', token ?? 'x']],
   });
   const data = await response.json();
   return data;
@@ -10,7 +10,7 @@ export async function postData(url: string, data: any, token?: string) {
     method: 'POST',
     headers: [
       ['Content-Type', 'application/json'],
-      ['authorization', token ?? ''],
+      ['authorization', token ?? 'x'],
     ],
     body: JSON.stringify(data),
   });

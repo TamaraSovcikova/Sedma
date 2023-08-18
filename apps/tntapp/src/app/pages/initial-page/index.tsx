@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { createTable } from '../../app';
 import '../../styles/inicial-page.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
@@ -13,7 +12,6 @@ export function InitialPage() {
     const currentDate = new Date();
     const randomNum = Math.floor(Math.random() * 1000000);
     const newTableID = currentDate.toISOString() + '_' + randomNum.toString();
-    createTable(newTableID);
     console.log(`Created new table with id: ${tableID}`);
 
     navigate(`/table/${newTableID}`);

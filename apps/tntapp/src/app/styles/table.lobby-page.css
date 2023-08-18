@@ -52,7 +52,7 @@
   cursor: not-allowed;
 }
 
-button {
+.lobby-button {
   margin-top: 100px;
   padding: 5px 10px;
   background-color: #d3d7db;

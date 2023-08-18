@@ -11,6 +11,7 @@ export function createTable(id: string): Table {
   const emptyPlayer: Player = {
     name: '',
     hand: [],
+    id: '',
   };
   const newTable = {
     id: id,

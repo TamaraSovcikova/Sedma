@@ -8,6 +8,7 @@ export interface Player {
   name: string;
   hand: Card[];
   lastPlayedCard?: Card;
+  id: string;
 }
 
 export interface Table {

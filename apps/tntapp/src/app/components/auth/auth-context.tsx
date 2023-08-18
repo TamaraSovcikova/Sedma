@@ -1,4 +1,3 @@
-import { v4 as uuidv4 } from 'uuid';
 import React, {
   ReactNode,
   createContext,
@@ -8,34 +7,57 @@ import React, {
 } from 'react';
 
 interface UserContextType {
-  token: string;
-  setToken: (token: string) => void;
+  token?: string;
+  setToken: (token?: string) => void;
 }
-export const useAuthToken = () => {
+export const useAuth = () => {
   const context = useContext(UserContext);
-  return context?.token;
+  return (
+    context ?? {
+      token: undefined,
+      setToken: (token?: string) => {
+        /*empty*/
+      },
+    }
+  );
 };
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
+function storeToken(token: string) {
+  localStorage.setItem('userToken', token);
+}
+
+function deleteToken() {
+  localStorage.removeItem('userToken');
+}
+
 export const UserContextProvider: React.FC<{
   children: ReactNode | ReactNode[];
 }> = ({ children }) => {
-  const [token, setToken] = useState<string>('');
+  const [token, setToken] = useState<string>();
 
   useEffect(() => {
     const storedToken = localStorage.getItem('userToken');
     if (storedToken) {
       setToken(storedToken);
-    } else {
-      const newToken = uuidv4();
-      setToken(newToken);
-      localStorage.setItem('userToken', newToken);
     }
   }, []);
 
   return (
-    <UserContext.Provider value={{ token, setToken }}>
+    <UserContext.Provider
+      value={{
+        token,
+        setToken: (token?: string) => {
+          setToken(token);
+          if (token) {
+            storeToken(token);
+          } else {
+            deleteToken();
+          }
+        },
+      }}
+    >
       {children}
     </UserContext.Provider>
   );

@@ -1,15 +1,15 @@
 import { getTable } from '../lib/game';
 import { addPlayer } from '../lib/table';
 
-function extractAuthorization(req, res, next) {
+function extractAuth(req, res, next) {
   const token = req.get('authorization');
-  console.log(token);
+  console.log('token', token);
   req.user = { id: token };
   next();
 }
 
 export function createRoutes(app: any) {
-  app.use(extractAuthorization);
+  app.use(extractAuth); //middlewere
 
   app.get('/api', (req, res) => {
     res.json({ message: 'Hello API' });
@@ -30,8 +30,8 @@ export function createRoutes(app: any) {
     const tableId = params.id;
     const { username, seatId } = data;
     const table = getTable(tableId);
-    addPlayer(username, table, seatId - 1);
-    res.status(200);
+    const player = addPlayer(username, table, seatId - 1);
+    res.status(200).json({ id: player.id });
   });
 
   app.post('/table/:id', (req, res) => {
@@ -54,6 +54,8 @@ export function createRoutes(app: any) {
     const params = req.params;
     const id = params.id;
     console.log(id);
+    ('');
+    const userId = req.user.token;
     const table = getTable(id);
     const players = table.players.map((p) => p.name);
     const lastPlayedCards = table.players.map((p) => p.lastPlayedCard);

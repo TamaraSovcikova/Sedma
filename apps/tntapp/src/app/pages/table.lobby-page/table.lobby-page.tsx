@@ -3,7 +3,7 @@ import '../../styles/table.lobby-page.css';
 import { useNavigate, useParams } from 'react-router-dom';
 import { fetchData, postData } from '../../lib/api';
 import { getServerUrl } from '../../global';
-import { useAuthToken } from '../../components/auth/auth-context';
+import { useAuth } from '../../components/auth/auth-context';
 
 interface Seat {
   id: number;
@@ -46,7 +46,15 @@ export function LobbyPage() {
   const params = useParams();
   const navigate = useNavigate();
   const id = params.id ?? '0';
-  const token = useAuthToken();
+  const { token, setToken } = useAuth();
+  const [newtoken, setNewToken] = useState<string>();
+  //MADE
+  useEffect(() => {
+    console.log('lobby page token: ', token);
+    if (token) {
+      navigate(`/table/${id}`);
+    }
+  }, [navigate, id, token]);
 
   useEffect(() => {
     if (id)
@@ -80,7 +88,7 @@ export function LobbyPage() {
     setUsername(event.target.value);
   };
 
-  const handleSeatClick = (seatId: number) => {
+  const handleSeatClick = async (seatId: number) => {
     //first has to check if not taken , then clear the previous or at least try
     console.log(seatId);
     if (!seats[seatId - 1].taken)
@@ -92,7 +100,14 @@ export function LobbyPage() {
     setSeatStatus(seatId, { name: username, taken: true });
     setSelectedSeatId(seatId);
 
-    postData(getServerUrl().lobbyUrl(id), { username, seatId }, token);
+    const result = await postData(
+      getServerUrl().lobbyUrl(id),
+      { username, seatId },
+      token
+    );
+    console.log('result: ', result);
+
+    setNewToken(result.id);
   };
 
   const setSeatStatus = (
@@ -108,7 +123,7 @@ export function LobbyPage() {
 
   const handleContinue = () => {
     console.log(`${username} just chose a seat and is ready to play`);
-    navigate(`/table/${id}`);
+    setToken(newtoken);
   };
 
   return (
@@ -146,7 +161,9 @@ export function LobbyPage() {
           />
         </div>
       </div>
-      <button onClick={handleContinue}>Continue</button>
+      <button className="lobby-button" onClick={handleContinue}>
+        Continue
+      </button>
     </div>
   );
 }
