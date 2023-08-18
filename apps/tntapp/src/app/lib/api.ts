@@ -1,11 +1,18 @@
-export async function fetchData(url: RequestInfo | URL, token?: string) {
+export async function fetchData(
+  url: RequestInfo | URL,
+  token: string | undefined
+) {
   const response = await fetch(url, {
     headers: [['authorization', token ?? 'x']],
   });
   const data = await response.json();
   return data;
 }
-export async function postData(url: string, data: any, token?: string) {
+export async function postData(
+  url: string,
+  data: any,
+  token: string | undefined
+) {
   const response = await fetch(url, {
     method: 'POST',
     headers: [

@@ -7,9 +7,10 @@ import { Card } from '../../types';
 import '../../styles/cardStyle.css';
 import '../../styles/table-page.css';
 import { postData } from '../../lib/api';
+import { useAuth } from '../../components/auth/auth-context';
 
 interface TableData {
-  players: string[];
+  players: { name: string; id: string | undefined }[];
   hand: Card[];
   lastPlayedCards: Card[];
 }
@@ -45,41 +46,52 @@ export function TablePage() {
   const id = params.id;
 
   const [data, setData] = useState<TableData>();
+  const [playerIdx, setPlayerIdx] = useState<number>();
   console.log('data', data);
+  const { token } = useAuth();
 
   useEffect(() => {
-    if (id) fetchData(getServerUrl().tableUrl(id)).then((d) => setData(d));
-  }, [id]);
+    if (id) {
+      console.log('this is the token: ', token);
+      fetchData(getServerUrl().tableUrl(id), token).then((d: TableData) => {
+        setData(d);
+        const playerIdx = d.players.findIndex((p) => p.id === token);
+        if (playerIdx >= 0) {
+          setPlayerIdx(playerIdx);
+        } else setPlayerIdx(undefined);
+      });
+    }
+  }, [id, token]);
 
   const handlePlayCard = (c: Card) => {
     if (!id) return;
-    postData(getServerUrl().tableUrl(id), { ...c, cmd: 'Play' });
+    postData(getServerUrl().tableUrl(id), { ...c, cmd: 'Play' }, token);
 
     console.log(c, 'handlePlayCard');
   };
 
-  if (!data) return null;
+  if (!data || playerIdx === undefined) return <div>Unknown Player</div>;
   return (
     <div>
       <div className="header">
-        <h1 className="name-header">{data.players[3]}</h1>
+        <h1 className="name-header">{data.players[playerIdx].name}</h1>
       </div>
       <div className="table">
         <Chair
           chairPosition="top"
-          playerName={data.players[0]}
+          playerName={data.players[(playerIdx + 2) % 4].name}
           onPlay={handlePlayCard}
           lastPlayedCard={data.lastPlayedCards[0]}
         />
         <Chair
           chairPosition="left"
-          playerName={data.players[1]}
+          playerName={data.players[(playerIdx + 1) % 4].name}
           onPlay={handlePlayCard}
           lastPlayedCard={data.lastPlayedCards[1]}
         />
         <Chair
           chairPosition="right"
-          playerName={data.players[2]}
+          playerName={data.players[(playerIdx + 3) % 4].name}
           onPlay={handlePlayCard}
           lastPlayedCard={data.lastPlayedCards[2]}
         />

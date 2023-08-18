@@ -31,6 +31,7 @@ export function createRoutes(app: any) {
     const { username, seatId } = data;
     const table = getTable(tableId);
     const player = addPlayer(username, table, seatId - 1);
+    console.log('adding player table: ', table, getTable(tableId));
     res.status(200).json({ id: player.id });
   });
 
@@ -53,28 +54,19 @@ export function createRoutes(app: any) {
   app.get('/table/:id', (req, res) => {
     const params = req.params;
     const id = params.id;
-    console.log(id);
-    ('');
-    const userId = req.user.token;
-    const table = getTable(id);
-    const players = table.players.map((p) => p.name);
-    const lastPlayedCards = table.players.map((p) => p.lastPlayedCard);
 
-    const data = {
-      players: ['Tim', 'Pim', 'Jim', 'Kim'],
-      lastPlayedCards: [
-        { suit: 'heart', face: 'seven' },
-        { suit: 'heart', face: 'king' },
-        { suit: 'acorn', face: 'eight' },
-        { suit: 'bell', face: 'ace' },
-      ],
-      hand: [
-        { suit: 'heart', face: 'seven' },
-        { suit: 'heart', face: 'king' },
-        { suit: 'acorn', face: 'eight' },
-        { suit: 'bell', face: 'ace' },
-      ],
-    };
+    console.log('req.user:', req.user);
+    const userId = req.user.id;
+    const table = getTable(id);
+    console.log('fetching this table:', table, id);
+    const players = table.players.map((p) => ({ name: p.name, id: p.id }));
+    const lastPlayedCards = table.players.map((p) => p.lastPlayedCard);
+    console.log('table:', table, userId);
+    const player = table.players.find((p) => p.id == userId);
+    const hand = player.hand;
+    const data = { players, lastPlayedCards, hand };
+    console.log('table data:', data);
+
     res.send(data);
   });
 }

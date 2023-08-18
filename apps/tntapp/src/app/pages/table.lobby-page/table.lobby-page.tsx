@@ -58,7 +58,7 @@ export function LobbyPage() {
 
   useEffect(() => {
     if (id)
-      fetchData(getServerUrl().lobbyUrl(id))
+      fetchData(getServerUrl().lobbyUrl(id), token)
         .then((d: string[]) => {
           const seats = d.map((n, idx) => {
             const seat = {
@@ -72,7 +72,7 @@ export function LobbyPage() {
           setSeats(seats);
         })
         .catch((err) => console.log('Table does not exist', err));
-  }, [id]);
+  }, [id, token]);
 
   const [username, setUsername] = useState('');
   //TODO: remember to replace placeholder with the placeholder got from joining the table
@@ -93,7 +93,6 @@ export function LobbyPage() {
     console.log(seatId);
     if (!seats[seatId - 1].taken)
       if (selectedSeatId !== null) {
-        //TODO {
         setSeatStatus(selectedSeatId, { name: '', taken: false });
       }
 
@@ -106,7 +105,7 @@ export function LobbyPage() {
       token
     );
     console.log('result: ', result);
-
+    //will set a token
     setNewToken(result.id);
   };
 
@@ -149,13 +148,13 @@ export function LobbyPage() {
         <div className="teams-container">
           <Team
             teamName="Team A"
-            seats={seats.slice(0, 2)}
+            seats={[seats[0], seats[2]]}
             selectedSeatId={selectedSeatId}
             onSeatClick={handleSeatClick}
           />
           <Team
             teamName="Team B"
-            seats={seats.slice(2)}
+            seats={[seats[1], seats[3]]}
             selectedSeatId={selectedSeatId}
             onSeatClick={handleSeatClick}
           />

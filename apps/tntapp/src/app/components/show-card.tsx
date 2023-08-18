@@ -18,6 +18,8 @@ export function ShowCard(props: ShowCardProps) {
   const { card, onPlay } = props;
   const [sizeX, sizeY] = props.size === 'small' ? [20, 30] : [80, 110];
 
+  if (!card) return null;
+
   return (
     <div
       className="card"
