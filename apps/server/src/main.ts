@@ -4,9 +4,11 @@ import bodyParser from 'body-parser';
 import { createWebSocketServer } from './lib/wsServer';
 import { createRoutes } from './routes/routes';
 import { createDummyData } from './lib/dummy-data';
+import { getConfig } from './global';
 
-const host = process.env.HOST ?? 'localhost';
-const port = process.env.PORT ? Number(process.env.PORT) : 3000;
+const host = 'localhost';
+const port = 3000;
+const clientUrl = getConfig().clientUrl;
 
 const app = express();
 createWebSocketServer();
@@ -14,7 +16,7 @@ createWebSocketServer();
 app.use(bodyParser.json());
 app.use(
   cors({
-    origin: 'http://localhost:4200',
+    origin: clientUrl, // allow connections only from the client
   })
 );
 
@@ -23,4 +25,5 @@ createDummyData();
 
 app.listen(port, host, () => {
   console.log(`[ ready ] http://${host}:${port}`);
+  console.log(`[ client-url ] ${clientUrl}`);
 });
