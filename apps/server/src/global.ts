@@ -1,3 +1,3 @@
 export const getAppUrl = () => ({
-  clientUrl: 'http://localhost:4200',
+  clientUrl: process.env.CLIENT_APP_URL ?? 'http://localhost:4200',
 });
