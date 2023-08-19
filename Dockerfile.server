@@ -8,10 +8,10 @@ WORKDIR /opt/server
 
 # copy project package files
 COPY package.json .
-COPY yarn.lock .
+COPY package-lock.json .
 
 # install dependencies
-RUN yarn install --production
+RUN npm install --production
 
 # copy server files
 COPY dist/apps/server .

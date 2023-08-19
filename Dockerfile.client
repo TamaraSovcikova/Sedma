@@ -17,7 +17,7 @@ COPY tools/docker-web-server/start.sh ./scripts
 
 # copy app files to nginx default web folder
 WORKDIR /opt/app/html
-COPY dist/apps/client .
+COPY dist/apps/tntapp .
 
 CMD ["/bin/bash", "/opt/app/scripts/start.sh","/opt/app/html"]
 
