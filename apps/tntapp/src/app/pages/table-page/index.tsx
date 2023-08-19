@@ -8,6 +8,7 @@ import '../../styles/cardStyle.css';
 import '../../styles/table-page.css';
 import { postData } from '../../lib/api';
 import { useAuth } from '../../components/auth/auth-context';
+import { Chair } from './components/chair';
 
 interface TableData {
   players: { name: string; id: string | undefined }[];
@@ -15,31 +16,7 @@ interface TableData {
   lastPlayedCards: Card[];
 }
 
-interface ChairProps {
-  chairPosition: string;
-  playerName: string;
-  onPlay: (c: Card) => void;
-  lastPlayedCard: Card;
-}
 
-function Chair(props: ChairProps) {
-  const { chairPosition, playerName, onPlay, lastPlayedCard } = props;
-  return (
-    <div className={`chair ${chairPosition}`}>
-      <div className="player on-chair"></div>
-      <div className="player body"></div>
-      <div className="name">{playerName}</div>
-      <div className="on-chair last-played-card">
-        <ShowCard
-          key="lastPCard1"
-          onPlay={onPlay}
-          card={lastPlayedCard}
-          size="small"
-        />
-      </div>
-    </div>
-  );
-}
 
 export function TablePage() {
   const params = useParams();

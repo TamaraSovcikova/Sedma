@@ -1,0 +1,23 @@
+# Description: Dockerfile for the client
+
+# start from image
+FROM nginx:latest
+
+RUN mkdir -p /opt/app/scripts
+RUN mkdir -p /opt/app/html
+RUN mkdir -p /opt/app/ssl
+
+# copy web server config
+WORKDIR /etc/nginx
+COPY tools/docker-web-server/nginx.conf ./conf.d/default.conf
+
+WORKDIR /opt/app
+COPY tools/docker-web-server/replace_variables.sh ./scripts
+COPY tools/docker-web-server/start.sh ./scripts
+
+# copy app files to nginx default web folder
+WORKDIR /opt/app/html
+COPY dist/apps/client .
+
+CMD ["/bin/bash", "/opt/app/scripts/start.sh","/opt/app/html"]
+
