@@ -11,7 +11,7 @@ const port = 3000;
 const clientUrl = getConfig().clientUrl;
 
 const corsOptions = {
-  origin: clientUrl, // enable access from client app only
+  origin: ['*',clientUrl], // enable access from client app only
   optionsSuccessStatus: 200,
   preflightContinue: false,
   credentials: false,
