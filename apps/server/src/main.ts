@@ -10,15 +10,18 @@ const host = 'localhost';
 const port = 3000;
 const clientUrl = getConfig().clientUrl;
 
+const corsOptions = {
+  origin: clientUrl, // enable access from client app only
+  optionsSuccessStatus: 200,
+};
+
 const app = express();
+
 createWebSocketServer();
 
+app.options('*', cors(corsOptions));
 app.use(bodyParser.json());
-app.use(
-  cors({
-    origin: clientUrl, // allow connections only from the client
-  })
-);
+app.use(cors(corsOptions));
 
 createRoutes(app);
 createDummyData();
