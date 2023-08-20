@@ -23,7 +23,6 @@ const app = express();
 
 createWebSocketServer();
 
-app.options('*', cors(corsOptions));
 app.use(cors(corsOptions));
 app.use(bodyParser.json());
 
