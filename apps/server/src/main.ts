@@ -13,20 +13,24 @@ const clientUrl = getConfig().clientUrl;
 const corsOptions = {
   origin: clientUrl, // enable access from client app only
   optionsSuccessStatus: 200,
+  preflightContinue: false,
+  credentials: false,
 };
+
+console.log('corsOptions', corsOptions);
 
 const app = express();
 
 createWebSocketServer();
 
 app.options('*', cors(corsOptions));
-app.use(bodyParser.json());
 app.use(cors(corsOptions));
+app.use(bodyParser.json());
 
 createRoutes(app);
 createDummyData();
 
 app.listen(port, host, () => {
-  console.log(`[ ready ] http://${host}:${port}`);
-  console.log(`[ client-url ] ${clientUrl}`);
+  console.log(`api listening at http://${host}:${port}`);
+  console.log(`client-url=${clientUrl}`);
 });
