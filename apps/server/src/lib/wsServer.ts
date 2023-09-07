@@ -1,7 +1,7 @@
 import { randomUUID } from 'crypto';
 import ws from 'ws';
 import { getTable } from './game';
-import { Card } from './types';
+import { Card } from './card';
 
 let wss: ws.Server = null;
 
@@ -19,22 +19,30 @@ interface MessageLogin extends MessageBase {
   token: string;
 }
 
-interface TableData {
+export interface TableData {
   players: { name: string; id: string | undefined }[];
   hand: Card[];
   lastPlayedCards: Card[];
 }
 
-interface MessageTableData extends MessageBase {
+export interface MessageTableData extends MessageBase {
   data: TableData;
 }
 
 const clients: Client[] = [];
 
+export function sendMessageToPlayer(
+  playerId: string,
+  message: MessageTableData
+) {
+  const player = clients.find((p) => p.playerId == playerId);
+  if (player) player.ws.send(JSON.stringify(message));
+  else console.log('player not found:', playerId);
+}
+
 export function createWebSocketServer() {
   wss = new ws.Server({ port: 4500 });
   wss.on('connection', (ws) => {
-    const c: Client = { ws, playerId: randomUUID() };
     ws.on('message', (m) => {
       const message = JSON.parse(m.toString()) as MessageBase;
       console.log('messsage recieved:', message);
@@ -52,11 +60,14 @@ export function createWebSocketServer() {
             tableId: loginMessage.tableId,
           };
           ws.send(JSON.stringify(m));
+          return;
         }
 
+        const c: Client = { ws, playerId: player.id };
+        clients.push(c);
         const players = table.players.map((p) => ({ name: p.name, id: p.id }));
         const lastPlayedCards = table.players.map((p) => p.lastPlayedCard);
-        const hand = player.hand;
+        const hand = player.onHand;
         const data: TableData = { players, lastPlayedCards, hand };
         const messageData: MessageTableData = {
           data,
@@ -68,9 +79,8 @@ export function createWebSocketServer() {
         ws.send(JSON.stringify(messageData));
       }
     });
-    clients.push(c);
     ws.on('close', () => {
-      console.log('client has disconnected with ID: ', c.playerId);
+      console.log('client has disconnected');
     });
   });
   console.log('websocket server created :)');
@@ -79,3 +89,5 @@ export function createWebSocketServer() {
 function destroyWebSocketServer() {
   wss.close();
 }
+
+//TODO: delete player duplicates when linking seats

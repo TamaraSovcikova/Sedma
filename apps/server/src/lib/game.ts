@@ -1,4 +1,4 @@
-import { Player, Table } from './types';
+import { Table } from './table';
 
 let tables: Table[] = [];
 
@@ -8,27 +8,10 @@ export function getTable(id: string): Table | null {
 }
 
 export function createTable(id: string): Table {
-  const emptyPlayer: Player = {
-    name: '',
-    hand: [],
-    id: '',
-  };
-  const newTable = {
-    id: id,
-    players: [emptyPlayer, emptyPlayer, emptyPlayer, emptyPlayer],
-    lastPlayedCards: null,
-    deck: [],
-    discard: [],
-  };
+  const newTable = new Table(id);
   tables.push(newTable);
   return newTable;
 }
 export function deleteTable(id: string) {
   tables = tables.filter((table) => table.id !== id);
 }
-// TODO
-// export function playCard(table:Table, player:Player, card:Card): Table{
-//   //get table and play the card
-
-//   return table;
-// }

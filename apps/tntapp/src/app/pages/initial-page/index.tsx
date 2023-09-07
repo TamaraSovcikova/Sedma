@@ -2,19 +2,20 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../../styles/inicial-page.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { postData } from '../../lib/api';
+import { getServerUrl } from '../../global';
+import { useAuth } from '../../components/auth/auth-context';
 
 export function InitialPage() {
   const [tableID, setTableID] = useState<string>('');
   const [error, setError] = useState<boolean>(false);
+  const { token, setToken } = useAuth();
   const navigate = useNavigate();
 
   const handleCreateTable = () => {
-    const currentDate = new Date();
-    const randomNum = Math.floor(Math.random() * 1000000);
-    const newTableID = currentDate.toISOString() + '_' + randomNum.toString();
-    console.log(`Created new table with id: ${tableID}`);
-
-    navigate(`/table/${newTableID}`);
+    postData(getServerUrl().newtableUrl, {}, token).then((id) =>
+      navigate(`/table/lobby/${id}`)
+    );
   };
 
   const joinGame = () => {

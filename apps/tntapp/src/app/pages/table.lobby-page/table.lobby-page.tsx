@@ -48,7 +48,7 @@ export function LobbyPage() {
   const id = params.id ?? '0';
   const { token, setToken } = useAuth();
   const [newtoken, setNewToken] = useState<string>();
-  //MADE
+
   useEffect(() => {
     console.log('lobby page token: ', token);
     if (token) {
@@ -75,7 +75,6 @@ export function LobbyPage() {
   }, [id, token]);
 
   const [username, setUsername] = useState('');
-  //TODO: remember to replace placeholder with the placeholder got from joining the table
   const [seats, setSeats] = useState<Seat[]>([
     { id: 1, name: '', taken: false },
     { id: 2, name: '', taken: false },
@@ -105,7 +104,7 @@ export function LobbyPage() {
       token
     );
     console.log('result: ', result);
-    //will set a token
+
     setNewToken(result.id);
   };
 

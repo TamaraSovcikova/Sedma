@@ -1,4 +1,5 @@
-import { getTable } from '../lib/game';
+import { randomUUID } from 'crypto';
+import { createTable, getTable } from '../lib/game';
 import { addPlayer } from '../lib/table';
 
 function extractAuth(req, res, next) {
@@ -31,8 +32,18 @@ export function createRoutes(app: any) {
     const { username, seatId } = data;
     const table = getTable(tableId);
     const player = addPlayer(username, table, seatId - 1);
-    console.log('adding player table: ', table, getTable(tableId));
+    console.log('adding player to table: ', table, getTable(tableId));
+
     res.status(200).json({ id: player.id });
+  });
+
+  app.post('/table/new', (req, res) => {
+    //create table
+    const newTableID = randomUUID();
+    createTable(newTableID);
+    res.json(newTableID);
+
+    console.log(`Created new table}`);
   });
 
   app.post('/table/:id', (req, res) => {
@@ -64,7 +75,7 @@ export function createRoutes(app: any) {
     const lastPlayedCards = table.players.map((p) => p.lastPlayedCard);
     console.log('table:', table, userId);
     const player = table.players.find((p) => p.id == userId);
-    const hand = player.hand;
+    const hand = player.onHand;
     const data = { players, lastPlayedCards, hand };
     console.log('table data:', data);
 
