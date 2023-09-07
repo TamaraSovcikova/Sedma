@@ -8,6 +8,7 @@ import '../../styles/cardStyle.css';
 import '../../styles/table-page.css';
 import { postData } from '../../lib/api';
 import { useAuth } from '../../components/auth/auth-context';
+import useWebSocket from 'react-use-websocket';
 
 interface TableData {
   players: { name: string; id: string | undefined }[];
@@ -20,6 +21,22 @@ interface ChairProps {
   playerName: string;
   onPlay: (c: Card) => void;
   lastPlayedCard: Card;
+}
+interface MessageBase {
+  type: 'login' | 'playCard' | 'tableData' | 'loginFailure';
+  tableId: string;
+}
+
+interface MessageLogin extends MessageBase {
+  token: string;
+}
+
+interface MessageTableData extends MessageBase {
+  data: TableData;
+}
+
+interface MessagePlayCard extends MessageBase {
+  card: Card;
 }
 
 function Chair(props: ChairProps) {
@@ -47,29 +64,51 @@ export function TablePage() {
 
   const [data, setData] = useState<TableData>();
   const [playerIdx, setPlayerIdx] = useState<number>();
+  const [isLoading, setIsLoading] = useState(true);
+
   console.log('data', data);
   const { token } = useAuth();
 
+  const { sendJsonMessage, lastJsonMessage, getWebSocket } =
+    useWebSocket<MessageBase>(getServerUrl().tableUrl, {
+      onOpen: () => {
+        if (token && id) {
+          const message: MessageLogin = { token, type: 'login', tableId: id };
+          sendJsonMessage(message);
+        }
+      },
+
+      shouldReconnect: (closeEvent) => true,
+    });
+
   useEffect(() => {
-    if (id) {
-      console.log('this is the token: ', token);
-      fetchData(getServerUrl().tableUrl(id), token).then((d: TableData) => {
-        setData(d);
-        const playerIdx = d.players.findIndex((p) => p.id === token);
+    if (lastJsonMessage !== null) {
+      console.log(lastJsonMessage, 'this is the last message');
+      if (lastJsonMessage.type === 'tableData') {
+        console.log('entered table data');
+        const d: MessageTableData = lastJsonMessage as MessageTableData;
+        setData(d.data);
+        const playerIdx = d.data.players.findIndex((p) => p.id === token);
         if (playerIdx >= 0) {
           setPlayerIdx(playerIdx);
         } else setPlayerIdx(undefined);
-      });
+        setIsLoading(false);
+      }
+      if (lastJsonMessage.type === 'loginFailure') {
+        setIsLoading(true);
+        //TODO: display error (something other than isLoading)
+      }
     }
-  }, [id, token]);
+  }, [lastJsonMessage, token, setIsLoading]);
 
   const handlePlayCard = (c: Card) => {
     if (!id) return;
-    postData(getServerUrl().tableUrl(id), { ...c, cmd: 'Play' }, token);
-
+    const message: MessagePlayCard = { card: c, type: 'playCard', tableId: id };
+    sendJsonMessage(message);
     console.log(c, 'handlePlayCard');
   };
 
+  if (isLoading) return <div>Waiting for server connection...</div>;
   if (!data || playerIdx === undefined) return <div>Unknown Player</div>;
   return (
     <div>

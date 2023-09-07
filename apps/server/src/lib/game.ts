@@ -2,7 +2,7 @@ import { Player, Table } from './types';
 
 let tables: Table[] = [];
 
-export function getTable(id: string): Table {
+export function getTable(id: string): Table | null {
   const table = tables.find((table) => table.id === id);
   return table ? table : null;
 }

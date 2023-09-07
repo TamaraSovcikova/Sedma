@@ -51,6 +51,7 @@ export function createRoutes(app: any) {
 
     res.send({ status: 'okey' }); //program play card
   });
+  //TODO: to be removed to implement websockets
   app.get('/table/:id', (req, res) => {
     const params = req.params;
     const id = params.id;
