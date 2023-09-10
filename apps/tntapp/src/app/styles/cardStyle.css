@@ -14,15 +14,15 @@
 
 .card-corner-top-left {
     position: absolute;
-    top: 5px;
-    left: 5px;
+    top: -7px;
+    left: 4px;
     font-size: 100%;
 }
 
 .card-corner-bottom-right {
     position: absolute;
-    bottom: 5px;
-    right: 5px;
+    bottom: -7px;
+    right: 4px;
     font-size: 100%;
     transform: rotate(180deg);
 }
