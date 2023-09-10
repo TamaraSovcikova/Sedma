@@ -1,5 +1,5 @@
-type SuitType = 'heart' | 'leaf' | 'acorn' | 'bell';
-type FaceType =
+export type SuitType = 'heart' | 'leaf' | 'acorn' | 'bell';
+export type FaceType =
   | 'seven'
   | 'eight'
   | 'nine'

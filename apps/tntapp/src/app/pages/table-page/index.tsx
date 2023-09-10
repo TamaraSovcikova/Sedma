@@ -1,12 +1,10 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { ShowCard } from '../../components/show-card';
 import { getServerUrl } from '../../global';
-import { fetchData } from '../../lib/api';
 import { Card } from '../../types';
 import '../../styles/cardStyle.css';
 import '../../styles/table-page.css';
-import { postData } from '../../lib/api';
 import { useAuth } from '../../components/auth/auth-context';
 import useWebSocket from 'react-use-websocket';
 
@@ -14,6 +12,10 @@ interface TableData {
   players: { name: string; id: string | undefined }[];
   hand: Card[];
   lastPlayedCards: Card[];
+  waitingForPlayers: boolean;
+  currentPlayer: number;
+  ownerOfTableId: string;
+  gameInProgress: boolean;
 }
 
 interface ChairProps {
@@ -23,7 +25,13 @@ interface ChairProps {
   lastPlayedCard: Card;
 }
 interface MessageBase {
-  type: 'login' | 'playCard' | 'tableData' | 'loginFailure';
+  type:
+    | 'login'
+    | 'playCard'
+    | 'tableData'
+    | 'loginFailure'
+    | 'error'
+    | 'startGame';
   tableId: string;
 }
 
@@ -37,6 +45,11 @@ interface MessageTableData extends MessageBase {
 
 interface MessagePlayCard extends MessageBase {
   card: Card;
+  token?: string;
+}
+
+export interface MessageError extends MessageBase {
+  error: string;
 }
 
 function Chair(props: ChairProps) {
@@ -65,6 +78,9 @@ export function TablePage() {
   const [data, setData] = useState<TableData>();
   const [playerIdx, setPlayerIdx] = useState<number>();
   const [isLoading, setIsLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState<string>();
+  const { logout } = useAuth();
+  const navigate = useNavigate();
 
   console.log('data', data);
   const { token } = useAuth();
@@ -96,24 +112,67 @@ export function TablePage() {
       }
       if (lastJsonMessage.type === 'loginFailure') {
         setIsLoading(true);
-        //TODO: display error (something other than isLoading)
+        setErrorMessage('Could not Login');
+        setTimeout(() => setErrorMessage(undefined), 3000);
+      }
+      if (lastJsonMessage.type === 'error') {
+        const m: MessageError = lastJsonMessage as MessageError;
+        setErrorMessage(m.error);
+        setTimeout(() => setErrorMessage(undefined), 3000);
       }
     }
   }, [lastJsonMessage, token, setIsLoading]);
 
   const handlePlayCard = (c: Card) => {
     if (!id) return;
-    const message: MessagePlayCard = { card: c, type: 'playCard', tableId: id };
+    const message: MessagePlayCard = {
+      card: c,
+      type: 'playCard',
+      tableId: id,
+      token,
+    };
     sendJsonMessage(message);
     console.log(c, 'handlePlayCard');
   };
+  const handleStartGame = () => {
+    if (!isOwner) return;
+    if (!id) return;
+    const message: MessageBase = {
+      type: 'startGame',
+      tableId: id,
+    };
+    sendJsonMessage(message);
+    console.log('handleStartGame');
+  };
 
-  if (isLoading) return <div>Waiting for server connection...</div>;
+  const isOwner = data?.ownerOfTableId === token;
+
+  if (isLoading)
+    return (
+      <div>
+        <div>Waiting for server connection...</div>
+        <button onClick={() => navigate('/')}>Back to Lobby</button>
+      </div>
+    );
   if (!data || playerIdx === undefined) return <div>Unknown Player</div>;
   return (
     <div>
       <div className="header">
         <h1 className="name-header">{data.players[playerIdx].name}</h1>
+        <button
+          onClick={() => {
+            logout();
+            navigate('/');
+          }}
+        >
+          Disconnect
+        </button>
+        {isOwner && !data.waitingForPlayers && !data.gameInProgress && (
+          <button onClick={handleStartGame}>
+            Start Game (all 4 players must be present)
+          </button>
+        )}
+        <div>{errorMessage}</div>
       </div>
       <div className="table">
         <Chair

@@ -3,6 +3,10 @@ import cors from 'cors';
 import bodyParser from 'body-parser';
 import { createWebSocketServer } from './lib/wsServer';
 import { createRoutes } from './routes/routes';
+import debugLog from 'debug';
+
+const debug = debugLog('main');
+debugLog.enable('* -routes -wsServer -table.sendUpdates');
 
 const host = process.env.HOST ?? 'localhost';
 const port = process.env.PORT ? Number(process.env.PORT) : 3000;

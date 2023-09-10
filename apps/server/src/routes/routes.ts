@@ -1,10 +1,13 @@
 import { randomUUID } from 'crypto';
 import { createTable, getTable } from '../lib/game';
 import { addPlayer } from '../lib/table';
+import debugLog from 'debug';
+
+const debug = debugLog('routes');
 
 function extractAuth(req, res, next) {
   const token = req.get('authorization');
-  console.log('token', token);
+  debug('token', token);
   req.user = { id: token };
   next();
 }
@@ -19,11 +22,11 @@ export function createRoutes(app: any) {
     const params = req.params;
     const tableId = params.id;
     const table = getTable(tableId);
-    console.log('found table: ', table);
+    debug('found table: ', table);
     if (table !== null) {
       const response = table.players.map((p) => p.name);
       res.json(response);
-    } else res.status(404);
+    } else res.status(404).send('not found');
   });
   app.post('/table/Lobby/:id', (req, res) => {
     const data = req.body;
@@ -32,7 +35,7 @@ export function createRoutes(app: any) {
     const { username, seatId } = data;
     const table = getTable(tableId);
     const player = addPlayer(username, table, seatId - 1);
-    console.log('adding player to table: ', table, getTable(tableId));
+    debug('adding player to table: ', table, getTable(tableId));
 
     res.status(200).json({ id: player.id });
   });
@@ -43,16 +46,16 @@ export function createRoutes(app: any) {
     createTable(newTableID);
     res.json(newTableID);
 
-    console.log(`Created new table}`);
+    debug(`Created new table}`);
   });
 
   app.post('/table/:id', (req, res) => {
     const data = req.body;
     const params = req.params;
     const id = params.id;
-    console.log(id);
+    debug(id);
 
-    console.log('table recieved', data);
+    debug('table recieved', data);
     switch (data.cmd) {
       case 'Play':
         //TODO const t = playCard(); // add data
@@ -67,17 +70,17 @@ export function createRoutes(app: any) {
     const params = req.params;
     const id = params.id;
 
-    console.log('req.user:', req.user);
+    debug('req.user:', req.user);
     const userId = req.user.id;
     const table = getTable(id);
-    console.log('fetching this table:', table, id);
+    debug('fetching this table:', table, id);
     const players = table.players.map((p) => ({ name: p.name, id: p.id }));
     const lastPlayedCards = table.players.map((p) => p.lastPlayedCard);
-    console.log('table:', table, userId);
+    debug('table:', table, userId);
     const player = table.players.find((p) => p.id == userId);
     const hand = player.onHand;
     const data = { players, lastPlayedCards, hand };
-    console.log('table data:', data);
+    debug('table data:', data);
 
     res.send(data);
   });

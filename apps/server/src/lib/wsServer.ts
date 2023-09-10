@@ -1,17 +1,20 @@
-import { randomUUID } from 'crypto';
 import ws from 'ws';
 import { getTable } from './game';
 import { Card } from './card';
+import debugLog from 'debug';
+
+const debug = debugLog('wsServer');
 
 let wss: ws.Server = null;
 
-interface Client {
-  ws: ws.WebSocket;
-  playerId: string;
-}
-
 interface MessageBase {
-  type: 'login' | 'playCard' | 'tableData' | 'loginFailure';
+  type:
+    | 'login'
+    | 'playCard'
+    | 'tableData'
+    | 'loginFailure'
+    | 'error'
+    | 'startGame';
   tableId: string;
 }
 
@@ -19,25 +22,27 @@ interface MessageLogin extends MessageBase {
   token: string;
 }
 
+interface MessagePlayCard extends MessageBase {
+  card: Card;
+  token?: string;
+}
+
 export interface TableData {
   players: { name: string; id: string | undefined }[];
   hand: Card[];
   lastPlayedCards: Card[];
+  waitingForPlayers: boolean;
+  currentPlayer: number;
+  ownerOfTableId: string;
+  gameInProgress: boolean;
 }
 
 export interface MessageTableData extends MessageBase {
   data: TableData;
 }
 
-const clients: Client[] = [];
-
-export function sendMessageToPlayer(
-  playerId: string,
-  message: MessageTableData
-) {
-  const player = clients.find((p) => p.playerId == playerId);
-  if (player) player.ws.send(JSON.stringify(message));
-  else console.log('player not found:', playerId);
+export interface MessageError extends MessageBase {
+  error: string;
 }
 
 export function createWebSocketServer() {
@@ -45,15 +50,15 @@ export function createWebSocketServer() {
   wss.on('connection', (ws) => {
     ws.on('message', (m) => {
       const message = JSON.parse(m.toString()) as MessageBase;
-      console.log('messsage recieved:', message);
+      debug('messsage recieved:', message);
       if (message.type === 'login') {
-        console.log('entered');
+        debug('entered');
         const loginMessage: MessageLogin = message as MessageLogin;
         const table = getTable(loginMessage.tableId);
         const player = table
           ? table.players.find((p) => p.id == loginMessage.token)
           : null;
-        console.log('found', table, player);
+        debug('found', table, player);
         if (!table || !player) {
           const m: MessageBase = {
             type: 'loginFailure',
@@ -63,27 +68,43 @@ export function createWebSocketServer() {
           return;
         }
 
-        const c: Client = { ws, playerId: player.id };
-        clients.push(c);
-        const players = table.players.map((p) => ({ name: p.name, id: p.id }));
-        const lastPlayedCards = table.players.map((p) => p.lastPlayedCard);
-        const hand = player.onHand;
-        const data: TableData = { players, lastPlayedCards, hand };
-        const messageData: MessageTableData = {
-          data,
-          type: 'tableData',
-          tableId: loginMessage.tableId,
-        };
-        console.log('table data:', data);
+        player.ws = ws;
+        const playerCount = table.playerCount();
+        debug('player count: %d %O', playerCount, table.players);
+        if (playerCount < 4) {
+          table.waitingForPlayers = true;
+        } else {
+          table.waitingForPlayers = false;
+        }
 
-        ws.send(JSON.stringify(messageData));
+        table.sendUpdates();
+      }
+      if (message.type === 'playCard') {
+        const m: MessagePlayCard = message as MessagePlayCard;
+        const card = m.card;
+        const table = getTable(m.tableId);
+        try {
+          table.playCard(m.token, card);
+        } catch (e) {
+          debug(e.message);
+          const errorMessage: MessageError = {
+            error: e.message,
+            type: 'error',
+            tableId: m.tableId,
+          };
+          ws.send(JSON.stringify(errorMessage));
+        }
+      }
+      if (message.type === 'startGame') {
+        const table = getTable(message.tableId);
+        table.startGame();
       }
     });
     ws.on('close', () => {
-      console.log('client has disconnected');
+      debug('client has disconnected');
     });
   });
-  console.log('websocket server created :)');
+  debug('websocket server created :)');
 }
 
 function destroyWebSocketServer() {

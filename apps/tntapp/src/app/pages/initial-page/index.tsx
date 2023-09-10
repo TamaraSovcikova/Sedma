@@ -9,7 +9,7 @@ import { useAuth } from '../../components/auth/auth-context';
 export function InitialPage() {
   const [tableID, setTableID] = useState<string>('');
   const [error, setError] = useState<boolean>(false);
-  const { token, setToken } = useAuth();
+  const { token, logout } = useAuth();
   const navigate = useNavigate();
 
   const handleCreateTable = () => {
@@ -32,6 +32,11 @@ export function InitialPage() {
       </div>
       <div className="row">
         <div className="col-lg-4 align-self-start">
+          {token && (
+            <button className="btn btn-secondary" onClick={logout}>
+              Exit previous game
+            </button>
+          )}
           <h1 className="mt-12">SEDMA</h1>
           <h5 className="mt-1">Welcome to the world of Sedma!</h5>
           <p>

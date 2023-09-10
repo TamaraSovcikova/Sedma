@@ -1,5 +1,9 @@
 import { randomUUID } from 'crypto';
 import { Card } from './card';
+import ws from 'ws';
+import debugLog from 'debug';
+
+const debug = debugLog('table');
 
 export class Player {
   name: string;
@@ -9,6 +13,7 @@ export class Player {
   cardsWon: Card[] = [];
   collectedPoints = 0;
   team: string;
+  ws: ws.WebSocket | null = null;
 
   constructor(name: string) {
     this.name = name;

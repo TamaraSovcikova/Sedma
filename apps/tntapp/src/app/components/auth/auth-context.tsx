@@ -9,6 +9,7 @@ import React, {
 interface UserContextType {
   token?: string;
   setToken: (token?: string) => void;
+  logout: () => void;
 }
 export const useAuth = () => {
   const context = useContext(UserContext);
@@ -16,6 +17,9 @@ export const useAuth = () => {
     context ?? {
       token: undefined,
       setToken: (token?: string) => {
+        /*empty*/
+      },
+      logout: () => {
         /*empty*/
       },
     }
@@ -55,6 +59,10 @@ export const UserContextProvider: React.FC<{
           } else {
             deleteToken();
           }
+        },
+        logout: () => {
+          deleteToken();
+          setToken(undefined);
         },
       }}
     >
