@@ -16,13 +16,14 @@ interface TableData {
   currentPlayer: number;
   ownerOfTableId: string;
   gameInProgress: boolean;
+  leadingPlayerId: string;
 }
 
 interface ChairProps {
   chairPosition: string;
   playerName: string;
-  onPlay: (c: Card) => void;
   lastPlayedCard: Card;
+  currentPlayer: boolean;
 }
 interface MessageBase {
   type:
@@ -31,7 +32,8 @@ interface MessageBase {
     | 'tableData'
     | 'loginFailure'
     | 'error'
-    | 'startGame';
+    | 'startGame'
+    | 'endRound';
   tableId: string;
 }
 
@@ -53,19 +55,15 @@ export interface MessageError extends MessageBase {
 }
 
 function Chair(props: ChairProps) {
-  const { chairPosition, playerName, onPlay, lastPlayedCard } = props;
+  const { chairPosition, playerName, lastPlayedCard, currentPlayer } = props;
   return (
     <div className={`chair ${chairPosition}`}>
+      {currentPlayer && <div>|CURRENT PLAYER|</div>}
       <div className="player on-chair"></div>
       <div className="player body"></div>
       <div className="name">{playerName}</div>
       <div className="on-chair last-played-card">
-        <ShowCard
-          key="lastPCard1"
-          onPlay={onPlay}
-          card={lastPlayedCard}
-          size="small"
-        />
+        <ShowCard key="lastPCard1" card={lastPlayedCard} size="small" />
       </div>
     </div>
   );
@@ -145,6 +143,16 @@ export function TablePage() {
     console.log('handleStartGame');
   };
 
+  const handlePlayerPass = () => {
+    if (!id) return;
+    const message: MessageBase = {
+      type: 'endRound',
+      tableId: id,
+    };
+    sendJsonMessage(message);
+    console.log('handlePlayerPass');
+  };
+
   const isOwner = data?.ownerOfTableId === token;
 
   if (isLoading)
@@ -178,26 +186,35 @@ export function TablePage() {
         <Chair
           chairPosition="top"
           playerName={data.players[(playerIdx + 2) % 4].name}
-          onPlay={handlePlayCard}
           lastPlayedCard={data.lastPlayedCards[0]}
+          currentPlayer={data.currentPlayer === (playerIdx + 2) % 4}
         />
         <Chair
           chairPosition="left"
           playerName={data.players[(playerIdx + 1) % 4].name}
-          onPlay={handlePlayCard}
           lastPlayedCard={data.lastPlayedCards[1]}
+          currentPlayer={data.currentPlayer === (playerIdx + 1) % 4}
         />
         <Chair
           chairPosition="right"
           playerName={data.players[(playerIdx + 3) % 4].name}
-          onPlay={handlePlayCard}
           lastPlayedCard={data.lastPlayedCards[2]}
+          currentPlayer={data.currentPlayer === (playerIdx + 3) % 4}
         />
         <div className="chair bottom">
           <div className="player on-chair"></div>
           <div className="player body"></div>
+          {data.currentPlayer === playerIdx && (
+            <div className="player on-chair">|CURRENT PLAYER|</div>
+          )}
         </div>
-        <div className="card-cast"></div>
+        <div className="card-cast">
+          <ShowCard
+            key={'lastPcard'}
+            card={data.lastPlayedCards[(data.currentPlayer + 3) % 4]}
+            size="large"
+          />
+        </div>
       </div>
       <div className="cards">
         {data.hand.map((card) => (
@@ -208,16 +225,11 @@ export function TablePage() {
             size="large"
           />
         ))}
+        {data.leadingPlayerId === token && (
+          <button onClick={handlePlayerPass}>PASS</button>
+        )}
+        {/* TODO: make pass button apear only on the second turn */}
       </div>
     </div>
   );
 }
-
-/*
-playCard
-pass
-newGame
-
-
-
-*/

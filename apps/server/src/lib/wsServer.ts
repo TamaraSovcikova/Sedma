@@ -14,7 +14,8 @@ interface MessageBase {
     | 'tableData'
     | 'loginFailure'
     | 'error'
-    | 'startGame';
+    | 'startGame'
+    | 'endRound';
   tableId: string;
 }
 
@@ -35,6 +36,7 @@ export interface TableData {
   currentPlayer: number;
   ownerOfTableId: string;
   gameInProgress: boolean;
+  leadingPlayerId: string;
 }
 
 export interface MessageTableData extends MessageBase {
@@ -98,6 +100,10 @@ export function createWebSocketServer() {
       if (message.type === 'startGame') {
         const table = getTable(message.tableId);
         table.startGame();
+      }
+      if (message.type === 'endRound') {
+        const table = getTable(message.tableId);
+        table.endRound();
       }
     });
     ws.on('close', () => {

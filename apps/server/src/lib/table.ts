@@ -5,12 +5,17 @@ import debugLog from 'debug';
 
 const debug = debugLog('table');
 
+//TODO: currentPlayer not showing for other people
+
 export class Table {
   players: Player[];
   deck: Card[] = [];
   id: string;
-  winningPlayer: number; //player who is currently winning the game
-  leadPlayer: number; //person who won the last game
+  /** player who is currently winning the game */
+  winningPlayer: number;
+  /** person who won the last game /starts the round */
+  leadPlayer = 0;
+  /** the person whos turn it is */
   currentPlayer: number;
   discardPile: Card[] = [];
   cardToBeat: Card | null = null;
@@ -22,6 +27,7 @@ export class Table {
   waitingForPlayers = true;
   ownerOfTable: Player = undefined;
   gameInProgress = false;
+  leadingPlayerId: string;
 
   constructor(id: string) {
     const emptyPlayer = new Player('');
@@ -46,6 +52,8 @@ export class Table {
         currentPlayer: this.currentPlayer,
         ownerOfTableId: this.ownerOfTable.id,
         gameInProgress: this.gameInProgress,
+        leadingPlayerId:
+          this.players.length > 0 ? this.players[this.leadPlayer].id : '',
       };
       const messageData: MessageTableData = {
         data,
@@ -128,8 +136,12 @@ export class Table {
     if (this.players.indexOf(player) !== this.leadPlayer) {
       throw new Error('It is not your turn to play');
     }
-
     this.discardPile.push(card);
+    const cardIdx = player.onHand.findIndex(
+      (c) => c.face === card.face && c.suit === card.suit
+    );
+    player.onHand.splice(cardIdx);
+    this.lastPlayedCard = card;
 
     // Check if the card beats the current card to beat
     if (this.cardToBeat === null) {
@@ -141,11 +153,7 @@ export class Table {
       }
     }
 
-    this.leadPlayer = (this.leadPlayer + 1) % this.players.length;
-    if (this.discardPile.length === this.players.length) {
-      this.endRound();
-    }
-
+    this.currentPlayer = (this.currentPlayer + 1) % this.players.length;
     this.sendUpdates();
 
     if (this.gameover) {
@@ -156,14 +164,16 @@ export class Table {
 
   public endRound() {
     // Calculate the winner of the round
-    this.winningPlayer = this.leadPlayer;
+    this.leadPlayer = this.winningPlayer;
     this.players[this.winningPlayer].collectWonCards(this.discardPile);
     this.discardPile = [];
 
     debug(`\nWinner of the Round: ${this.players[this.winningPlayer].name}`);
 
-    if (!this.deckHasCards() && this.endGame()) {
+    if (!this.deckHasCards() && this.allCardsPlayed()) {
       this.gameover = true;
+    } else {
+      this.handOutCards();
     }
     this.cardToBeat = null;
   }
@@ -180,7 +190,6 @@ export class Table {
         else this.teamBPoints += this.players[i].collectedPoints;
       }
     }
-    //keep that in there for now
     debug('END, time to sum the points');
   }
   public playerCount(): number {
@@ -209,27 +218,26 @@ export class Table {
     this.currentPlayer = 0;
     this.gameInProgress = true;
     this.leadPlayer = this.currentPlayer;
+    this.winningPlayer = this.currentPlayer;
+    this.discardPile = [];
+    this.gameover = false;
+    this.cardToBeat = null;
   }
 
   public startGame(): void {
     this.setUpGame();
 
-    do {
-      if (this.deckHasCards()) {
-        debug('handing Out Cards');
-        this.handOutCards();
-        this.sendUpdates();
-      } else if (!this.deckHasCards() && !this.deckDone) {
-        debug('\nTHE PILE HAS RUN OUT OF CARDS!');
-        this.deckDone = true;
-      }
-    } while (!this.gameover);
-
-    this.evaluateGame();
-    this.showResults();
+    if (this.deckHasCards()) {
+      debug('handing Out Cards');
+      this.handOutCards();
+      this.sendUpdates();
+    } else if (!this.deckHasCards() && !this.deckDone) {
+      debug('\nTHE PILE HAS RUN OUT OF CARDS!');
+      this.deckDone = true;
+    }
   }
 
-  public endGame(): boolean {
+  public allCardsPlayed(): boolean {
     for (const player of this.players) {
       if (player.haveCards()) {
         return false;
