@@ -2,8 +2,10 @@ import { randomUUID } from 'crypto';
 import { Card } from './card';
 import ws from 'ws';
 import debugLog from 'debug';
+import { Table } from './table';
 
 const debug = debugLog('table');
+export type AutoPlay = (table: Table, playerIdx: number) => void;
 
 export class Player {
   name: string;
@@ -14,6 +16,12 @@ export class Player {
   collectedPoints = 0;
   team: string;
   ws: ws.WebSocket | null = null;
+  connected: boolean;
+  /**measures the level of computer inteligence used.
+   * 0 - human
+   * 1 - stupid computer
+   */
+  autoplay: AutoPlay | null = null;
 
   constructor(name: string) {
     this.name = name;
@@ -22,6 +30,15 @@ export class Player {
 
   public getName() {
     return this.name;
+  }
+
+  public setAutoPlay(autoplay: AutoPlay) {
+    this.autoplay = autoplay;
+  }
+
+  public connectPlayer(ws: ws.WebSocket | null) {
+    this.ws = ws;
+    this.connected = true;
   }
 
   //remmember that i changed it from collected Points

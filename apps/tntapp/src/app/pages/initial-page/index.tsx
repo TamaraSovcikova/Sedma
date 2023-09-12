@@ -9,7 +9,8 @@ import { useAuth } from '../../components/auth/auth-context';
 export function InitialPage() {
   const [tableID, setTableID] = useState<string>('');
   const [error, setError] = useState<boolean>(false);
-  const { token, logout } = useAuth();
+  const [name, setName] = useState<string>('');
+  const { token, logout, setToken } = useAuth();
   const navigate = useNavigate();
 
   const handleCreateTable = () => {
@@ -20,6 +21,15 @@ export function InitialPage() {
 
   const joinGame = () => {
     navigate(`/table/lobby/${tableID}`);
+  };
+
+  const startSinglePlayer = () => {
+    postData(getServerUrl().singlePlayerTableUrl, { name }, token).then(
+      ({ tableId, playerId }) => {
+        setToken(playerId);
+        navigate(`/table/${tableId}`);
+      }
+    );
   };
 
   return (
@@ -72,6 +82,18 @@ export function InitialPage() {
           <button className="mt-3 btn btn-primary" onClick={handleCreateTable}>
             Click to Create Game
           </button>
+          <h2>SinglePlayerMode</h2>
+          <div className="input-group mt-5 mb-3">
+            <input
+              className="form-control"
+              placeholder="Enter Name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
+            <button className="btn btn-secondary" onClick={startSinglePlayer}>
+              START SINGLEPLAYER GAME
+            </button>
+          </div>
         </div>
         <div className="col-lg-4">
           <img

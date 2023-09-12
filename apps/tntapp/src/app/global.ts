@@ -5,4 +5,5 @@ export const getServerUrl = () => ({
   tableUrl: `ws://localhost:4500`,
   lobbyUrl: (id: string) => `${url}/table/lobby/${id}`,
   newtableUrl: `${url}/table/new`,
+  singlePlayerTableUrl: `${url}/table/newSinglePlayer`,
 });

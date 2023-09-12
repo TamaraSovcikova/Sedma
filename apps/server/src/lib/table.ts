@@ -5,8 +5,6 @@ import debugLog from 'debug';
 
 const debug = debugLog('table');
 
-//TODO: currentPlayer not showing for other people
-
 export class Table {
   players: Player[];
   deck: Card[] = [];
@@ -129,18 +127,19 @@ export class Table {
 
   public playCard(playerId: string, card: Card) {
     const player = this.players.find((p) => p.id === playerId);
+    debug(player.name, 'is playing card: ', card);
 
     if (!player) {
       throw new Error('Player not found on the table');
     }
-    if (this.players.indexOf(player) !== this.leadPlayer) {
+    if (this.players.indexOf(player) !== this.currentPlayer) {
       throw new Error('It is not your turn to play');
     }
     this.discardPile.push(card);
     const cardIdx = player.onHand.findIndex(
       (c) => c.face === card.face && c.suit === card.suit
     );
-    player.onHand.splice(cardIdx);
+    player.onHand.splice(cardIdx, 1);
     this.lastPlayedCard = card;
 
     // Check if the card beats the current card to beat
@@ -156,7 +155,15 @@ export class Table {
     this.currentPlayer = (this.currentPlayer + 1) % this.players.length;
     this.sendUpdates();
 
+    //checking if next player is an autoplayer and will play untill they arent one
+    if (this.players[this.currentPlayer].autoplay) {
+      this.players[this.currentPlayer].autoplay(this, this.currentPlayer);
+      debug('played AutoPlay for', this.players[this.currentPlayer].name);
+      this.sendUpdates();
+    }
+
     if (this.gameover) {
+      debug('GAMEOVER');
       this.evaluateGame();
       this.showResults();
     }
@@ -194,7 +201,7 @@ export class Table {
   }
   public playerCount(): number {
     const playerCount = this.players.reduce((total, element) => {
-      if (!element.ws) return total;
+      if (!element.connected) return total;
       else return total + 1;
     }, 0);
     return playerCount;

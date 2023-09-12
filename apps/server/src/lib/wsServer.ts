@@ -70,7 +70,7 @@ export function createWebSocketServer() {
           return;
         }
 
-        player.ws = ws;
+        player.connectPlayer(ws);
         const playerCount = table.playerCount();
         debug('player count: %d %O', playerCount, table.players);
         if (playerCount < 4) {
@@ -87,6 +87,7 @@ export function createWebSocketServer() {
         const table = getTable(m.tableId);
         try {
           table.playCard(m.token, card);
+          debug('playCard');
         } catch (e) {
           debug(e.message);
           const errorMessage: MessageError = {

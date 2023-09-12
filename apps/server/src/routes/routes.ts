@@ -2,6 +2,7 @@ import { randomUUID } from 'crypto';
 import { createTable, getTable } from '../lib/game';
 import { addPlayer } from '../lib/table';
 import debugLog from 'debug';
+import { computerLevel1 } from '../lib/computerPlayer1';
 
 const debug = debugLog('routes');
 
@@ -48,24 +49,27 @@ export function createRoutes(app: any) {
 
     debug(`Created new table}`);
   });
+  app.post('/table/newSinglePlayer', (req, res) => {
+    debug('Creating new Single player table');
+    const newTableID = randomUUID();
+    const table = createTable(newTableID);
 
-  app.post('/table/:id', (req, res) => {
-    const data = req.body;
-    const params = req.params;
-    const id = params.id;
-    debug(id);
+    const p1 = addPlayer(req.body.name, table, 0);
+    const p2 = addPlayer('Player 2', table, 1);
+    const p3 = addPlayer('Player 3', table, 2);
+    const p4 = addPlayer('Player 4', table, 3);
 
-    debug('table recieved', data);
-    switch (data.cmd) {
-      case 'Play':
-        //TODO const t = playCard(); // add data
-        res.send();
-        break;
-    }
+    p2.setAutoPlay(computerLevel1);
+    p2.connectPlayer(null);
+    p3.setAutoPlay(computerLevel1);
+    p3.connectPlayer(null);
+    p4.setAutoPlay(computerLevel1);
+    p4.connectPlayer(null);
 
-    res.send({ status: 'okey' }); //program play card
+    debug('Created new SinglePlayer table:', table);
+    res.json({ tableId: newTableID, playerId: p1.id });
   });
-  //TODO: to be removed to implement websockets
+
   app.get('/table/:id', (req, res) => {
     const params = req.params;
     const id = params.id;
