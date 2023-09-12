@@ -186,7 +186,7 @@ export function TablePage() {
         <Chair
           chairPosition="top"
           playerName={data.players[(playerIdx + 2) % 4].name}
-          lastPlayedCard={data.lastPlayedCards[0]}
+          lastPlayedCard={data.lastPlayedCards[2]}
           currentPlayer={data.currentPlayer === (playerIdx + 2) % 4}
         />
         <Chair
@@ -198,7 +198,7 @@ export function TablePage() {
         <Chair
           chairPosition="right"
           playerName={data.players[(playerIdx + 3) % 4].name}
-          lastPlayedCard={data.lastPlayedCards[2]}
+          lastPlayedCard={data.lastPlayedCards[3]}
           currentPlayer={data.currentPlayer === (playerIdx + 3) % 4}
         />
         <div className="chair bottom">

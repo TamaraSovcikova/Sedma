@@ -1,6 +1,7 @@
 import { Player } from './player';
 import { Card, FaceType, SuitType } from './card';
 import { MessageTableData, TableData } from './wsServer';
+
 import debugLog from 'debug';
 
 const debug = debugLog('table');
@@ -21,7 +22,6 @@ export class Table {
   teamBPoints: number;
   deckDone: boolean;
   gameover: boolean;
-  lastPlayedCard: Card = null;
   waitingForPlayers = true;
   ownerOfTable: Player = undefined;
   gameInProgress = false;
@@ -140,7 +140,7 @@ export class Table {
       (c) => c.face === card.face && c.suit === card.suit
     );
     player.onHand.splice(cardIdx, 1);
-    this.lastPlayedCard = card;
+    player.lastPlayedCard = card;
 
     // Check if the card beats the current card to beat
     if (this.cardToBeat === null) {
@@ -157,9 +157,11 @@ export class Table {
 
     //checking if next player is an autoplayer and will play untill they arent one
     if (this.players[this.currentPlayer].autoplay) {
-      this.players[this.currentPlayer].autoplay(this, this.currentPlayer);
-      debug('played AutoPlay for', this.players[this.currentPlayer].name);
-      this.sendUpdates();
+      setTimeout(() => {
+        this.players[this.currentPlayer].autoplay(this, this.currentPlayer);
+        debug('played AutoPlay for', this.players[this.currentPlayer].name);
+        this.sendUpdates();
+      }, 2000);
     }
 
     if (this.gameover) {
