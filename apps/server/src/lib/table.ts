@@ -3,6 +3,7 @@ import { Card, FaceType, SuitType } from './card';
 import { MessageTableData, TableData } from './wsServer';
 
 import debugLog from 'debug';
+import { table } from 'console';
 
 const debug = debugLog('table');
 
@@ -264,6 +265,10 @@ export class Table {
     } else throw new Error('seat position is occupied');
     this.sendUpdates();
   }
+  public deletePlayer(player: Player, seatPosition: number) {
+    this.players[seatPosition] = new Player('');
+    this.sendUpdates();
+  }
 }
 
 export function addPlayer(name: string, table: Table, seatPosition: number) {
@@ -271,4 +276,13 @@ export function addPlayer(name: string, table: Table, seatPosition: number) {
   table.addPlayer(player, seatPosition);
   debug('this is the second add player function');
   return player;
+}
+
+export function deletePlayer(
+  player: Player,
+  table: Table,
+  seatPosition: number
+) {
+  debug('deleting player:', player);
+  table.deletePlayer(player, seatPosition);
 }

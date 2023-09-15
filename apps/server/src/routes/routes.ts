@@ -1,8 +1,10 @@
 import { randomUUID } from 'crypto';
 import { createTable, getTable } from '../lib/game';
-import { addPlayer } from '../lib/table';
+import { addPlayer, deletePlayer } from '../lib/table';
 import debugLog from 'debug';
 import { computerLevel1 } from '../lib/computerPlayer1';
+import { findAncestor } from 'typescript';
+import { unstable_renderSubtreeIntoContainer } from 'react-dom';
 
 const debug = debugLog('routes');
 
@@ -35,9 +37,17 @@ export function createRoutes(app: any) {
     const tableId = params.id;
     const { username, seatId } = data;
     const table = getTable(tableId);
+
+    if (table.players.find((p) => p.name === username)) {
+      debug('found a previous copy of player');
+      const copyPlayer = table.players.find((p) => p.name === username);
+      const seatPosition: number = table.players.indexOf(copyPlayer);
+      debug('seatposition', seatPosition);
+      deletePlayer(copyPlayer, table, seatPosition);
+      debug('deleted ', copyPlayer, 'at seat', seatPosition);
+    }
     const player = addPlayer(username, table, seatId - 1);
     debug('adding player to table: ', table, getTable(tableId));
-
     res.status(200).json({ id: player.id });
   });
 

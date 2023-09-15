@@ -106,6 +106,7 @@ export function LobbyPage() {
       token
     );
     console.log('result: ', result);
+    console.log('Sending over the player', username, seatId);
 
     setNewToken(result.id);
   };
