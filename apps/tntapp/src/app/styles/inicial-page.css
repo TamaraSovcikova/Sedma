@@ -13,7 +13,7 @@ body {
 .row{
     gap: 15rem;
 }
-img{
+.inicialPageImg{
     width: 500px;
     height:400px;
     overflow: cover;

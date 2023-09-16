@@ -58,11 +58,24 @@ function Chair(props: ChairProps) {
   const { chairPosition, playerName, lastPlayedCard, currentPlayer } = props;
   return (
     <div className={`chair ${chairPosition}`}>
-      {currentPlayer && <div>|CURRENT PLAYER|</div>}
+      {currentPlayer && (
+        <img
+          src="https://clipart-library.com/newimages/crown-clip-art-18.png"
+          alt="crown"
+          style={{
+            width: '50px',
+            height: '50px',
+            background: 'transparent',
+            top: '-60px',
+            position: 'absolute',
+            left: '-1px',
+          }}
+        />
+      )}
       <div className="player on-chair"></div>
       <div className="player body"></div>
       <div className="name">{playerName}</div>
-      <div className="on-chair last-played-card">
+      <div className="on-chair last-played-card ">
         <ShowCard key="lastPCard1" card={lastPlayedCard} size="small" />
       </div>
     </div>
@@ -176,8 +189,11 @@ export function TablePage() {
           Disconnect
         </button>
         {isOwner && !data.waitingForPlayers && !data.gameInProgress && (
-          <button onClick={handleStartGame}>
-            Start Game (all 4 players must be present)
+          <button
+            onClick={handleStartGame}
+            className="btn btn-secondary startGameButton"
+          >
+            PRESS TO START GAME
           </button>
         )}
         <div>{errorMessage}</div>
@@ -205,7 +221,18 @@ export function TablePage() {
           <div className="player on-chair"></div>
           <div className="player body"></div>
           {data.currentPlayer === playerIdx && (
-            <div className="player on-chair">|CURRENT PLAYER|</div>
+            <img
+              src="https://clipart-library.com/newimages/crown-clip-art-18.png"
+              alt="crown"
+              style={{
+                width: '50px',
+                height: '50px',
+                background: 'transparent',
+                top: '-60px',
+                position: 'absolute',
+                left: '-1px',
+              }}
+            />
           )}
         </div>
         <div className="card-cast">
@@ -216,7 +243,15 @@ export function TablePage() {
           />
         </div>
       </div>
+      {/* TODO: make pass button apear only on the second turn */}
       <div className="cards">
+        <div>
+          {data.leadingPlayerId === token && (
+            <button className="passButton" onClick={handlePlayerPass}>
+              PASS
+            </button>
+          )}
+        </div>
         {data.hand.map((card) => (
           <ShowCard
             key={card.id}
@@ -225,10 +260,6 @@ export function TablePage() {
             size="large"
           />
         ))}
-        {data.leadingPlayerId === token && (
-          <button onClick={handlePlayerPass}>PASS</button>
-        )}
-        {/* TODO: make pass button apear only on the second turn */}
       </div>
     </div>
   );

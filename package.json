@@ -5,7 +5,8 @@
   "scripts": {
     "frontend": "nx run tntapp:serve",
     "server": "nx run server:serve",
-    "start": "npx nx run tntapp:serve & npx nx run server:serve"
+    "start": "npx nx run tntapp:serve & npx nx run server:serve",
+    "build": "nx run-many --target=build --projects=server,tntapp "
   },
   "private": true,
   "dependencies": {

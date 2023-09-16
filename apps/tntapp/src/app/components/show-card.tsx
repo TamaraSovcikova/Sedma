@@ -16,7 +16,11 @@ const images = {
 
 export function ShowCard(props: ShowCardProps) {
   const { card, onPlay } = props;
-  const [sizeX, sizeY] = props.size === 'small' ? [20, 30] : [80, 110];
+  const [sizeX, sizeY] = props.size === 'small' ? [55, 75] : [90, 120];
+  const cardFontSize = props.size === 'small' ? '17px' : '22px';
+  const topText = props.size === 'small' ? '-15px' : '-7px';
+  const bottomText = props.size === 'small' ? '-17px' : '-7px';
+  const iconSize = props.size === 'small' ? '80%' : '100%';
 
   if (!card) return null;
 
@@ -24,17 +28,39 @@ export function ShowCard(props: ShowCardProps) {
     <div
       className="card"
       onClick={() => onPlay && onPlay(card)}
-      style={{ width: sizeX, height: sizeY }}
+      style={{
+        width: sizeX,
+        height: sizeY,
+        fontSize: cardFontSize,
+      }}
     >
-      <div className="card-face card-corner-top-left">{card.face}</div>
+      <div
+        className="card-face card-corner-top-left"
+        style={{
+          top: topText,
+        }}
+      >
+        {card.face}
+      </div>
       <div className="card-suit">
         <img
           className="card-image"
           src={images[card.suit]}
           alt={card.suit}
+          style={{
+            maxHeight: iconSize,
+            maxWidth: iconSize,
+          }}
         ></img>
       </div>
-      <div className="card-face card-corner-bottom-right">{card.face}</div>
+      <div
+        className="card-face card-corner-bottom-right"
+        style={{
+          bottom: bottomText,
+        }}
+      >
+        {card.face}
+      </div>
     </div>
   );
 }

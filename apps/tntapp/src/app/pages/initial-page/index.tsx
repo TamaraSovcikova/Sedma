@@ -99,12 +99,12 @@ export function InitialPage() {
           <img
             src="https://www.thoughtco.com/thmb/Qx4zhTIddLwa9jXfelCbnSuhbkM=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/close-up-of-cards-on-white-background-767988479-5c4bd7bb4cedfd0001ddb36e.jpg"
             alt="Card close-up"
-            className="mb-5"
+            className="inicialPageImg mb-5"
           />
           <img
             src="https://images.ctfassets.net/sm166qdr1jca/2B0MXRrvv3ToeRH38QbhKg/5d52594452841f338feba538e8ab5c1f/Website_Red_Riderback.jpg"
             alt="Cards"
-            className="mt-5"
+            className="inicialPageImg mt-5"
           />
         </div>
       </div>

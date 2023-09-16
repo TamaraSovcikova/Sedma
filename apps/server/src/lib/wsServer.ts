@@ -117,5 +117,3 @@ export function createWebSocketServer() {
 function destroyWebSocketServer() {
   wss.close();
 }
-
-//TODO: delete player duplicates when linking seats
