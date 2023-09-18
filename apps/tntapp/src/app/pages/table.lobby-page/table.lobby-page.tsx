@@ -146,7 +146,7 @@ export function LobbyPage() {
 
       alert('Text copied to clipboard!');
     } else {
-      alert('Please enter a Table ID to copy.');
+      alert('ERROR NO ID');
     }
   };
 
