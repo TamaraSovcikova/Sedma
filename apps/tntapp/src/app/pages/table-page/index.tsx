@@ -244,14 +244,14 @@ export function TablePage() {
         </div>
       </div>
       {/* TODO: make pass button apear only on the second turn */}
+      <div>
+        {data.leadingPlayerId === token && (
+          <button className="passButton" onClick={handlePlayerPass}>
+            PASS
+          </button>
+        )}
+      </div>
       <div className="cards">
-        <div>
-          {data.leadingPlayerId === token && (
-            <button className="passButton" onClick={handlePlayerPass}>
-              PASS
-            </button>
-          )}
-        </div>
         {data.hand.map((card) => (
           <ShowCard
             key={card.id}

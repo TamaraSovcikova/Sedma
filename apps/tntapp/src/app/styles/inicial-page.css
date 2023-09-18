@@ -9,14 +9,17 @@ body {
     color: aliceblue;
     line-height: 2.5rem;
     font-family: 'Bodoni';
+    padding: 20px;
+    padding-top: 0;
 }
-.row{
-    gap: 15rem;
-}
+
 .inicialPageImg{
     width: 500px;
-    height:400px;
-    overflow: cover;
+    height:500px;   
+    object-fit: cover;
+    overflow: hidden;
+    position: relative;
+    filter: grayscale(80%);
 }
 h1{
     font-size: 85px;
@@ -25,10 +28,10 @@ h3{
     font-size: 30px;
 }
 h4{
-    font-size: 30px;
+    font-size: 20px;
 }
 h5 {
-    font-size: 13px;
+    font-size: 15px;
 }
 p{
     font-size: 14px;
@@ -41,7 +44,7 @@ h4,h5 {
 }
 
 .linebreak{
-    width: 100px;
+    width: 85px;
     height: 1px;
     background-color: rgb(255, 255, 255);
     border-radius: 15px;
@@ -54,10 +57,16 @@ h4,h5 {
 }
 
 .mt-12{
-    margin-top: 120px;
+    margin-top: 90px;
 }
-.mt-6{
-    margin-top: 60px;
+.mt-5{
+    margin-top: 50px;
+}
+
+.createGameButton{
+    background-color: rgb(117, 134, 149);
+    border-color: aliceblue;
+    height: 50px;
 }
 @font-face {
     font-family: 'Bodoni-Italic';

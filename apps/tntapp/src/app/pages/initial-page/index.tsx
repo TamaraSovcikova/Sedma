@@ -31,12 +31,21 @@ export function InitialPage() {
       }
     );
   };
+  const isPlayingOnComputer = () => {
+    const screenWidth =
+      window.innerWidth ||
+      document.documentElement.clientWidth ||
+      document.body.clientWidth;
+
+    const computerScreenWidthThreshold = 768;
+    return screenWidth >= computerScreenWidthThreshold;
+  };
 
   return (
     <div className="container p-0">
       <div className="row mt-4">
         <div className="col align-self-start">
-          <h4 className="mt-2">SEDMA</h4>
+          <h4>SEDMA</h4>
           <div className="linebreak"></div>
         </div>
       </div>
@@ -50,10 +59,9 @@ export function InitialPage() {
           <h1 className="mt-12">SEDMA</h1>
           <h5 className="mt-1">Welcome to the world of Sedma!</h5>
           <p>
-            Joining a game of Sedma is simple. If you have been invited to play
-            by someone, enter their game ID in the input field below and click
-            "JOIN GAME". It's a great way to test your skills and have fun
-            together!
+            Joining a game is simple. If you have been invited to play by
+            someone, enter their game ID in the input field below and click
+            "JOIN GAME".
           </p>
           <div className="input-group mt-5 mb-3">
             <input
@@ -71,18 +79,25 @@ export function InitialPage() {
               The entered table ID does not exist. Please try again.
             </p>
           )}
-          <div className="mt-6 separator"></div>
-          <h3 className="mt-6">CREATE GAME</h3>
+          <div className="mt-5 separator"></div>
+          <h3 className="mt-5">CREATE GAME</h3>
           <p>
-            Create your own game of Sedma and invite your friends to play with
-            you. Whether it's a casual gathering or a competitive showdown, set
-            the rules and enjoy the thrill of playing Sedma. Simply click the
-            "Click to Create Game" button below to get started.
+            Be the one to create a game to invite your friends to. Whether it's
+            a casual gathering or a competitive showdown, set the rules and
+            enjoy the thrill of playing Sedma. Simply click the "Click to Create
+            Game" button below to get started.
           </p>
-          <button className="mt-3 btn btn-primary" onClick={handleCreateTable}>
+          <button
+            className="mt-3 btn btn-primary createGameButton"
+            onClick={handleCreateTable}
+          >
             Click to Create Game
           </button>
-          <h2>SinglePlayerMode</h2>
+          <h3 className="mt-5">SINGLEPLAYER MODE</h3>
+          <p>
+            In case you want to play a relaxing game on your own, feel free to
+            enter your player's name and get ready to play!
+          </p>
           <div className="input-group mt-5 mb-3">
             <input
               className="form-control"
@@ -91,22 +106,24 @@ export function InitialPage() {
               onChange={(e) => setName(e.target.value)}
             />
             <button className="btn btn-secondary" onClick={startSinglePlayer}>
-              START SINGLEPLAYER GAME
+              SINGLEPLAYER GAME
             </button>
           </div>
         </div>
-        <div className="col-lg-4">
-          <img
-            src="https://www.thoughtco.com/thmb/Qx4zhTIddLwa9jXfelCbnSuhbkM=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/close-up-of-cards-on-white-background-767988479-5c4bd7bb4cedfd0001ddb36e.jpg"
-            alt="Card close-up"
-            className="inicialPageImg mb-5"
-          />
-          <img
-            src="https://images.ctfassets.net/sm166qdr1jca/2B0MXRrvv3ToeRH38QbhKg/5d52594452841f338feba538e8ab5c1f/Website_Red_Riderback.jpg"
-            alt="Cards"
-            className="inicialPageImg mt-5"
-          />
-        </div>
+        {isPlayingOnComputer() && (
+          <div className="col-lg-4">
+            <img
+              src="https://dnes.top/wp-content/uploads/2020/04/kartove-hry-pre-dvoch.jpg"
+              alt="Card close-up"
+              className="inicialPageImg mb-5"
+            />
+            <img
+              src="https://www.tifantex.cz/fotky112972/fotos/_vyr_1298orig.jpg"
+              alt="Cards"
+              className="inicialPageImg mt-5"
+            />
+          </div>
+        )}
       </div>
       <div className="extra-space"></div>
     </div>

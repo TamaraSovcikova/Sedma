@@ -96,9 +96,21 @@
 }
 .passButton{
     position:absolute;
-    top: -50px;
-    left: 13%;  
-    width: 70px;
+    top: 75%;
+    left: 40%;  
+    width: 80px;
+    height: 32px;
+    align-items: center;
+    justify-content: center;
+    display: flex;
+    border-radius: 5%;
+    background-color: #f7f5f5;
+   
+}
+.passButton:hover {
+    background-color: darkgray;    
+    transform: scale(1.05);    
+    transition: background-color 0.3s, transform 0.3s;
 }
 .startGameButton{   
     background-color: rgba(0, 0, 0, 0.789);
