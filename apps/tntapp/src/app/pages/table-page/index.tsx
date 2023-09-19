@@ -77,8 +77,8 @@ function Chair(props: ChairProps) {
             background: 'transparent',
             top: '-30px',
             position: 'absolute',
-            left: '-1px',
             zIndex: '3',
+            left: '-0.5px',
           }}
         />
       )}
@@ -295,7 +295,7 @@ export function TablePage() {
                 background: 'transparent',
                 top: '-30px',
                 position: 'absolute',
-                left: '-1px',
+                left: '-0.5px',
                 zIndex: '3',
               }}
             />

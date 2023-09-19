@@ -4,8 +4,8 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { fetchData, postData } from '../../lib/api';
 import { getServerUrl } from '../../global';
 import { useAuth } from '../../components/auth/auth-context';
-import { BlockList } from 'net';
 
+//TODO: ADD Rules explanation and explanation of the sunglasses and crown
 interface Seat {
   id: number;
   name: string;
@@ -151,7 +151,6 @@ export function LobbyPage() {
     }
   };
 
-  //TODO: after clicking go to lobby page from inicial page, this page should load at the top not mid way
   return (
     <div className="container lobbyPageContainer">
       <button className="btn btn-secondary returnButton" onClick={handleReturn}>

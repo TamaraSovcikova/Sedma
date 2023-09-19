@@ -14,12 +14,14 @@ export function InitialPage() {
   const navigate = useNavigate();
 
   const handleCreateTable = () => {
+    window.scrollTo(0, 0);
     postData(getServerUrl().newtableUrl, {}, token).then((id) =>
       navigate(`/table/lobby/${id}`)
     );
   };
 
   const joinGame = () => {
+    window.scrollTo(0, 0);
     navigate(`/table/lobby/${tableID}`);
   };
 
