@@ -7,6 +7,7 @@ import '../../styles/cardStyle.css';
 import '../../styles/table-page.css';
 import { useAuth } from '../../components/auth/auth-context';
 import useWebSocket from 'react-use-websocket';
+import { debug } from 'console';
 
 interface TableData {
   players: { name: string; id: string | undefined }[];
@@ -17,6 +18,7 @@ interface TableData {
   ownerOfTableId: string;
   gameInProgress: boolean;
   leadingPlayerId: string;
+  round?: number;
 }
 
 interface ChairProps {
@@ -90,6 +92,7 @@ export function TablePage() {
   const [playerIdx, setPlayerIdx] = useState<number>();
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string>();
+  const [isButtonVisible, setButtonVisibility] = useState(false);
   const { logout } = useAuth();
   const navigate = useNavigate();
 
@@ -131,8 +134,16 @@ export function TablePage() {
         setErrorMessage(m.error);
         setTimeout(() => setErrorMessage(undefined), 3000);
       }
+      if (data?.currentPlayer !== undefined) {
+        if (data?.players[data.currentPlayer].id === data?.leadingPlayerId) {
+          setButtonVisibility(true);
+          console.log('button visibility is true');
+        } else {
+          setButtonVisibility(false);
+        }
+      }
     }
-  }, [lastJsonMessage, token, setIsLoading]);
+  }, [lastJsonMessage, token, setIsLoading, data]);
 
   const handlePlayCard = (c: Card) => {
     if (!id) return;
@@ -163,8 +174,17 @@ export function TablePage() {
       tableId: id,
     };
     sendJsonMessage(message);
+
+    setButtonVisibility(false);
     console.log('handlePlayerPass');
   };
+
+  const canPass = () => {
+    if (data?.round) return data?.round > 0;
+  };
+
+  const shouldShowButton =
+    data?.leadingPlayerId === token && canPass() && isButtonVisible;
 
   const isOwner = data?.ownerOfTableId === token;
 
@@ -243,9 +263,8 @@ export function TablePage() {
           />
         </div>
       </div>
-      {/* TODO: make pass button apear only on the second turn */}
       <div>
-        {data.leadingPlayerId === token && (
+        {shouldShowButton && (
           <button className="passButton" onClick={handlePlayerPass}>
             PASS
           </button>

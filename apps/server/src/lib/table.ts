@@ -3,8 +3,6 @@ import { Card, FaceType, SuitType } from './card';
 import { MessageTableData, TableData } from './wsServer';
 
 import debugLog from 'debug';
-import { table } from 'console';
-
 const debug = debugLog('table');
 
 export class Table {
@@ -27,6 +25,7 @@ export class Table {
   ownerOfTable: Player = undefined;
   gameInProgress = false;
   leadingPlayerId: string;
+  round = 0;
 
   constructor(id: string) {
     const emptyPlayer = new Player('');
@@ -53,6 +52,7 @@ export class Table {
         gameInProgress: this.gameInProgress,
         leadingPlayerId:
           this.players.length > 0 ? this.players[this.leadPlayer].id : '',
+        round: this.round,
       };
       const messageData: MessageTableData = {
         data,
@@ -127,6 +127,10 @@ export class Table {
   }
 
   public playCard(playerId: string, card: Card) {
+    if (this.currentPlayer === this.leadPlayer) {
+      this.round = this.round + 1;
+      debug('round added:', this.round);
+    }
     const player = this.players.find((p) => p.id === playerId);
     debug(player.name, 'is playing card: ', card);
 
@@ -177,6 +181,8 @@ export class Table {
     this.leadPlayer = this.winningPlayer;
     this.players[this.winningPlayer].collectWonCards(this.discardPile);
     this.discardPile = [];
+    this.round = 0;
+    debug('round set to 0');
 
     debug(`\nWinner of the Round: ${this.players[this.winningPlayer].name}`);
 

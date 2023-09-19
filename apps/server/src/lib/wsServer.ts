@@ -37,6 +37,7 @@ export interface TableData {
   ownerOfTableId: string;
   gameInProgress: boolean;
   leadingPlayerId: string;
+  round: number;
 }
 
 export interface MessageTableData extends MessageBase {
