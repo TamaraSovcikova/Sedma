@@ -89,11 +89,7 @@
     background-color: black;
     z-index: 0;
 }
-.crown{
-    width: 100px;
-    height: 100px;
-    background: transparent;
-}
+
 .passButton{
     position:absolute;
     top: 75%;

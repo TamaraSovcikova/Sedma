@@ -26,6 +26,7 @@ interface ChairProps {
   playerName: string;
   lastPlayedCard: Card;
   currentPlayer: boolean;
+  leadPlayer: boolean;
 }
 interface MessageBase {
   type:
@@ -57,10 +58,31 @@ export interface MessageError extends MessageBase {
 }
 
 function Chair(props: ChairProps) {
-  const { chairPosition, playerName, lastPlayedCard, currentPlayer } = props;
+  const {
+    chairPosition,
+    playerName,
+    lastPlayedCard,
+    currentPlayer,
+    leadPlayer,
+  } = props;
   return (
     <div className={`chair ${chairPosition}`}>
       {currentPlayer && (
+        <img
+          src="https://cdn-icons-png.flaticon.com/512/116/116145.png"
+          alt="sunglasses"
+          style={{
+            width: '50px',
+            height: '50px',
+            background: 'transparent',
+            top: '-30px',
+            position: 'absolute',
+            left: '-1px',
+            zIndex: '3',
+          }}
+        />
+      )}
+      {leadPlayer && (
         <img
           src="https://clipart-library.com/newimages/crown-clip-art-18.png"
           alt="crown"
@@ -224,23 +246,32 @@ export function TablePage() {
           playerName={data.players[(playerIdx + 2) % 4].name}
           lastPlayedCard={data.lastPlayedCards[2]}
           currentPlayer={data.currentPlayer === (playerIdx + 2) % 4}
+          leadPlayer={
+            data.players[(playerIdx + 2) % 4].id === data.leadingPlayerId
+          }
         />
         <Chair
           chairPosition="left"
           playerName={data.players[(playerIdx + 1) % 4].name}
           lastPlayedCard={data.lastPlayedCards[1]}
           currentPlayer={data.currentPlayer === (playerIdx + 1) % 4}
+          leadPlayer={
+            data.players[(playerIdx + 1) % 4].id === data.leadingPlayerId
+          }
         />
         <Chair
           chairPosition="right"
           playerName={data.players[(playerIdx + 3) % 4].name}
           lastPlayedCard={data.lastPlayedCards[3]}
           currentPlayer={data.currentPlayer === (playerIdx + 3) % 4}
+          leadPlayer={
+            data.players[(playerIdx + 3) % 4].id === data.leadingPlayerId
+          }
         />
         <div className="chair bottom">
           <div className="player on-chair"></div>
           <div className="player body"></div>
-          {data.currentPlayer === playerIdx && (
+          {data.players[playerIdx].id === data.leadingPlayerId && (
             <img
               src="https://clipart-library.com/newimages/crown-clip-art-18.png"
               alt="crown"
@@ -251,6 +282,21 @@ export function TablePage() {
                 top: '-60px',
                 position: 'absolute',
                 left: '-1px',
+              }}
+            />
+          )}
+          {data.currentPlayer === playerIdx && (
+            <img
+              src="https://cdn-icons-png.flaticon.com/512/116/116145.png"
+              alt="sunglasses"
+              style={{
+                width: '50px',
+                height: '50px',
+                background: 'transparent',
+                top: '-30px',
+                position: 'absolute',
+                left: '-1px',
+                zIndex: '3',
               }}
             />
           )}

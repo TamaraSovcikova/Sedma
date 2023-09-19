@@ -182,14 +182,15 @@ export class Table {
     this.players[this.winningPlayer].collectWonCards(this.discardPile);
     this.discardPile = [];
     this.round = 0;
-    debug('round set to 0');
 
     debug(`\nWinner of the Round: ${this.players[this.winningPlayer].name}`);
 
     if (!this.deckHasCards() && this.allCardsPlayed()) {
       this.gameover = true;
     } else {
+      debug('handing out cards');
       this.handOutCards();
+      this.sendUpdates();
     }
     this.cardToBeat = null;
   }
