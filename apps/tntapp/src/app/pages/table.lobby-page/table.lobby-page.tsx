@@ -4,6 +4,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { fetchData, postData } from '../../lib/api';
 import { getServerUrl } from '../../global';
 import { useAuth } from '../../components/auth/auth-context';
+import { BlockList } from 'net';
 
 interface Seat {
   id: number;
@@ -150,8 +151,9 @@ export function LobbyPage() {
     }
   };
 
+  //TODO: after clicking go to lobby page from inicial page, this page should load at the top not mid way
   return (
-    <div className="container">
+    <div className="container lobbyPageContainer">
       <button className="btn btn-secondary returnButton" onClick={handleReturn}>
         <i
           className="fas fa-arrow-left"
@@ -163,7 +165,7 @@ export function LobbyPage() {
           <h2 className="lobby-header text-center">JOIN A GAME OF SEDMA</h2>
         </div>
         <div className="row justify-content-center mt-4">
-          <div className="col-md-8">
+          <div className="col-md-12">
             <p className="tableID-text">
               Your Unique Table ID, send it to your friends to let them join!
             </p>
@@ -186,7 +188,7 @@ export function LobbyPage() {
         <div className="mt-5 separator"></div>
       </div>
       <div className="row justify-content-center mt-4">
-        <div className="col-md-8">
+        <div className="col-md-12">
           <div className="form-group">
             <label style={{ fontSize: '20px' }} htmlFor="username-input">
               ENTER USERNAME:
