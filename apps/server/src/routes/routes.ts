@@ -3,8 +3,6 @@ import { createTable, getTable } from '../lib/game';
 import { addPlayer, deletePlayer } from '../lib/table';
 import debugLog from 'debug';
 import { computerLevel1 } from '../lib/computerPlayer1';
-import { findAncestor } from 'typescript';
-import { unstable_renderSubtreeIntoContainer } from 'react-dom';
 
 const debug = debugLog('routes');
 
@@ -31,6 +29,20 @@ export function createRoutes(app: any) {
       res.json(response);
     } else res.status(404).send('not found');
   });
+
+  app.get('/table/exists/:id', (req, res) => {
+    const params = req.params;
+    const tableId = params.id;
+
+    const existingTableId = getTable(tableId).id;
+
+    if (existingTableId === tableId) {
+      res.status(200).json({ message: 'Table found' });
+    } else {
+      res.status(404).json({ message: 'Table not found' });
+    }
+  });
+
   app.post('/table/Lobby/:id', (req, res) => {
     const data = req.body;
     const params = req.params;

@@ -10,26 +10,29 @@ export class Table {
   deck: Card[] = [];
   id: string;
   /** player who is currently winning the game */
-  winningPlayer: number;
+  winningPlayer = 0;
   /** person who won the last game /starts the round */
   leadPlayer = 0;
   /** the person whos turn it is */
-  currentPlayer: number;
+  currentPlayer = 0;
   discardPile: Card[] = [];
   cardToBeat: Card | null = null;
-  teamAPoints: number;
-  teamBPoints: number;
+  teamAPoints = 0;
+  teamBPoints = 0;
   deckDone: boolean;
   gameover: boolean;
   waitingForPlayers = true;
   ownerOfTable: Player = undefined;
   gameInProgress = false;
-  leadingPlayerId: string;
   round = 0;
 
   constructor(id: string) {
-    const emptyPlayer = new Player('');
-    this.players = [emptyPlayer, emptyPlayer, emptyPlayer, emptyPlayer];
+    this.players = [
+      new Player(''),
+      new Player(''),
+      new Player(''),
+      new Player(''),
+    ];
     this.id = id;
   }
 
@@ -42,6 +45,7 @@ export class Table {
       const hand = p.onHand;
       const waitingForPlayers = this.playerCount() < 4;
 
+      debug('the winning player is: ', this.winningPlayer, this.players);
       const data: TableData = {
         players: playerList,
         lastPlayedCards,
@@ -50,8 +54,7 @@ export class Table {
         currentPlayer: this.currentPlayer,
         ownerOfTableId: this.ownerOfTable.id,
         gameInProgress: this.gameInProgress,
-        leadingPlayerId:
-          this.players.length > 0 ? this.players[this.leadPlayer].id : '',
+        winningPlayerId: this.players[this.winningPlayer].id,
         round: this.round,
       };
       const messageData: MessageTableData = {
@@ -235,7 +238,7 @@ export class Table {
     this.currentPlayer = 0;
     this.gameInProgress = true;
     this.leadPlayer = this.currentPlayer;
-    this.winningPlayer = this.currentPlayer;
+    this.winningPlayer = this.leadPlayer;
     this.discardPile = [];
     this.gameover = false;
     this.cardToBeat = null;
@@ -270,7 +273,7 @@ export class Table {
     if (seat.name === '') {
       this.players[seatPosition] = player;
     } else throw new Error('seat position is occupied');
-    this.sendUpdates();
+    if (this.players.length > 0) this.sendUpdates();
   }
   public deletePlayer(player: Player, seatPosition: number) {
     this.players[seatPosition] = new Player('');

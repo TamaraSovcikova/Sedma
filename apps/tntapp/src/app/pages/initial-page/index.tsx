@@ -20,9 +20,23 @@ export function InitialPage() {
     );
   };
 
-  const joinGame = () => {
-    window.scrollTo(0, 0);
-    navigate(`/table/lobby/${tableID}`);
+  const joinGame = async () => {
+    try {
+      const response = await fetch(getServerUrl().exitTableUrl(tableID));
+      if (response.status === 200) {
+        setError(false);
+        window.scrollTo(0, 0);
+        navigate(`/table/lobby/${tableID}`);
+      } else if (response.status === 404) {
+        console.log('this table with id:', tableID, 'was not found');
+        setError(true);
+      } else {
+        setError(true);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      setError(true);
+    }
   };
 
   const startSinglePlayer = () => {

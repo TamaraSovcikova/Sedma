@@ -36,7 +36,7 @@ export interface TableData {
   currentPlayer: number;
   ownerOfTableId: string;
   gameInProgress: boolean;
-  leadingPlayerId: string;
+  winningPlayerId: string;
   round: number;
 }
 

@@ -75,8 +75,6 @@ export function LobbyPage() {
         .catch((err) => console.log('Table does not exist', err));
   }, [id, token]);
 
-  //TODO deal with nonexistant tables;
-
   const [username, setUsername] = useState('');
   const [seats, setSeats] = useState<Seat[]>([
     { id: 1, name: '', taken: false },

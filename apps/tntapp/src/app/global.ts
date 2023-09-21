@@ -6,4 +6,5 @@ export const getServerUrl = () => ({
   lobbyUrl: (id: string) => `${url}/table/lobby/${id}`,
   newtableUrl: `${url}/table/new`,
   singlePlayerTableUrl: `${url}/table/newSinglePlayer`,
+  exitTableUrl: (id: string) => `${url}/table/exists/${id}`,
 });

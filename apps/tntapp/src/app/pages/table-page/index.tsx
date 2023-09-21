@@ -17,7 +17,7 @@ interface TableData {
   currentPlayer: number;
   ownerOfTableId: string;
   gameInProgress: boolean;
-  leadingPlayerId: string;
+  winningPlayerId: string;
   round?: number;
 }
 
@@ -26,7 +26,7 @@ interface ChairProps {
   playerName: string;
   lastPlayedCard: Card;
   currentPlayer: boolean;
-  leadPlayer: boolean;
+  winningPlayer: boolean;
 }
 interface MessageBase {
   type:
@@ -63,7 +63,7 @@ function Chair(props: ChairProps) {
     playerName,
     lastPlayedCard,
     currentPlayer,
-    leadPlayer,
+    winningPlayer,
   } = props;
   return (
     <div className={`chair ${chairPosition}`}>
@@ -82,7 +82,7 @@ function Chair(props: ChairProps) {
           }}
         />
       )}
-      {leadPlayer && (
+      {winningPlayer && (
         <img
           src="https://clipart-library.com/newimages/crown-clip-art-18.png"
           alt="crown"
@@ -120,7 +120,7 @@ export function TablePage() {
 
   console.log('data', data);
   const { token } = useAuth();
-
+  // TODO: when a player loggs on make it so that that is when the character apears on the seat, other than that dont show them.
   const { sendJsonMessage, lastJsonMessage, getWebSocket } =
     useWebSocket<MessageBase>(getServerUrl().tableUrl, {
       onOpen: () => {
@@ -157,7 +157,7 @@ export function TablePage() {
         setTimeout(() => setErrorMessage(undefined), 3000);
       }
       if (data?.currentPlayer !== undefined) {
-        if (data?.players[data.currentPlayer].id === data?.leadingPlayerId) {
+        if (data?.players[data.currentPlayer].id === data?.winningPlayerId) {
           setButtonVisibility(true);
           console.log('button visibility is true');
         } else {
@@ -206,7 +206,7 @@ export function TablePage() {
   };
 
   const shouldShowButton =
-    data?.leadingPlayerId === token && canPass() && isButtonVisible;
+    data?.winningPlayerId === token && canPass() && isButtonVisible;
 
   const isOwner = data?.ownerOfTableId === token;
 
@@ -246,8 +246,8 @@ export function TablePage() {
           playerName={data.players[(playerIdx + 2) % 4].name}
           lastPlayedCard={data.lastPlayedCards[2]}
           currentPlayer={data.currentPlayer === (playerIdx + 2) % 4}
-          leadPlayer={
-            data.players[(playerIdx + 2) % 4].id === data.leadingPlayerId
+          winningPlayer={
+            data.players[(playerIdx + 2) % 4].id === data.winningPlayerId
           }
         />
         <Chair
@@ -255,8 +255,8 @@ export function TablePage() {
           playerName={data.players[(playerIdx + 1) % 4].name}
           lastPlayedCard={data.lastPlayedCards[1]}
           currentPlayer={data.currentPlayer === (playerIdx + 1) % 4}
-          leadPlayer={
-            data.players[(playerIdx + 1) % 4].id === data.leadingPlayerId
+          winningPlayer={
+            data.players[(playerIdx + 1) % 4].id === data.winningPlayerId
           }
         />
         <Chair
@@ -264,14 +264,14 @@ export function TablePage() {
           playerName={data.players[(playerIdx + 3) % 4].name}
           lastPlayedCard={data.lastPlayedCards[3]}
           currentPlayer={data.currentPlayer === (playerIdx + 3) % 4}
-          leadPlayer={
-            data.players[(playerIdx + 3) % 4].id === data.leadingPlayerId
+          winningPlayer={
+            data.players[(playerIdx + 3) % 4].id === data.winningPlayerId
           }
         />
         <div className="chair bottom">
           <div className="player on-chair"></div>
           <div className="player body"></div>
-          {data.players[playerIdx].id === data.leadingPlayerId && (
+          {data.players[playerIdx].id === data.winningPlayerId && (
             <img
               src="https://clipart-library.com/newimages/crown-clip-art-18.png"
               alt="crown"
