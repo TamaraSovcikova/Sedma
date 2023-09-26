@@ -54,6 +54,10 @@ export class Player {
 
   public collectWonCards(playedCards: Card[]): void {
     this.cardsWon.push(...playedCards);
+    this.collectedPoints = this.cardsWon.reduce(
+      (total, c) => (total += c.points),
+      0
+    );
   }
 
   public playerNeedsCards(): boolean {

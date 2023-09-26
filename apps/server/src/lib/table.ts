@@ -19,12 +19,16 @@ export class Table {
   cardToBeat: Card | null = null;
   teamAPoints = 0;
   teamBPoints = 0;
+  totalCollectedCardsA: Card[] = [];
+  totalCollectedCardsB: Card[] = [];
   deckDone: boolean;
-  gameover: boolean;
   waitingForPlayers = true;
   ownerOfTable: Player = undefined;
   gameInProgress = false;
   round = 0;
+  teamAStakeCount = 0;
+  teamBStakeCount = 0;
+  finalStakeCount = 0; //TODO make players set the stake goul count at the beginning
 
   constructor(id: string) {
     this.players = [
@@ -45,7 +49,6 @@ export class Table {
       const hand = p.onHand;
       const waitingForPlayers = this.playerCount() < 4;
 
-      debug('the winning player is: ', this.winningPlayer, this.players);
       const data: TableData = {
         players: playerList,
         lastPlayedCards,
@@ -55,7 +58,9 @@ export class Table {
         ownerOfTableId: this.ownerOfTable.id,
         gameInProgress: this.gameInProgress,
         winningPlayerId: this.players[this.winningPlayer].id,
+        leadPlayerId: this.players[this.leadPlayer].id,
         round: this.round,
+        cardToBeat: this.cardToBeat,
       };
       const messageData: MessageTableData = {
         data,
@@ -66,6 +71,31 @@ export class Table {
 
       if (p.ws) p.ws.send(JSON.stringify(messageData));
     }
+  }
+
+  public startGame(): void {
+    this.setUpGame();
+
+    if (this.deckHasCards()) {
+      this.handOutCards();
+      this.sendUpdates();
+    }
+  }
+
+  public setUpGame(): void {
+    debug('----A New Game Has Begun----');
+    this.createDeck();
+    this.shuffleDeck();
+    this.assignTeams();
+
+    if (this.leadPlayer) this.currentPlayer = this.leadPlayer;
+    else this.currentPlayer = 0;
+
+    this.gameInProgress = true;
+    this.leadPlayer = this.currentPlayer;
+    this.winningPlayer = this.leadPlayer;
+    this.discardPile = [];
+    this.cardToBeat = null;
   }
 
   public createDeck(): Card[] {
@@ -96,13 +126,19 @@ export class Table {
     return this.deck;
   }
 
+  public assignTeams() {
+    this.players[0].team = 'A';
+    this.players[1].team = 'B';
+    this.players[2].team = 'A';
+    this.players[3].team = 'B';
+  }
+
   public deckHasCards(): boolean {
     return this.deck.length > 0;
   }
 
   public handOutCards(): void {
     // Gives each player the amount of cards they are missing
-    debug('going to hand out cards');
     for (let i = 0; i < this.players.length; i++) {
       const playerToGetCards = (i + this.leadPlayer) % this.players.length;
 
@@ -111,7 +147,7 @@ export class Table {
           if (this.deckHasCards()) {
             this.players[playerToGetCards].getCard(this.deck);
           } else {
-            debug('no cards to give deck length more than 4');
+            debug('Deck Has <= 4 Cards left');
             break;
           }
         }
@@ -120,7 +156,7 @@ export class Table {
           if (this.deckHasCards()) {
             this.players[playerToGetCards].getCard(this.deck);
           } else {
-            debug('no cards to give less than 4');
+            debug('Deck Has No More Cards To Give');
             break;
           }
         }
@@ -130,10 +166,6 @@ export class Table {
   }
 
   public playCard(playerId: string, card: Card) {
-    if (this.currentPlayer === this.leadPlayer) {
-      this.round = this.round + 1;
-      debug('round added:', this.round);
-    }
     const player = this.players.find((p) => p.id === playerId);
     debug(player.name, 'is playing card: ', card);
 
@@ -143,6 +175,28 @@ export class Table {
     if (this.players.indexOf(player) !== this.currentPlayer) {
       throw new Error('It is not your turn to play');
     }
+
+    debug(
+      'round %s currentplayer %s leadplayer %s',
+      this.round,
+      this.currentPlayer,
+      this.leadPlayer
+    );
+    if (this.currentPlayer === this.leadPlayer && this.round > 0) {
+      if (!this.hasACardToTakeOver()) {
+        debug(
+          'This player has no card to be able to player, therefore passing'
+        );
+        this.endRound();
+        return;
+      }
+    }
+
+    if (!this.canPlayCard(card)) {
+      debug('YOU CANT PLAY THIS CARD');
+      return;
+    } //check if this person can play a card
+
     this.discardPile.push(card);
     const cardIdx = player.onHand.findIndex(
       (c) => c.face === card.face && c.suit === card.suit
@@ -160,110 +214,168 @@ export class Table {
       }
     }
 
-    this.currentPlayer = (this.currentPlayer + 1) % this.players.length;
+    if (this.currentPlayer === this.leadPlayer) {
+      this.round = this.round + 1;
+    }
+
+    this.currentPlayer = (this.currentPlayer + 1) % this.players.length; //current player is increased
     this.sendUpdates();
 
     //checking if next player is an autoplayer and will play untill they arent one
     if (this.players[this.currentPlayer].autoplay) {
       setTimeout(() => {
         this.players[this.currentPlayer].autoplay(this, this.currentPlayer);
-        debug('played AutoPlay for', this.players[this.currentPlayer].name);
         this.sendUpdates();
       }, 2000);
     }
-
-    if (this.gameover) {
-      debug('GAMEOVER');
-      this.evaluateGame();
-      this.showResults();
-    }
+  }
+  //TODO: make display of score at end round, program start when all players are ready, make auto start on its own
+  public hasACardToTakeOver() {
+    return this.players[this.currentPlayer].onHand.find(
+      (c) => c.face === this.cardToBeat.face || c.face === 'seven'
+    );
+  }
+  public canPlayCard(card: Card) {
+    if (this.leadPlayer === this.currentPlayer && this.round > 0) {
+      if (this.winningPlayer === this.currentPlayer) return true;
+      else if (card.face === this.cardToBeat.face || card.face === 'seven')
+        return true; //if not winning player but still played card
+      else {
+        debug('cannot play this card!', this.currentPlayer, card);
+        return false;
+      }
+    } else return true;
   }
 
   public endRound() {
     // Calculate the winner of the round
-    this.leadPlayer = this.winningPlayer;
     this.players[this.winningPlayer].collectWonCards(this.discardPile);
+    if (this.players[this.winningPlayer].team === 'A')
+      this.discardPile.forEach((c) => {
+        this.totalCollectedCardsA.push(c);
+      });
+    else
+      this.discardPile.forEach((c) => {
+        this.totalCollectedCardsB.push(c);
+      });
+
+    this.leadPlayer = this.winningPlayer;
+
     this.discardPile = [];
     this.round = 0;
 
     debug(`\nWinner of the Round: ${this.players[this.winningPlayer].name}`);
 
     if (!this.deckHasCards() && this.allCardsPlayed()) {
-      this.gameover = true;
+      this.endGame();
+      if (this.players[this.leadPlayer].team === 'A') {
+        debug('for winning the last deal, team A gets extra 10 points!');
+        this.teamAPoints += 10;
+      } else {
+        debug('for winning the last deal, team B gets extra 10 points!');
+        this.teamBPoints += 10;
+      }
     } else {
       debug('handing out cards');
       this.handOutCards();
       this.sendUpdates();
     }
     this.cardToBeat = null;
+    this.evaluateRound();
+  }
+  public evaluateRound() {
+    debug('ROUND END');
+    debug(
+      'the winning player, and next rounds leading player is:',
+      this.leadPlayer
+    );
+    const team =
+      this.players[this.leadPlayer].team === 'A' ? 'Team A' : 'Team B';
+    debug(
+      'This round, ',
+      team,
+      ' won ',
+      this.players[this.leadPlayer].collectedPoints,
+      ' points'
+    );
+
+    this.players[this.leadPlayer].collectedPoints = 0;
   }
 
-  public evaluateGame() {
+  public endGame() {
+    debug('GAMEOVER');
+    this.sumUpPoints();
+    this.calculateStakes();
+  }
+
+  public sumUpPoints() {
+    debug('END OF GAME, summing up all the points');
     for (const player of this.players) {
       player.totalCollectedPoints();
     }
 
-    if (this.players.length === 4) {
-      for (let i = 0; i < 4; i++) {
-        if (this.players[i].team === 'A')
-          this.teamAPoints += this.players[i].collectedPoints;
-        else this.teamBPoints += this.players[i].collectedPoints;
-      }
-    }
-    debug('END, time to sum the points');
-  }
-  public playerCount(): number {
-    const playerCount = this.players.reduce((total, element) => {
-      if (!element.connected) return total;
-      else return total + 1;
-    }, 0);
-    return playerCount;
-  }
-  public showResults() {
-    if (this.players.length === 4) {
-      if (this.teamAPoints > this.teamBPoints) {
-        debug(`\nTeam A, Won this game: ${this.teamAPoints}!`);
-      } else if (this.teamBPoints > this.teamAPoints) {
-        debug(`\nTeam B, Won this game: ${this.teamAPoints}!`);
-      } else {
-        debug('\nThis game ended in a DRAW!');
-      }
-    }
-  }
-
-  public setUpGame(): void {
-    debug('----A New Game Has Begun----');
-    this.createDeck();
-    this.shuffleDeck();
-    this.currentPlayer = 0;
-    this.gameInProgress = true;
-    this.leadPlayer = this.currentPlayer;
-    this.winningPlayer = this.leadPlayer;
-    this.discardPile = [];
-    this.gameover = false;
-    this.cardToBeat = null;
-  }
-
-  public startGame(): void {
-    this.setUpGame();
-
-    if (this.deckHasCards()) {
-      debug('handing Out Cards');
-      this.handOutCards();
-      this.sendUpdates();
-    } else if (!this.deckHasCards() && !this.deckDone) {
-      debug('\nTHE PILE HAS RUN OUT OF CARDS!');
-      this.deckDone = true;
-    }
-  }
-
-  public allCardsPlayed(): boolean {
     for (const player of this.players) {
-      if (player.haveCards()) {
-        return false;
+      if (player.team === 'A') {
+        this.teamAPoints += player.collectedPoints;
+      }
+      if (player.team === 'B') {
+        this.teamBPoints += player.collectedPoints;
       }
     }
-    return true;
+  }
+
+  public calculateStakes() {
+    const {
+      teamAPoints,
+      teamBPoints,
+      totalCollectedCardsA,
+      totalCollectedCardsB,
+    } = this;
+
+    if (teamAPoints >= 90 || teamBPoints >= 90) {
+      if (totalCollectedCardsA.length === 32) {
+        debug(`\nTeam A won all deals and therefore gained 3 stakes!`);
+        this.teamAStakeCount += 3;
+      } else if (totalCollectedCardsB.length === 32) {
+        debug(`\nTeam B won all deals and therefore gained 3 stakes!`);
+        this.teamBStakeCount += 3;
+      } else {
+        if (teamAPoints > teamBPoints) {
+          this.teamAStakeCount += 2;
+        } else {
+          this.teamBStakeCount += 2;
+        }
+        const winningTeam = teamAPoints > teamBPoints ? 'A' : 'B';
+        debug(
+          `\nTeam ${winningTeam} has more points, but not all deals, so they win 2 stakes!`
+        );
+      }
+    } else {
+      if (teamAPoints > teamBPoints) {
+        this.teamAStakeCount += 1;
+      } else {
+        this.teamBStakeCount += 1;
+      }
+      const winningTeam = teamAPoints > teamBPoints ? 'A' : 'B';
+      debug(
+        `\nNo team has earned 90 points. Team ${winningTeam} has more points, so they earn 1 stake.`
+      );
+    }
+
+    if (this.checkStakeCount()) {
+      //completely end game
+      debug('THE STAKE COUNT HAS BEEN REACHED! END OF GAME!');
+      //TODO: show players their scores, show leaderboard, ask if they which to play again.
+    }
+  }
+
+  public checkStakeCount() {
+    if (
+      this.teamAStakeCount >= this.finalStakeCount ||
+      this.teamBStakeCount >= this.finalStakeCount
+    )
+      return true;
+    else return false;
   }
 
   public addPlayer(player: Player, seatPosition: number) {
@@ -275,16 +387,33 @@ export class Table {
     } else throw new Error('seat position is occupied');
     if (this.players.length > 0) this.sendUpdates();
   }
+
   public deletePlayer(player: Player, seatPosition: number) {
     this.players[seatPosition] = new Player('');
     this.sendUpdates();
+  }
+
+  public playerCount(): number {
+    const playerCount = this.players.reduce((total, element) => {
+      if (!element.connected) return total;
+      else return total + 1;
+    }, 0);
+    return playerCount;
+  }
+
+  public allCardsPlayed(): boolean {
+    for (const player of this.players) {
+      if (player.haveCards()) {
+        return false;
+      }
+    }
+    return true;
   }
 }
 
 export function addPlayer(name: string, table: Table, seatPosition: number) {
   const player = new Player(name);
   table.addPlayer(player, seatPosition);
-  debug('this is the second add player function');
   return player;
 }
 

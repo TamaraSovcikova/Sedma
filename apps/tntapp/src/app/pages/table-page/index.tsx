@@ -18,6 +18,7 @@ interface TableData {
   ownerOfTableId: string;
   gameInProgress: boolean;
   winningPlayerId: string;
+  leadPlayerId: string;
   round?: number;
 }
 
@@ -114,7 +115,6 @@ export function TablePage() {
   const [playerIdx, setPlayerIdx] = useState<number>();
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string>();
-  const [isButtonVisible, setButtonVisibility] = useState(false);
   const { logout } = useAuth();
   const navigate = useNavigate();
 
@@ -156,14 +156,6 @@ export function TablePage() {
         setErrorMessage(m.error);
         setTimeout(() => setErrorMessage(undefined), 3000);
       }
-      if (data?.currentPlayer !== undefined) {
-        if (data?.players[data.currentPlayer].id === data?.winningPlayerId) {
-          setButtonVisibility(true);
-          console.log('button visibility is true');
-        } else {
-          setButtonVisibility(false);
-        }
-      }
     }
   }, [lastJsonMessage, token, setIsLoading, data]);
 
@@ -197,16 +189,26 @@ export function TablePage() {
     };
     sendJsonMessage(message);
 
-    setButtonVisibility(false);
     console.log('handlePlayerPass');
   };
 
   const canPass = () => {
-    if (data?.round) return data?.round > 0;
+    if (data?.round) {
+      return data?.round > 0;
+    }
   };
 
-  const shouldShowButton =
-    data?.winningPlayerId === token && canPass() && isButtonVisible;
+  const isLeadPlayer = () => {
+    if (data?.leadPlayerId === token) {
+      console.log('IS LEAD PLAYER');
+      return true;
+    } else return false;
+  };
+  const isCurrentPlayer = () => {
+    return data?.players[data.currentPlayer].id === token;
+  };
+
+  const shouldShowButton = isLeadPlayer() && canPass() && isCurrentPlayer();
 
   const isOwner = data?.ownerOfTableId === token;
 
@@ -235,7 +237,7 @@ export function TablePage() {
             onClick={handleStartGame}
             className="btn btn-secondary startGameButton"
           >
-            PRESS TO START GAME
+            TAP TO START GAME
           </button>
         )}
         <div>{errorMessage}</div>

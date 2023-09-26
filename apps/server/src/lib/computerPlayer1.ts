@@ -8,9 +8,9 @@ export const computerLevel1: AutoPlay = (table: Table, playerIdx: number) => {
   const player = table.players[playerIdx];
   if (player.onHand.length === 0) return;
 
-  const findCard = player.onHand.find((c) => {
-    c.face === table.cardToBeat.face;
-  });
+  const findCard = player.onHand.find(
+    (c) => c.face === table.cardToBeat.face || c.face === 'seven'
+  );
 
   if (findCard) table.playCard(player.id, findCard);
   else {

@@ -7,7 +7,7 @@ import debugLog from 'debug';
 
 const debug = debugLog('main');
 debugLog.enable(
-  '* routes -wsServer -table -table.sendUpdates -computerPlayer1'
+  '* -routes -wsServer table -table.sendUpdates -computerPlayer1'
 );
 
 const host = process.env.HOST ?? 'localhost';
