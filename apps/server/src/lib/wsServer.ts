@@ -40,6 +40,9 @@ export interface TableData {
   leadPlayerId: string;
   round: number;
   cardToBeat: Card;
+  teamWonRound: string;
+  wonPoints: number;
+  showresults: boolean;
 }
 
 export interface MessageTableData extends MessageBase {

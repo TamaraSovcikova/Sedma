@@ -7,6 +7,7 @@ import '../../styles/cardStyle.css';
 import '../../styles/table-page.css';
 import { useAuth } from '../../components/auth/auth-context';
 import useWebSocket from 'react-use-websocket';
+
 import { debug } from 'console';
 
 interface TableData {
@@ -20,6 +21,9 @@ interface TableData {
   winningPlayerId: string;
   leadPlayerId: string;
   round?: number;
+  teamWonRound: string;
+  wonPoints: number;
+  showresults: boolean;
 }
 
 interface ChairProps {
@@ -115,6 +119,7 @@ export function TablePage() {
   const [playerIdx, setPlayerIdx] = useState<number>();
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string>();
+
   const { logout } = useAuth();
   const navigate = useNavigate();
 
@@ -188,8 +193,11 @@ export function TablePage() {
       tableId: id,
     };
     sendJsonMessage(message);
-
     console.log('handlePlayerPass');
+  };
+
+  const handleCloseResults = () => {
+    //
   };
 
   const canPass = () => {
@@ -200,7 +208,6 @@ export function TablePage() {
 
   const isLeadPlayer = () => {
     if (data?.leadPlayerId === token) {
-      console.log('IS LEAD PLAYER');
       return true;
     } else return false;
   };
@@ -328,6 +335,30 @@ export function TablePage() {
           />
         ))}
       </div>
+      {data.showresults && (
+        <div className="resultsPopup">
+          <div className="resultsBox">
+            <button className="closeButton" onClick={handleCloseResults}>
+              X
+            </button>
+            <h2>Round Results</h2>
+            <p>
+              Player who Won the deal :{' '}
+              <span className="dynamicData">
+                {data.players.find((p) => p.id === data.winningPlayerId)?.name}
+              </span>
+            </p>
+            <p>
+              Their team:{' '}
+              <span className="dynamicData">{data.teamWonRound}</span>
+            </p>
+            <p>
+              Points Collected:{' '}
+              <span className="dynamicData">{data.wonPoints}</span>
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

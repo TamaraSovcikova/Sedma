@@ -29,6 +29,9 @@ export class Table {
   teamAStakeCount = 0;
   teamBStakeCount = 0;
   finalStakeCount = 0; //TODO make players set the stake goul count at the beginning
+  teamWonRound = '';
+  wonPoints = 0;
+  showresults = false;
 
   constructor(id: string) {
     this.players = [
@@ -61,6 +64,9 @@ export class Table {
         leadPlayerId: this.players[this.leadPlayer].id,
         round: this.round,
         cardToBeat: this.cardToBeat,
+        teamWonRound: this.teamWonRound,
+        wonPoints: this.wonPoints,
+        showresults: this.showresults,
       };
       const messageData: MessageTableData = {
         data,
@@ -188,6 +194,7 @@ export class Table {
           'This player has no card to be able to player, therefore passing'
         );
         this.endRound();
+        this.showresults = true;
         return;
       }
     }
@@ -291,15 +298,14 @@ export class Table {
     );
     const team =
       this.players[this.leadPlayer].team === 'A' ? 'Team A' : 'Team B';
-    debug(
-      'This round, ',
-      team,
-      ' won ',
-      this.players[this.leadPlayer].collectedPoints,
-      ' points'
-    );
 
-    this.players[this.leadPlayer].collectedPoints = 0;
+    this.teamWonRound = team;
+    this.wonPoints = this.players[this.leadPlayer].collectedPoints;
+    debug('This round, ', team, ' won ', this.wonPoints, ' points');
+
+    this.wonPoints = 0;
+    this.showresults = true;
+    this.sendUpdates();
   }
 
   public endGame() {
