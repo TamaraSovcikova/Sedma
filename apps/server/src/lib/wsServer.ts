@@ -15,7 +15,8 @@ interface MessageBase {
     | 'loginFailure'
     | 'error'
     | 'startGame'
-    | 'endRound';
+    | 'endRound'
+    | 'closeResults';
   tableId: string;
 }
 
@@ -111,6 +112,10 @@ export function createWebSocketServer() {
       if (message.type === 'endRound') {
         const table = getTable(message.tableId);
         table.endRound();
+      }
+      if (message.type === 'closeResults') {
+        const table = getTable(message.tableId);
+        table.closeResults();
       }
     });
     ws.on('close', () => {

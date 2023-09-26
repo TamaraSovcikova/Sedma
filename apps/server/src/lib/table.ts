@@ -282,11 +282,8 @@ export class Table {
         debug('for winning the last deal, team B gets extra 10 points!');
         this.teamBPoints += 10;
       }
-    } else {
-      debug('handing out cards');
-      this.handOutCards();
-      this.sendUpdates();
     }
+
     this.cardToBeat = null;
     this.evaluateRound();
   }
@@ -303,9 +300,9 @@ export class Table {
     this.wonPoints = this.players[this.leadPlayer].collectedPoints;
     debug('This round, ', team, ' won ', this.wonPoints, ' points');
 
-    this.wonPoints = 0;
     this.showresults = true;
     this.sendUpdates();
+    this.wonPoints = 0;
   }
 
   public endGame() {
@@ -382,6 +379,26 @@ export class Table {
     )
       return true;
     else return false;
+  }
+
+  public closeResults() {
+    this.showresults = false;
+    this.currentPlayer = this.leadPlayer;
+    //resets the last played cards to nothing
+    this.players.forEach((p) => {
+      p.lastPlayedCard = null;
+    });
+
+    debug('handing out cards');
+    this.handOutCards();
+
+    if (this.players[this.currentPlayer].autoplay) {
+      setTimeout(() => {
+        this.players[this.currentPlayer].autoplay(this, this.currentPlayer);
+      }, 2000);
+    }
+
+    this.sendUpdates();
   }
 
   public addPlayer(player: Player, seatPosition: number) {

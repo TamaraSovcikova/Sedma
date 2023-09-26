@@ -4,22 +4,15 @@ import debugLog from 'debug';
 const debug = debugLog('computerPlayer1');
 
 export const computerLevel1: AutoPlay = (table: Table, playerIdx: number) => {
-  if (playerIdx !== table.currentPlayer) return;
   const player = table.players[playerIdx];
-  if (player.onHand.length === 0) return;
+  if (playerIdx !== table.currentPlayer || player.onHand.length === 0) return;
 
   const findCard = player.onHand.find(
-    (c) => c.face === table.cardToBeat.face || c.face === 'seven'
+    (c) => c.face === table.cardToBeat?.face || c.face === 'seven'
   );
 
-  if (findCard) table.playCard(player.id, findCard);
-  else {
-    debug(
-      'tableId = %s playerIdx= %d onHand = %o',
-      table.id,
-      playerIdx,
-      player.onHand
-    );
-    table.playCard(player.id, player.onHand[0]);
-  }
+  debug(
+    `tableId = ${table.id} playerIdx = ${playerIdx} onHand = ${player.onHand}`
+  );
+  table.playCard(player.id, findCard || player.onHand[0]);
 };

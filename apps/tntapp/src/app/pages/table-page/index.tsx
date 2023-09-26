@@ -41,7 +41,8 @@ interface MessageBase {
     | 'loginFailure'
     | 'error'
     | 'startGame'
-    | 'endRound';
+    | 'endRound'
+    | 'closeResults';
   tableId: string;
 }
 
@@ -197,7 +198,13 @@ export function TablePage() {
   };
 
   const handleCloseResults = () => {
-    //
+    if (!id) return;
+    const message: MessageBase = {
+      type: 'closeResults',
+      tableId: id,
+    };
+    sendJsonMessage(message);
+    console.log('handleCloseResults');
   };
 
   const canPass = () => {
