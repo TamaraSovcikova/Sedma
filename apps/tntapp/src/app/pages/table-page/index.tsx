@@ -24,6 +24,12 @@ interface TableData {
   teamWonRound: string;
   wonPoints: number;
   showresults: boolean;
+  gameEnd: boolean;
+  teamAStakeCount: number;
+  teamBStakeCount: number;
+  finalStakeCount: number;
+  teamAPoints?: number;
+  teamBPoints?: number;
 }
 
 interface ChairProps {
@@ -222,6 +228,13 @@ export function TablePage() {
     return data?.players[data.currentPlayer].id === token;
   };
 
+  const winningTeamPoints = () => {
+    if (data && data.teamAPoints && data.teamBPoints) {
+      if (data?.teamAPoints > data?.teamBPoints) return data.teamAPoints;
+      else return data.teamBPoints;
+    }
+  };
+
   const shouldShowButton = isLeadPlayer() && canPass() && isCurrentPlayer();
 
   const isOwner = data?.ownerOfTableId === token;
@@ -362,6 +375,36 @@ export function TablePage() {
             <p>
               Points Collected:{' '}
               <span className="dynamicData">{data.wonPoints}</span>
+            </p>
+          </div>
+        </div>
+      )}
+      {data.gameEnd && !data.showresults && (
+        <div className="resultsPopup">
+          <div className="resultsBox">
+            <button className="closeButton" onClick={handleCloseResults}>
+              X
+            </button>
+            <h2>GAME FINISHED</h2>
+            <p>
+              Team who won the game!:{' '}
+              <span className="dynamicData"> {data.teamWonRound}</span>{' '}
+            </p>
+            <p>
+              Points Collected:{' '}
+              <span className="dynamicData">{winningTeamPoints()}</span>
+            </p>
+            <p>
+              Stakes to HIT:{' '}
+              <span className="dynamicData">{data.finalStakeCount}</span>
+            </p>
+            <p>
+              Team A stake number:{' '}
+              <span className="dynamicData">{data.teamAStakeCount}</span>
+            </p>
+            <p>
+              Team B stake number:{' '}
+              <span className="dynamicData">{data.teamBStakeCount}</span>
             </p>
           </div>
         </div>

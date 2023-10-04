@@ -5,7 +5,12 @@ const debug = debugLog('computerPlayer1');
 
 export const computerLevel1: AutoPlay = (table: Table, playerIdx: number) => {
   const player = table.players[playerIdx];
-  if (playerIdx !== table.currentPlayer || player.onHand.length === 0) return;
+  if (playerIdx !== table.currentPlayer) return;
+  if (player.onHand.length === 0) {
+    table.endGame();
+    console.log('computer player', player, 'has no cards');
+    return;
+  }
 
   const findCard = player.onHand.find(
     (c) => c.face === table.cardToBeat?.face || c.face === 'seven'

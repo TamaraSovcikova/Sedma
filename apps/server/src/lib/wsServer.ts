@@ -44,6 +44,12 @@ export interface TableData {
   teamWonRound: string;
   wonPoints: number;
   showresults: boolean;
+  gameEnd: boolean;
+  teamAPoints: number;
+  teamBPoints: number;
+  teamAStakeCount: number;
+  teamBStakeCount: number;
+  finalStakeCount: number;
 }
 
 export interface MessageTableData extends MessageBase {

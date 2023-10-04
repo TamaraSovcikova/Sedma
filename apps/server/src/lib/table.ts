@@ -32,6 +32,7 @@ export class Table {
   teamWonRound = '';
   wonPoints = 0;
   showresults = false;
+  gameEnd = false;
 
   constructor(id: string) {
     this.players = [
@@ -67,6 +68,12 @@ export class Table {
         teamWonRound: this.teamWonRound,
         wonPoints: this.wonPoints,
         showresults: this.showresults,
+        gameEnd: this.gameEnd,
+        teamAPoints: this.teamAPoints,
+        teamBPoints: this.teamAPoints,
+        teamAStakeCount: this.teamAStakeCount,
+        teamBStakeCount: this.teamBStakeCount,
+        finalStakeCount: this.finalStakeCount,
       };
       const messageData: MessageTableData = {
         data,
@@ -102,8 +109,9 @@ export class Table {
     this.winningPlayer = this.leadPlayer;
     this.discardPile = [];
     this.cardToBeat = null;
+    this.gameEnd = false;
   }
-
+  //TODO : if player has no cards left or cannot plan another card, they shouldnt have the pass button show up
   public createDeck(): Card[] {
     // Makes a deck of 32 cards
     const suits: SuitType[] = ['heart', 'leaf', 'bell', 'acorn'];
@@ -145,10 +153,13 @@ export class Table {
 
   public handOutCards(): void {
     // Gives each player the amount of cards they are missing
+    if (this.deck.length <= 3) return;
+    debug('deck has', this.deck.length, ' cards');
+
     for (let i = 0; i < this.players.length; i++) {
       const playerToGetCards = (i + this.leadPlayer) % this.players.length;
 
-      if (this.deck.length > 4) {
+      if (this.deck.length > 3) {
         while (this.players[playerToGetCards].playerNeedsCards()) {
           if (this.deckHasCards()) {
             this.players[playerToGetCards].getCard(this.deck);
@@ -173,6 +184,12 @@ export class Table {
 
   public playCard(playerId: string, card: Card) {
     const player = this.players.find((p) => p.id === playerId);
+    debug(
+      this.players[this.currentPlayer].name,
+      ' has ',
+      this.players[this.currentPlayer].onHand.length,
+      'cards'
+    );
     debug(player.name, 'is playing card: ', card);
 
     if (!player) {
@@ -182,27 +199,12 @@ export class Table {
       throw new Error('It is not your turn to play');
     }
 
-    debug(
-      'round %s currentplayer %s leadplayer %s',
-      this.round,
-      this.currentPlayer,
-      this.leadPlayer
-    );
-    if (this.currentPlayer === this.leadPlayer && this.round > 0) {
-      if (!this.hasACardToTakeOver()) {
-        debug(
-          'This player has no card to be able to player, therefore passing'
-        );
-        this.endRound();
-        this.showresults = true;
-        return;
-      }
-    }
-
     if (!this.canPlayCard(card)) {
       debug('YOU CANT PLAY THIS CARD');
       return;
     } //check if this person can play a card
+
+    this.wonPoints += card.points;
 
     this.discardPile.push(card);
     const cardIdx = player.onHand.findIndex(
@@ -226,6 +228,7 @@ export class Table {
     }
 
     this.currentPlayer = (this.currentPlayer + 1) % this.players.length; //current player is increased
+
     this.sendUpdates();
 
     //checking if next player is an autoplayer and will play untill they arent one
@@ -233,8 +236,39 @@ export class Table {
       setTimeout(() => {
         this.players[this.currentPlayer].autoplay(this, this.currentPlayer);
         this.sendUpdates();
-      }, 2000);
+      }, 1500);
     }
+
+    if (this.currentPlayer === this.leadPlayer && this.round > 0) {
+      if (!this.hasACardToTakeOver()) {
+        debug(
+          'player ',
+          this.currentPlayer,
+          ' has no card to be able to player, therefore passing'
+        );
+        setTimeout(() => {
+          this.endRound();
+          this.showresults = true;
+          return;
+        }, 2000);
+      }
+    }
+    if (
+      !this.deckHasCards &&
+      this.players[this.currentPlayer].onHand.length === 0
+    ) {
+      debug(
+        'game is ending because player',
+        this.players[this.currentPlayer].name,
+        'had no cards and deck empty'
+      );
+      setTimeout(() => {
+        this.endRound();
+        this.showresults = true;
+        return;
+      }, 3000);
+    }
+    this.sendUpdates();
   }
   //TODO: make display of score at end round, program start when all players are ready, make auto start on its own
   public hasACardToTakeOver() {
@@ -257,6 +291,7 @@ export class Table {
   public endRound() {
     // Calculate the winner of the round
     this.players[this.winningPlayer].collectWonCards(this.discardPile);
+
     if (this.players[this.winningPlayer].team === 'A')
       this.discardPile.forEach((c) => {
         this.totalCollectedCardsA.push(c);
@@ -286,6 +321,7 @@ export class Table {
 
     this.cardToBeat = null;
     this.evaluateRound();
+    this.gameEnd = false;
   }
   public evaluateRound() {
     debug('ROUND END');
@@ -297,18 +333,19 @@ export class Table {
       this.players[this.leadPlayer].team === 'A' ? 'Team A' : 'Team B';
 
     this.teamWonRound = team;
-    this.wonPoints = this.players[this.leadPlayer].collectedPoints;
+
     debug('This round, ', team, ' won ', this.wonPoints, ' points');
 
     this.showresults = true;
     this.sendUpdates();
-    this.wonPoints = 0;
   }
 
   public endGame() {
     debug('GAMEOVER');
     this.sumUpPoints();
     this.calculateStakes();
+    this.gameEnd = true;
+    this.sendUpdates();
   }
 
   public sumUpPoints() {
@@ -338,31 +375,39 @@ export class Table {
     if (teamAPoints >= 90 || teamBPoints >= 90) {
       if (totalCollectedCardsA.length === 32) {
         debug(`\nTeam A won all deals and therefore gained 3 stakes!`);
+        this.teamWonRound = 'Team A';
         this.teamAStakeCount += 3;
       } else if (totalCollectedCardsB.length === 32) {
         debug(`\nTeam B won all deals and therefore gained 3 stakes!`);
+        this.teamWonRound = 'Team B';
         this.teamBStakeCount += 3;
       } else {
         if (teamAPoints > teamBPoints) {
           this.teamAStakeCount += 2;
+          this.teamWonRound = 'Team A';
         } else {
           this.teamBStakeCount += 2;
+          this.teamWonRound = 'Team B';
         }
         const winningTeam = teamAPoints > teamBPoints ? 'A' : 'B';
         debug(
           `\nTeam ${winningTeam} has more points, but not all deals, so they win 2 stakes!`
         );
+        (this.teamWonRound = 'Team '), winningTeam;
       }
     } else {
       if (teamAPoints > teamBPoints) {
         this.teamAStakeCount += 1;
+        this.teamWonRound = 'Team A';
       } else {
         this.teamBStakeCount += 1;
+        this.teamWonRound = 'Team B';
       }
       const winningTeam = teamAPoints > teamBPoints ? 'A' : 'B';
       debug(
         `\nNo team has earned 90 points. Team ${winningTeam} has more points, so they earn 1 stake.`
       );
+      (this.teamWonRound = 'Team '), winningTeam;
     }
 
     if (this.checkStakeCount()) {
@@ -383,6 +428,7 @@ export class Table {
 
   public closeResults() {
     this.showresults = false;
+    this.wonPoints = 0;
     this.currentPlayer = this.leadPlayer;
     //resets the last played cards to nothing
     this.players.forEach((p) => {
