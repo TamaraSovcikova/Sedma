@@ -41,13 +41,6 @@ export class Player {
     this.connected = true;
   }
 
-  //remmember that i changed it from collected Points
-  public totalCollectedPoints(): void {
-    this.cardsWon.forEach((c) => {
-      this.collectedPoints += c.points;
-    });
-  }
-
   public haveCards(): boolean {
     return this.onHand.length > 0;
   }

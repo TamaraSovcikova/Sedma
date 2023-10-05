@@ -213,6 +213,10 @@ export function TablePage() {
     console.log('handleCloseResults');
   };
 
+  const handleCloseEndGameResults = () => {
+    console.log('handleCloseEndGameResults');
+  };
+
   const canPass = () => {
     if (data?.round) {
       return data?.round > 0;
@@ -382,7 +386,7 @@ export function TablePage() {
       {data.gameEnd && !data.showresults && (
         <div className="resultsPopup">
           <div className="resultsBox">
-            <button className="closeButton" onClick={handleCloseResults}>
+            <button className="closeButton" onClick={handleCloseEndGameResults}>
               X
             </button>
             <h2>GAME FINISHED</h2>
