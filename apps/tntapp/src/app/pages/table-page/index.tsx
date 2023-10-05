@@ -30,6 +30,7 @@ interface TableData {
   finalStakeCount: number;
   teamAPoints?: number;
   teamBPoints?: number;
+  askContinue: boolean;
 }
 
 interface ChairProps {
@@ -48,7 +49,8 @@ interface MessageBase {
     | 'error'
     | 'startGame'
     | 'endRound'
-    | 'closeResults';
+    | 'closeResults'
+    | 'closeEndGameResults';
   tableId: string;
 }
 
@@ -214,6 +216,12 @@ export function TablePage() {
   };
 
   const handleCloseEndGameResults = () => {
+    if (!id) return;
+    const message: MessageBase = {
+      type: 'closeEndGameResults',
+      tableId: id,
+    };
+    sendJsonMessage(message);
     console.log('handleCloseEndGameResults');
   };
 

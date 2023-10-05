@@ -28,11 +28,12 @@ export class Table {
   round = 0;
   teamAStakeCount = 0;
   teamBStakeCount = 0;
-  finalStakeCount = 0; //TODO make players set the stake goul count at the beginning
+  finalStakeCount = 6; //TODO make players set the stake count at the beginning setting it to 6 for testing
   teamWonRound = '';
   wonPoints = 0;
   showresults = false;
   gameEnd = false;
+  askContinue = false; //TODO: this will be used to show the final message after all stakes have been collected
 
   constructor(id: string) {
     this.players = [
@@ -74,6 +75,7 @@ export class Table {
         teamAStakeCount: this.teamAStakeCount,
         teamBStakeCount: this.teamBStakeCount,
         finalStakeCount: this.finalStakeCount,
+        askContinue: this.askContinue,
       };
       const messageData: MessageTableData = {
         data,
@@ -87,12 +89,12 @@ export class Table {
   }
 
   public startGame(): void {
-    this.setUpGame();
+    this.teamAStakeCount = 0;
+    this.teamBStakeCount = 0;
+    this.finalStakeCount = 6;
+    this.teamWonRound = '';
 
-    if (this.deckHasCards()) {
-      this.handOutCards();
-      this.sendUpdates();
-    }
+    this.setUpGame();
   }
 
   public setUpGame(): void {
@@ -110,8 +112,18 @@ export class Table {
     this.discardPile = [];
     this.cardToBeat = null;
     this.gameEnd = false;
+    this.teamAPoints = 0;
+    this.teamBPoints = 0;
+    this.totalCollectedCardsA = [];
+    this.totalCollectedCardsB = [];
+    this.wonPoints = 0;
+
+    if (this.deckHasCards()) {
+      this.handOutCards();
+      this.sendUpdates();
+    }
   }
-  //TODO : if player has no cards left or cannot plan another card, they shouldnt have the pass button show up
+
   public createDeck(): Card[] {
     // Makes a deck of 32 cards
     const suits: SuitType[] = ['heart', 'leaf', 'bell', 'acorn'];
@@ -249,7 +261,6 @@ export class Table {
       debug('game is ending, no cards left');
       setTimeout(() => {
         this.endRound();
-        this.showresults = true;
         return;
       }, 3000);
     }
@@ -320,6 +331,7 @@ export class Table {
     this.sumUpPoints();
     this.calculateStakes();
     this.gameEnd = true;
+    this.showresults = false;
     this.sendUpdates();
   }
 
@@ -381,12 +393,6 @@ export class Table {
       );
       this.teamWonRound = `Team ${winningTeam}`;
     }
-
-    if (this.checkStakeCount()) {
-      //completely end game
-      debug('THE STAKE COUNT HAS BEEN REACHED! END OF GAME!');
-      //TODO: show players their scores, show leaderboard, ask if they which to play again.
-    }
   }
 
   public checkStakeCount() {
@@ -428,6 +434,18 @@ export class Table {
     }
 
     this.sendUpdates();
+  }
+  public closeEndGameResults() {
+    this.gameEnd = false;
+    //todo: add a round counter which will always be displayed on top of the screen
+    if (this.checkStakeCount()) {
+      debug('THE STAKE COUNT HAS BEEN REACHED! END OF GAME!');
+      //TODO: show players their scores, show leaderboard, ask if they which to play again.
+    } else {
+      debug('The stake count has not been reached yet');
+      //TODO: show players a message saying rounds are continuing;
+      this.setUpGame();
+    }
   }
 
   public addPlayer(player: Player, seatPosition: number) {

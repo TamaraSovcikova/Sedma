@@ -16,7 +16,8 @@ interface MessageBase {
     | 'error'
     | 'startGame'
     | 'endRound'
-    | 'closeResults';
+    | 'closeResults'
+    | 'closeEndGameResults';
   tableId: string;
 }
 
@@ -50,6 +51,7 @@ export interface TableData {
   teamAStakeCount: number;
   teamBStakeCount: number;
   finalStakeCount: number;
+  askContinue: boolean;
 }
 
 export interface MessageTableData extends MessageBase {
@@ -122,6 +124,10 @@ export function createWebSocketServer() {
       if (message.type === 'closeResults') {
         const table = getTable(message.tableId);
         table.closeResults();
+      }
+      if (message.type === 'closeEndGameResults') {
+        const table = getTable(message.tableId);
+        table.closeEndGameResults();
       }
     });
     ws.on('close', () => {
