@@ -176,3 +176,18 @@
     font-size: 18px;
     cursor: pointer;
 }
+
+.play-button {
+    background-color: #4caf50;
+    color: white;
+}
+
+.leave-button {
+    background-color: #f44336;
+    color: white;
+}
+
+.button-container {
+    align-items: center;
+    justify-content: center;
+}

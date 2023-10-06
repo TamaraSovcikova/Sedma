@@ -31,6 +31,8 @@ interface TableData {
   teamAPoints?: number;
   teamBPoints?: number;
   askContinue: boolean;
+  stakesReached: boolean;
+  playAgain: boolean;
 }
 
 interface ChairProps {
@@ -51,7 +53,8 @@ interface MessageBase {
     | 'endRound'
     | 'closeResults'
     | 'closeEndGameResults'
-    | 'handleStakesNotReached';
+    | 'handleStakesNotReached'
+    | 'handleStakesReached';
   tableId: string;
 }
 
@@ -234,6 +237,15 @@ export function TablePage() {
     sendJsonMessage(message);
     console.log('handleStakesNotReached');
   };
+  const handleStakesReached = () => {
+    if (!id || !data) return;
+    const message: MessageBase = {
+      type: 'handleStakesReached',
+      tableId: id,
+    };
+    sendJsonMessage(message);
+    console.log('handleStakesReached');
+  };
 
   const canPass = () => {
     if (data?.round) {
@@ -255,6 +267,11 @@ export function TablePage() {
       if (data?.teamAPoints > data?.teamBPoints) return data.teamAPoints;
       else return data.teamBPoints;
     }
+  };
+  const whoWon = () => {
+    if (data)
+      if (data?.teamAStakeCount > data?.teamBStakeCount) return 'TEAM A';
+      else return 'TEAM B';
   };
 
   const shouldShowButton = isLeadPlayer() && canPass() && isCurrentPlayer();
@@ -438,6 +455,48 @@ export function TablePage() {
               Team B stake number:{' '}
               <span className="dynamicData">{data.teamBStakeCount}</span>
             </p>
+          </div>
+        </div>
+      )}
+      {data.stakesReached && (
+        <div className="resultsPopup" style={{ zIndex: 102 }}>
+          <div className="resultsBox">
+            <button className="closeButton" onClick={handleStakesReached}>
+              X
+            </button>
+            <h2>CONGRATULATIONS</h2>
+            <h3>Game has finished!</h3>
+            <p>
+              Team who won the game!:{' '}
+              <span className="dynamicData"> {whoWon()}</span>{' '}
+            </p>
+            <p>
+              Their stake count :{' '}
+              <span className="dynamicData">{winningTeamPoints()}</span>
+            </p>
+            <p>
+              Stakes to HIT:{' '}
+              <span className="dynamicData">{data.finalStakeCount}</span>
+            </p>
+          </div>
+        </div>
+      )}
+      {data.playAgain && (
+        <div className="resultsPopup">
+          <div className="resultsBox">
+            <h2>Do you wish to stay and play another game?</h2>
+            <button className="button play-button" onClick={handleStartGame}>
+              Play Another Game
+            </button>
+            <button
+              className="button leave-button"
+              onClick={() => {
+                logout();
+                navigate('/');
+              }}
+            >
+              Leave
+            </button>
           </div>
         </div>
       )}

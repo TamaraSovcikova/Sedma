@@ -18,7 +18,8 @@ interface MessageBase {
     | 'endRound'
     | 'closeResults'
     | 'closeEndGameResults'
-    | 'handleStakesNotReached';
+    | 'handleStakesNotReached'
+    | 'handleStakesReached';
   tableId: string;
 }
 
@@ -53,6 +54,8 @@ export interface TableData {
   teamBStakeCount: number;
   finalStakeCount: number;
   askContinue: boolean;
+  stakesReached: boolean;
+  playAgain: boolean;
 }
 
 export interface MessageTableData extends MessageBase {
@@ -133,6 +136,10 @@ export function createWebSocketServer() {
       if (message.type === 'handleStakesNotReached') {
         const table = getTable(message.tableId);
         table.setUpGame();
+      }
+      if (message.type === 'handleStakesReached') {
+        const table = getTable(message.tableId);
+        table.wantContinue();
       }
     });
     ws.on('close', () => {

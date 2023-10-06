@@ -28,13 +28,14 @@ export class Table {
   round = 0;
   teamAStakeCount = 0;
   teamBStakeCount = 0;
-  finalStakeCount = 6; //TODO make players set the stake count at the beginning setting it to 6 for testing
+  finalStakeCount = 1; //TODO make players set the stake count at the beginning setting it to 6 for testing
   teamWonRound = '';
-
+  stakesReached = false;
   wonPoints = 0;
   showresults = false;
   gameEnd = false;
   askContinue = false; //TODO: this will be used to show the final message after all stakes have been collected
+  playAgain = false;
 
   constructor(id: string) {
     this.players = [
@@ -77,6 +78,8 @@ export class Table {
         teamBStakeCount: this.teamBStakeCount,
         finalStakeCount: this.finalStakeCount,
         askContinue: this.askContinue,
+        stakesReached: this.stakesReached,
+        playAgain: this.playAgain,
       };
       const messageData: MessageTableData = {
         data,
@@ -92,8 +95,10 @@ export class Table {
   public startGame(): void {
     this.teamAStakeCount = 0;
     this.teamBStakeCount = 0;
-    this.finalStakeCount = 6;
+    this.finalStakeCount = 1;
     this.teamWonRound = '';
+    this.stakesReached = false;
+    this.playAgain = false;
 
     this.setUpGame();
   }
@@ -435,14 +440,21 @@ export class Table {
     //todo: add a round counter which will always be displayed on top of the screen
     if (this.checkStakeCount()) {
       debug('THE STAKE COUNT HAS BEEN REACHED! END OF GAME!');
-      //TODO: show players their scores, show leaderboard, ask if they which to play again.
+      this.stakesReached = true;
+      this.sendUpdates();
     } else {
       debug('The stake count has not been reached yet');
       this.askContinue = true;
       this.sendUpdates();
-      //TODO: show players a message saying rounds are continuing;
     }
   }
+
+  public wantContinue() {
+    this.stakesReached = false;
+    this.playAgain = true;
+    this.sendUpdates();
+  }
+
   public playIfAutoplay() {
     if (this.players[this.currentPlayer].autoplay) {
       setTimeout(() => {
