@@ -50,7 +50,8 @@ interface MessageBase {
     | 'startGame'
     | 'endRound'
     | 'closeResults'
-    | 'closeEndGameResults';
+    | 'closeEndGameResults'
+    | 'handleStakesNotReached';
   tableId: string;
 }
 
@@ -224,6 +225,15 @@ export function TablePage() {
     sendJsonMessage(message);
     console.log('handleCloseEndGameResults');
   };
+  const handleStakesNotReached = () => {
+    if (!id) return;
+    const message: MessageBase = {
+      type: 'handleStakesNotReached',
+      tableId: id,
+    };
+    sendJsonMessage(message);
+    console.log('handleStakesNotReached');
+  };
 
   const canPass = () => {
     if (data?.round) {
@@ -277,6 +287,16 @@ export function TablePage() {
             className="btn btn-secondary startGameButton"
           >
             TAP TO START GAME
+          </button>
+        )}
+        {data.askContinue && (
+          <button
+            onClick={handleStakesNotReached}
+            className="btn btn-secondary startGameButton"
+          >
+            The stakes weren't reached
+            {'\n'}
+            TAP TO CONTINUE
           </button>
         )}
         <div>{errorMessage}</div>
@@ -391,8 +411,8 @@ export function TablePage() {
           </div>
         </div>
       )}
-      {data.gameEnd && !data.showresults && (
-        <div className="resultsPopup">
+      {data.gameEnd && (
+        <div className="resultsPopup" style={{ zIndex: 101 }}>
           <div className="resultsBox">
             <button className="closeButton" onClick={handleCloseEndGameResults}>
               X

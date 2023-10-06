@@ -17,7 +17,8 @@ interface MessageBase {
     | 'startGame'
     | 'endRound'
     | 'closeResults'
-    | 'closeEndGameResults';
+    | 'closeEndGameResults'
+    | 'handleStakesNotReached';
   tableId: string;
 }
 
@@ -128,6 +129,10 @@ export function createWebSocketServer() {
       if (message.type === 'closeEndGameResults') {
         const table = getTable(message.tableId);
         table.closeEndGameResults();
+      }
+      if (message.type === 'handleStakesNotReached') {
+        const table = getTable(message.tableId);
+        table.setUpGame();
       }
     });
     ws.on('close', () => {

@@ -30,6 +30,7 @@ export class Table {
   teamBStakeCount = 0;
   finalStakeCount = 6; //TODO make players set the stake count at the beginning setting it to 6 for testing
   teamWonRound = '';
+
   wonPoints = 0;
   showresults = false;
   gameEnd = false;
@@ -117,11 +118,13 @@ export class Table {
     this.totalCollectedCardsA = [];
     this.totalCollectedCardsB = [];
     this.wonPoints = 0;
+    this.askContinue = false;
 
     if (this.deckHasCards()) {
       this.handOutCards();
       this.sendUpdates();
     }
+    this.playIfAutoplay();
   }
 
   public createDeck(): Card[] {
@@ -266,12 +269,7 @@ export class Table {
     }
 
     this.sendUpdates();
-    if (this.players[this.currentPlayer].autoplay) {
-      setTimeout(() => {
-        this.players[this.currentPlayer].autoplay(this, this.currentPlayer);
-        this.sendUpdates();
-      }, 1500);
-    }
+    this.playIfAutoplay();
   }
 
   public hasACardToTakeOver() {
@@ -427,24 +425,30 @@ export class Table {
     debug('handing out cards');
     this.handOutCards();
 
-    if (this.players[this.currentPlayer].autoplay) {
-      setTimeout(() => {
-        this.players[this.currentPlayer].autoplay(this, this.currentPlayer);
-      }, 2000);
-    }
+    this.playIfAutoplay();
 
     this.sendUpdates();
   }
   public closeEndGameResults() {
     this.gameEnd = false;
+    this.showresults = false;
     //todo: add a round counter which will always be displayed on top of the screen
     if (this.checkStakeCount()) {
       debug('THE STAKE COUNT HAS BEEN REACHED! END OF GAME!');
       //TODO: show players their scores, show leaderboard, ask if they which to play again.
     } else {
       debug('The stake count has not been reached yet');
+      this.askContinue = true;
+      this.sendUpdates();
       //TODO: show players a message saying rounds are continuing;
-      this.setUpGame();
+    }
+  }
+  public playIfAutoplay() {
+    if (this.players[this.currentPlayer].autoplay) {
+      setTimeout(() => {
+        this.players[this.currentPlayer].autoplay(this, this.currentPlayer);
+        this.sendUpdates();
+      }, 2000);
     }
   }
 
