@@ -8,8 +8,6 @@ import '../../styles/table-page.css';
 import { useAuth } from '../../components/auth/auth-context';
 import useWebSocket from 'react-use-websocket';
 
-import { debug } from 'console';
-
 interface TableData {
   players: { name: string; id: string | undefined }[];
   hand: Card[];
@@ -75,6 +73,9 @@ export interface MessageError extends MessageBase {
   error: string;
 }
 
+export interface MessagePlayerIdx extends MessageBase {
+  playerIdx: number;
+}
 function Chair(props: ChairProps) {
   const {
     chairPosition,
@@ -210,20 +211,23 @@ export function TablePage() {
   };
 
   const handleCloseResults = () => {
-    if (!id) return;
-    const message: MessageBase = {
+    if (!id || playerIdx === undefined) return;
+
+    const message: MessagePlayerIdx = {
       type: 'closeResults',
       tableId: id,
+      playerIdx: playerIdx,
     };
     sendJsonMessage(message);
     console.log('handleCloseResults');
   };
 
   const handleCloseEndGameResults = () => {
-    if (!id) return;
-    const message: MessageBase = {
+    if (!id || playerIdx === undefined) return;
+    const message: MessagePlayerIdx = {
       type: 'closeEndGameResults',
       tableId: id,
+      playerIdx: playerIdx,
     };
     sendJsonMessage(message);
     console.log('handleCloseEndGameResults');
@@ -263,9 +267,15 @@ export function TablePage() {
   };
 
   const winningTeamPoints = () => {
-    if (data && data.teamAPoints && data.teamBPoints) {
-      if (data?.teamAPoints > data?.teamBPoints) return data.teamAPoints;
-      else return data.teamBPoints;
+    if (data) {
+      const teamAPoints = data?.teamAPoints ?? 0;
+      const teamBPoints = data?.teamBPoints ?? 0;
+
+      if (teamAPoints > teamBPoints) {
+        return teamAPoints;
+      } else {
+        return teamBPoints;
+      }
     }
   };
   const whoWon = () => {
@@ -273,7 +283,12 @@ export function TablePage() {
       if (data?.teamAStakeCount > data?.teamBStakeCount) return 'TEAM A';
       else return 'TEAM B';
   };
-
+  const winningStakeCount = () => {
+    if (data)
+      if (data?.teamAStakeCount > data?.teamBStakeCount)
+        return data.teamAStakeCount;
+      else return data.teamBStakeCount;
+  };
   const shouldShowButton = isLeadPlayer() && canPass() && isCurrentPlayer();
 
   const isOwner = data?.ownerOfTableId === token;
@@ -312,7 +327,7 @@ export function TablePage() {
             className="btn btn-secondary startGameButton"
           >
             The stakes weren't reached
-            {'\n'}
+            <br></br>
             TAP TO CONTINUE
           </button>
         )}
@@ -404,6 +419,7 @@ export function TablePage() {
           />
         ))}
       </div>
+      {/* TODO: display a last deal bosun of ten points in the result at the last deal, br to separate tap to continue */}
       {data.showresults && (
         <div className="resultsPopup">
           <div className="resultsBox">
@@ -464,15 +480,15 @@ export function TablePage() {
             <button className="closeButton" onClick={handleStakesReached}>
               X
             </button>
-            <h2>CONGRATULATIONS</h2>
-            <h3>Game has finished!</h3>
+            <h2>CONGRATS!</h2>
+            <h5>Game has finished!</h5>
             <p>
               Team who won the game!:{' '}
               <span className="dynamicData"> {whoWon()}</span>{' '}
             </p>
             <p>
               Their stake count :{' '}
-              <span className="dynamicData">{winningTeamPoints()}</span>
+              <span className="dynamicData">{winningStakeCount()}</span>
             </p>
             <p>
               Stakes to HIT:{' '}
@@ -483,20 +499,22 @@ export function TablePage() {
       )}
       {data.playAgain && (
         <div className="resultsPopup">
-          <div className="resultsBox">
+          <div className="resultsBox" style={{ minHeight: '220px' }}>
             <h2>Do you wish to stay and play another game?</h2>
-            <button className="button play-button" onClick={handleStartGame}>
-              Play Another Game
-            </button>
-            <button
-              className="button leave-button"
-              onClick={() => {
-                logout();
-                navigate('/');
-              }}
-            >
-              Leave
-            </button>
+            <div className="button-container">
+              <button className="button play-button" onClick={handleStartGame}>
+                Lets Play!
+              </button>
+              <button
+                className="button leave-button"
+                onClick={() => {
+                  logout();
+                  navigate('/');
+                }}
+              >
+                Leave
+              </button>
+            </div>
           </div>
         </div>
       )}

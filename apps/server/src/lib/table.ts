@@ -21,7 +21,6 @@ export class Table {
   teamBPoints = 0;
   totalCollectedCardsA: Card[] = [];
   totalCollectedCardsB: Card[] = [];
-  deckDone: boolean;
   waitingForPlayers = true;
   ownerOfTable: Player = undefined;
   gameInProgress = false;
@@ -34,7 +33,7 @@ export class Table {
   wonPoints = 0;
   showresults = false;
   gameEnd = false;
-  askContinue = false; //TODO: this will be used to show the final message after all stakes have been collected
+  askContinue = false;
   playAgain = false;
 
   constructor(id: string) {
@@ -73,7 +72,7 @@ export class Table {
         showresults: this.showresults,
         gameEnd: this.gameEnd,
         teamAPoints: this.teamAPoints,
-        teamBPoints: this.teamAPoints,
+        teamBPoints: this.teamBPoints,
         teamAStakeCount: this.teamAStakeCount,
         teamBStakeCount: this.teamBStakeCount,
         finalStakeCount: this.finalStakeCount,
@@ -95,15 +94,21 @@ export class Table {
   public startGame(): void {
     this.teamAStakeCount = 0;
     this.teamBStakeCount = 0;
-    this.finalStakeCount = 1;
+    this.finalStakeCount = 3;
     this.teamWonRound = '';
     this.stakesReached = false;
     this.playAgain = false;
+
+    this.setPlayersToReady();
 
     this.setUpGame();
   }
 
   public setUpGame(): void {
+    if (!this.allPlayersReady()) {
+      debug('waiting for all players to be ready');
+      return;
+    }
     debug('----A New Game Has Begun----');
     this.createDeck();
     this.shuffleDeck();
@@ -125,11 +130,32 @@ export class Table {
     this.wonPoints = 0;
     this.askContinue = false;
 
+    this.resetPlayers();
+
     if (this.deckHasCards()) {
       this.handOutCards();
       this.sendUpdates();
     }
     this.playIfAutoplay();
+  }
+
+  public allPlayersReady() {
+    let count = 0;
+    this.players.forEach((p) => {
+      if (p.isReadyToPlay === true || p.autoplay != null) {
+        count++;
+        debug('player ', p.name, 'is ready');
+      }
+    });
+
+    if (count === 4) return true;
+    else return false;
+  }
+  public resetPlayers() {
+    for (const player of this.players) {
+      player.collectedPoints = 0;
+      player.cardsWon = [];
+    }
   }
 
   public createDeck(): Card[] {
@@ -203,6 +229,11 @@ export class Table {
   public validateTurn(player: Player, card: Card): boolean {
     if (!player) {
       throw new Error('Player not found on the table');
+    } else if (player.isReadyToPlay !== true) {
+      debug(
+        'how if the world are you playing a card if you arent ready to play?'
+      );
+      return false;
     } else if (this.players.indexOf(player) !== this.currentPlayer) {
       throw new Error('It is not your turn to play');
     } else if (!this.canPlayCard(card)) {
@@ -247,13 +278,9 @@ export class Table {
     if (this.currentPlayer === this.leadPlayer) {
       this.round = this.round + 1;
     }
-
     this.currentPlayer = (this.currentPlayer + 1) % this.players.length; //current player is increased
 
     this.sendUpdates();
-
-    if (this.playersDontHaveCards) debug('players dont have cards');
-    else if (!this.deckHasCards) debug('THE DECK RAN OUT OF CARDS');
 
     if (
       this.currentPlayer === this.leadPlayer &&
@@ -297,6 +324,7 @@ export class Table {
 
   public endRound() {
     // Calculate the winner of the round
+    this.playersArentReady();
     this.players[this.winningPlayer].collectWonCards(this.discardPile);
 
     if (this.players[this.winningPlayer].team === 'A')
@@ -311,9 +339,6 @@ export class Table {
     this.leadPlayer = this.winningPlayer;
 
     this.discardPile = [];
-
-    debug(`\nWinner of the Round: ${this.players[this.winningPlayer].name}`);
-
     this.cardToBeat = null;
     this.evaluateRound();
   }
@@ -339,8 +364,6 @@ export class Table {
   }
 
   public sumUpPoints() {
-    debug('END OF GAME, summing up all the points');
-
     for (const player of this.players) {
       if (player.team === 'A') {
         this.teamAPoints += player.collectedPoints;
@@ -349,6 +372,23 @@ export class Table {
         this.teamBPoints += player.collectedPoints;
       }
     }
+    debug(
+      'after summing up points teamA',
+      this.teamAPoints,
+      'team B ',
+      this.teamBPoints
+    );
+  }
+  public playersArentReady() {
+    this.players.forEach((p) => (p.isReadyToPlay = false));
+  }
+  public setPlayersToReady() {
+    this.players.forEach((p) => (p.isReadyToPlay = true));
+  }
+  public setcomputerToReady() {
+    this.players.forEach((p) => {
+      if (p.autoplay !== null) p.isReadyToPlay = true;
+    });
   }
 
   public calculateStakes() {
@@ -396,6 +436,10 @@ export class Table {
       );
       this.teamWonRound = `Team ${winningTeam}`;
     }
+    debug(
+      '--------at end of calculate stakes, winnnig team: ',
+      this.teamWonRound
+    );
   }
 
   public checkStakeCount() {
@@ -407,9 +451,11 @@ export class Table {
     else return false;
   }
 
-  public closeResults() {
+  public closeResults(playerIdx: number) {
     this.showresults = false;
     this.wonPoints = 0;
+    this.playerIsReady(playerIdx);
+    this.setcomputerToReady();
     this.currentPlayer = this.leadPlayer;
     //resets the last played cards to nothing
     this.players.forEach((p) => {
@@ -425,18 +471,24 @@ export class Table {
         this.teamBPoints += 10;
       }
       this.endGame();
+      return;
     }
 
-    debug('handing out cards');
-    this.handOutCards();
+    if (this.deckHasCards) {
+      debug('not end of game, so handing out cards');
+      this.handOutCards();
 
-    this.playIfAutoplay();
+      this.playIfAutoplay();
+    }
 
     this.sendUpdates();
   }
-  public closeEndGameResults() {
+  public closeEndGameResults(playerIdx: number) {
     this.gameEnd = false;
     this.showresults = false;
+
+    this.playerIsReady(playerIdx);
+    this.setcomputerToReady();
     //todo: add a round counter which will always be displayed on top of the screen
     if (this.checkStakeCount()) {
       debug('THE STAKE COUNT HAS BEEN REACHED! END OF GAME!');
@@ -454,13 +506,16 @@ export class Table {
     this.playAgain = true;
     this.sendUpdates();
   }
+  public playerIsReady(playerIdx: number) {
+    this.players[playerIdx].isReadyToPlay = true;
+  }
 
   public playIfAutoplay() {
     if (this.players[this.currentPlayer].autoplay) {
       setTimeout(() => {
         this.players[this.currentPlayer].autoplay(this, this.currentPlayer);
         this.sendUpdates();
-      }, 2000);
+      }, 1000);
     }
   }
 

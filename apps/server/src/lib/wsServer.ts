@@ -31,6 +31,9 @@ interface MessagePlayCard extends MessageBase {
   card: Card;
   token?: string;
 }
+export interface MessagePlayerIdx extends MessageBase {
+  playerIdx: number;
+}
 
 export interface TableData {
   players: { name: string; id: string | undefined }[];
@@ -126,12 +129,14 @@ export function createWebSocketServer() {
         table.endRound();
       }
       if (message.type === 'closeResults') {
-        const table = getTable(message.tableId);
-        table.closeResults();
+        const m: MessagePlayerIdx = message as MessagePlayerIdx;
+        const table = getTable(m.tableId);
+        table.closeResults(m.playerIdx);
       }
       if (message.type === 'closeEndGameResults') {
-        const table = getTable(message.tableId);
-        table.closeEndGameResults();
+        const m: MessagePlayerIdx = message as MessagePlayerIdx;
+        const table = getTable(m.tableId);
+        table.closeEndGameResults(m.playerIdx);
       }
       if (message.type === 'handleStakesNotReached') {
         const table = getTable(message.tableId);

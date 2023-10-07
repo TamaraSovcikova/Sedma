@@ -3,6 +3,7 @@ import { Card } from './card';
 import ws from 'ws';
 import debugLog from 'debug';
 import { Table } from './table';
+import { BlobOptions } from 'buffer';
 
 const debug = debugLog('table');
 export type AutoPlay = (table: Table, playerIdx: number) => void;
@@ -17,6 +18,7 @@ export class Player {
   team: string;
   ws: ws.WebSocket | null = null;
   connected: boolean;
+  isReadyToPlay: boolean;
   /**measures the level of computer inteligence used.
    * 0 - human
    * 1 - stupid computer
