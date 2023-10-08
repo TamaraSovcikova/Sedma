@@ -302,8 +302,11 @@ export function TablePage() {
   if (isLoading)
     return (
       <div>
-        <div>Waiting for server connection...</div>
-        <button onClick={() => navigate('/')}>Back to Lobby</button>
+        <h1>404</h1>
+        <h2>Waiting for server connection...</h2>
+        <button className="returnToButton" onClick={() => navigate('/')}>
+          Return
+        </button>
       </div>
     );
   if (!data || playerIdx === undefined) return <div>Unknown Player</div>;
@@ -451,8 +454,6 @@ export function TablePage() {
           />
         ))}
       </div>
-      {/* TODO: display a last deal bosun of ten points in the result at the last deal, br to separate tap to continue */}
-      {/* {todo, add a better looking waiting for server connection screen} */}
       {/* add a character limit for names and deal with them */}
       {data.showresults && (
         <div className="resultsPopup">

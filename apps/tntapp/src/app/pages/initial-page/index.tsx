@@ -119,6 +119,7 @@ export function InitialPage() {
               className="form-control"
               placeholder="Enter Name"
               value={name}
+              maxLength={11}
               onChange={(e) => setName(e.target.value)}
             />
             <button className="btn btn-secondary" onClick={startSinglePlayer}>
