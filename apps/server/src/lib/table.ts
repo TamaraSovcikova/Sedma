@@ -493,7 +493,7 @@ export class Table {
 
     this.playerIsReady(playerIdx);
     this.setcomputerToReady();
-    //todo: add a round counter which will always be displayed on top of the screen
+
     if (this.checkStakeCount()) {
       debug('THE STAKE COUNT HAS BEEN REACHED! END OF GAME!');
       this.stakesReached = true;

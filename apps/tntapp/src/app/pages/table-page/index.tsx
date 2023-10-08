@@ -452,6 +452,8 @@ export function TablePage() {
         ))}
       </div>
       {/* TODO: display a last deal bosun of ten points in the result at the last deal, br to separate tap to continue */}
+      {/* {todo, add a better looking waiting for server connection screen} */}
+      {/* add a character limit for names and deal with them */}
       {data.showresults && (
         <div className="resultsPopup">
           <div className="resultsBox">
@@ -473,6 +475,11 @@ export function TablePage() {
               Points Collected:{' '}
               <span className="dynamicData">{data.wonPoints}</span>
             </p>
+            {data.round === 8 && (
+              <p className="lastDealBonus">
+                Last deal bonus <span className="dynamicData2">10</span>
+              </p>
+            )}
           </div>
         </div>
       )}
