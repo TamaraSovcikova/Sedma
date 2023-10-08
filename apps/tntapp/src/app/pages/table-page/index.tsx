@@ -133,6 +133,7 @@ export function TablePage() {
   const [playerIdx, setPlayerIdx] = useState<number>();
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string>();
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const { logout } = useAuth();
   const navigate = useNavigate();
@@ -278,6 +279,10 @@ export function TablePage() {
       }
     }
   };
+  const toggleMenu = () => {
+    setMenuOpen(!menuOpen);
+  };
+
   const whoWon = () => {
     if (data)
       if (data?.teamAStakeCount > data?.teamBStakeCount) return 'TEAM A';
@@ -305,14 +310,35 @@ export function TablePage() {
     <div>
       <div className="header">
         <h1 className="name-header">{data.players[playerIdx].name}</h1>
-        <button
-          onClick={() => {
-            logout();
-            navigate('/');
-          }}
-        >
-          Disconnect
-        </button>
+        <div className="top-right-menu">
+          <div
+            className={`icon ${menuOpen ? 'active' : ''}`}
+            onClick={toggleMenu}
+          >
+            <i className="fas fa-ellipsis-v"></i>
+          </div>
+          {menuOpen && (
+            <div className="dropdown-menu">
+              <div className="menu-item">
+                <i id="settings" className="fas fa-cog"></i>
+              </div>
+              <div className="menu-item">
+                <i
+                  id="disconnect"
+                  className="fas fa-sign-out-alt"
+                  onClick={() => {
+                    logout();
+                    navigate('/');
+                  }}
+                ></i>
+              </div>
+              <div className="menu-item">
+                <i id="chat" className="fas fa-comment"></i>
+              </div>
+            </div>
+          )}
+        </div>
+
         {isOwner && !data.waitingForPlayers && !data.gameInProgress && (
           <button
             onClick={handleStartGame}
@@ -331,7 +357,9 @@ export function TablePage() {
             TAP TO CONTINUE
           </button>
         )}
-        <div>{errorMessage}</div>
+        <div>
+          <h5>Round: {data.round}/8</h5>
+        </div>
       </div>
       <div className="table">
         <Chair
@@ -403,6 +431,9 @@ export function TablePage() {
         </div>
       </div>
       <div>
+        <div className="aboveCards" style={{ color: 'rgb(239, 126, 126)' }}>
+          {errorMessage}
+        </div>
         {shouldShowButton && (
           <button className="passButton" onClick={handlePlayerPass}>
             PASS

@@ -1,5 +1,6 @@
 .name-header {
-    font-size: 40px;  
+    font-size: 40px; 
+    margin-bottom: 0; 
 }
 
 .table {
@@ -108,6 +109,16 @@
     transform: scale(1.05);    
     transition: background-color 0.3s, transform 0.3s;
 }
+
+.aboveCards {
+    position: absolute;
+    top: 70%;
+    left: 27%;
+    align-items: center;
+    justify-content: center;
+    display: flex;
+}
+
 .startGameButton{   
     background-color: rgba(0, 0, 0, 0.789);
     position: absolute;
@@ -196,6 +207,86 @@
 .button-container {
     align-items: center;
     justify-content: center;
-    display: flex;    
+    display: flex;  
     gap: 40px;
+}
+
+
+.top-right-menu {
+    position: absolute;
+    top: 5px;
+    right: 0;
+    display: flex;
+    align-items: flex-start;
+}
+
+.icon {
+    cursor: pointer;
+    font-size: 30px;
+    transition: color 0.3s;
+    margin-right: 30px;
+    transform: rotate(90deg);
+}
+
+.icon.active {
+    color: #000000;
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 35px;
+    left: -10px;
+    background-color: transparent;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    backdrop-filter: blur(10%);
+    opacity: 0;
+    max-height: 0;
+    overflow: hidden;
+    animation: fadeIn 0.4s ease-in-out;
+}
+
+.icon.active+.dropdown-menu {
+    animation: slideDown 0.4s ease-in-out;
+    opacity: 1;
+    max-height: 200px;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        max-height: 0;
+    }
+
+    to {
+        opacity: 1;
+        max-height: 200px;
+    }
+}
+
+.menu-item {
+    cursor: pointer;
+    transition: background-color 0.3s;
+    color: white;
+    width: fit-content;
+}
+
+.menu-item:hover {
+    background-color: #f0f0f0;
+}
+
+.menu-item i {
+    font-size: 30px;
 }
