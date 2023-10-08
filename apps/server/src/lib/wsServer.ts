@@ -1,81 +1,17 @@
 import ws from 'ws';
 import { deleteTable, getTable } from './game';
-import { Card } from './card';
+import {
+  MessageBase,
+  MessageError,
+  MessageLogin,
+  MessagePlayCard,
+  MessagePlayerIdx,
+} from '@tnt-react/ws-messages';
 import debugLog from 'debug';
 
 const debug = debugLog('wsServer');
 
 let wss: ws.Server = null;
-
-type MessageType =
-  | 'login'
-  | 'playCard'
-  | 'tableData'
-  | 'loginFailure'
-  | 'error'
-  | 'startGame'
-  | 'endRound'
-  | 'closeResults'
-  | 'closeEndGameResults'
-  | 'handleStakesNotReached'
-  | 'handleStakesReached'
-  | 'handleLeave'
-  | 'forcePlayerDisconnect';
-
-interface MessageBase {
-  type: MessageType;
-  tableId: string;
-}
-
-interface MessageLogin extends MessageBase {
-  token: string;
-}
-
-interface MessagePlayCard extends MessageBase {
-  card: Card;
-  token?: string;
-}
-export interface MessagePlayerIdx extends MessageBase {
-  playerIdx: number;
-}
-export interface MessageForcePlayerDisconnect {
-  type: 'forcePlayerDisconnect';
-}
-
-export interface TableData {
-  players: { name: string; id: string | undefined }[];
-  hand: Card[];
-  lastPlayedCards: Card[];
-  waitingForPlayers: boolean;
-  currentPlayer: number;
-  ownerOfTableId: string;
-  gameInProgress: boolean;
-  winningPlayerId: string;
-  leadPlayerId: string;
-  round: number;
-  cardToBeat: Card;
-  teamWonRound: string;
-  wonPoints: number;
-  showresults: boolean;
-  gameEnd: boolean;
-  teamAPoints: number;
-  teamBPoints: number;
-  teamAStakeCount: number;
-  teamBStakeCount: number;
-  finalStakeCount: number;
-  askContinue: boolean;
-  stakesReached: boolean;
-  playAgain: boolean;
-  isFirstDeal: number;
-}
-
-export interface MessageTableData extends MessageBase {
-  data: TableData;
-}
-
-export interface MessageError extends MessageBase {
-  error: string;
-}
 
 export function createWebSocketServer() {
   wss = new ws.Server({ port: 4500 });

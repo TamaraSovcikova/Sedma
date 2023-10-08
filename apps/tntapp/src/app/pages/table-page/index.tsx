@@ -2,84 +2,29 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ShowCard } from '../../components/show-card';
 import { getServerUrl } from '../../global';
-import { Card } from '../../types';
 import '../../styles/cardStyle.css';
 import '../../styles/table-page.css';
 import { useAuth } from '../../components/auth/auth-context';
 import useWebSocket from 'react-use-websocket';
-
-interface TableData {
-  players: { name: string; id: string | undefined }[];
-  hand: Card[];
-  lastPlayedCards: Card[];
-  waitingForPlayers: boolean;
-  currentPlayer: number;
-  ownerOfTableId: string;
-  gameInProgress: boolean;
-  winningPlayerId: string;
-  leadPlayerId: string;
-  round?: number;
-  teamWonRound: string;
-  wonPoints: number;
-  showresults: boolean;
-  gameEnd: boolean;
-  teamAStakeCount: number;
-  teamBStakeCount: number;
-  finalStakeCount: number;
-  teamAPoints?: number;
-  teamBPoints?: number;
-  askContinue: boolean;
-  stakesReached: boolean;
-  playAgain: boolean;
-  isFirstDeal: number;
-}
+import {
+  CardData,
+  MessageBase,
+  MessageError,
+  MessageLogin,
+  MessagePlayCard,
+  MessagePlayerIdx,
+  MessageTableData,
+  TableData,
+} from '@tnt-react/ws-messages';
 
 interface ChairProps {
   chairPosition: string;
   playerName: string;
-  lastPlayedCard: Card;
+  lastPlayedCard: CardData;
   currentPlayer: boolean;
   winningPlayer: boolean;
 }
-interface MessageBase {
-  type:
-    | 'login'
-    | 'playCard'
-    | 'tableData'
-    | 'loginFailure'
-    | 'error'
-    | 'startGame'
-    | 'endRound'
-    | 'closeResults'
-    | 'closeEndGameResults'
-    | 'handleStakesNotReached'
-    | 'handleStakesReached'
-    | 'handleLeave'
-    | 'forcePlayerDisconnect';
 
-  tableId: string;
-}
-
-interface MessageLogin extends MessageBase {
-  token: string;
-}
-
-interface MessageTableData extends MessageBase {
-  data: TableData;
-}
-
-interface MessagePlayCard extends MessageBase {
-  card: Card;
-  token?: string;
-}
-
-export interface MessageError extends MessageBase {
-  error: string;
-}
-
-export interface MessagePlayerIdx extends MessageBase {
-  playerIdx: number;
-}
 function Chair(props: ChairProps) {
   const {
     chairPosition,
@@ -193,7 +138,7 @@ export function TablePage() {
     }
   }, [lastJsonMessage, token, setIsLoading, data, logout, navigate]);
 
-  const handlePlayCard = (c: Card) => {
+  const handlePlayCard = (c: CardData) => {
     if (!id) return;
     const message: MessagePlayCard = {
       card: c,
@@ -478,7 +423,7 @@ export function TablePage() {
       <div className="cards">
         {data.hand.map((card) => (
           <ShowCard
-            key={card.id}
+            key={card.face + card.suit}
             onPlay={handlePlayCard}
             card={card}
             size="large"

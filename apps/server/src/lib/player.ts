@@ -3,7 +3,7 @@ import { Card } from './card';
 import ws from 'ws';
 import debugLog from 'debug';
 import { Table } from './table';
-import { MessageForcePlayerDisconnect } from './wsServer';
+import { MessageForcePlayerDisconnect } from '@tnt-react/ws-messages';
 
 const debug = debugLog('table');
 export type AutoPlay = (table: Table, playerIdx: number) => void;

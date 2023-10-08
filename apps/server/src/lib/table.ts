@@ -1,6 +1,12 @@
+import {
+  TableData,
+  MessageTableData,
+  SuitType,
+  FaceType,
+  CardData,
+} from '@tnt-react/ws-messages';
+import { Card } from './card';
 import { Player } from './player';
-import { Card, FaceType, SuitType } from './card';
-import { MessageTableData, TableData } from './wsServer';
 
 import debugLog from 'debug';
 const debug = debugLog('table');
@@ -16,7 +22,7 @@ export class Table {
   /** the person whos turn it is */
   currentPlayer = 0;
   discardPile: Card[] = [];
-  cardToBeat: Card | null = null;
+  cardToBeat: CardData | null = null;
   teamAPoints = 0;
   teamBPoints = 0;
   totalCollectedCardsA: Card[] = [];
@@ -229,7 +235,7 @@ export class Table {
     this.players.map((p) => debug(p.name, p.onHand));
   }
 
-  public validateTurn(player: Player, card: Card): boolean {
+  public validateTurn(player: Player, card: CardData): boolean {
     if (!player) {
       throw new Error('Player not found on the table');
     } else if (player.isReadyToPlay !== true) {
@@ -254,7 +260,7 @@ export class Table {
     player.lastPlayedCard = card;
   }
 
-  public playCard(playerId: string, card: Card) {
+  public playCard(playerId: string, card: CardData) {
     const player = this.players.find((p) => p.id === playerId);
     debug(
       this.players[this.currentPlayer].name,
@@ -314,7 +320,7 @@ export class Table {
       (c) => c.face === this.cardToBeat.face || c.face === 'seven'
     );
   }
-  public canPlayCard(card: Card) {
+  public canPlayCard(card: CardData) {
     if (this.leadPlayer === this.currentPlayer && this.isFirstDeal > 0) {
       if (this.winningPlayer === this.currentPlayer) return true;
       else if (card.face === this.cardToBeat.face || card.face === 'seven')

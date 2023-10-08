@@ -1,13 +1,4 @@
-export type SuitType = 'heart' | 'leaf' | 'acorn' | 'bell';
-export type FaceType =
-  | 'seven'
-  | 'eight'
-  | 'nine'
-  | 'ten'
-  | 'lower'
-  | 'upper'
-  | 'king'
-  | 'ace';
+import { FaceType, SuitType } from '@tnt-react/ws-messages';
 
 export class Card {
   public suit: SuitType;

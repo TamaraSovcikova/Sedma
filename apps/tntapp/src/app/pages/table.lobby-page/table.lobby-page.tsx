@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import '../../styles/table.lobby-page.css';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { fetchData, postData } from '../../lib/api';
 import { getServerUrl } from '../../global';
 import { useAuth } from '../../components/auth/auth-context';
@@ -49,6 +49,14 @@ export function LobbyPage() {
   const id = params.id ?? '0';
   const { token, setToken } = useAuth();
   const [newtoken, setNewToken] = useState<string>();
+  const [isCreatingTable, setIsCreatingTable] = useState(false);
+
+  const [query] = useSearchParams();
+
+  useEffect(() => {
+    const create = query.get('create');
+    if (create === '1') setIsCreatingTable(true);
+  });
 
   useEffect(() => {
     console.log('lobby page token: ', token);
@@ -202,6 +210,8 @@ export function LobbyPage() {
             />
           </div>
         </div>
+
+        {isCreatingTable && <div>HELLOOOOOOOOOOOO</div>}
       </div>
       <p className="teamInfo">
         After entering your username, please select the seat you want to be

@@ -16,7 +16,7 @@ export function InitialPage() {
   const handleCreateTable = () => {
     window.scrollTo(0, 0);
     postData(getServerUrl().newtableUrl, {}, token).then((id) =>
-      navigate(`/table/lobby/${id}`)
+      navigate(`/table/lobby/${id}/?create=1`)
     );
   };
 

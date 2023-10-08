@@ -1,9 +1,9 @@
+import { CardData } from '@tnt-react/ws-messages';
 import '../styles/cardStyle.css';
-import { Card } from '../types';
 
 interface ShowCardProps {
-  card: Card;
-  onPlay?: (card: Card) => void;
+  card: CardData;
+  onPlay?: (card: CardData) => void;
   size: 'small' | 'large';
 }
 
