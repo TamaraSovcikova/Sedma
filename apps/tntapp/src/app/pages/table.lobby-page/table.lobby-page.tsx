@@ -196,6 +196,7 @@ export function LobbyPage() {
               className="form-control"
               name="Username"
               placeholder="Username"
+              maxLength={11}
               value={username}
               onChange={handleUsernameChange}
             />

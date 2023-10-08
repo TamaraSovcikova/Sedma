@@ -53,7 +53,10 @@ interface MessageBase {
     | 'closeResults'
     | 'closeEndGameResults'
     | 'handleStakesNotReached'
-    | 'handleStakesReached';
+    | 'handleStakesReached'
+    | 'handleLeave'
+    | 'forcePlayerDisconnect';
+
   tableId: string;
 }
 
@@ -116,8 +119,12 @@ function Chair(props: ChairProps) {
           }}
         />
       )}
-      <div className="player on-chair"></div>
-      <div className="player body"></div>
+      {playerName && (
+        <div>
+          <div className="player on-chair"></div>
+          <div className="player body"></div>
+        </div>
+      )}
       <div className="name">{playerName}</div>
       <div className="on-chair last-played-card ">
         <ShowCard key="lastPCard1" card={lastPlayedCard} size="small" />
@@ -135,13 +142,14 @@ export function TablePage() {
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string>();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [disconnectRequest, setDisconnectRequest] = useState(false);
 
   const { logout } = useAuth();
   const navigate = useNavigate();
 
   console.log('data', data);
   const { token } = useAuth();
-  // TODO: when a player loggs on make it so that that is when the character apears on the seat, other than that dont show them.
+
   const { sendJsonMessage, lastJsonMessage, getWebSocket } =
     useWebSocket<MessageBase>(getServerUrl().tableUrl, {
       onOpen: () => {
@@ -177,8 +185,13 @@ export function TablePage() {
         setErrorMessage(m.error);
         setTimeout(() => setErrorMessage(undefined), 3000);
       }
+      if (lastJsonMessage.type === 'forcePlayerDisconnect') {
+        logout();
+        console.log('leaving table');
+        navigate('/');
+      }
     }
-  }, [lastJsonMessage, token, setIsLoading, data]);
+  }, [lastJsonMessage, token, setIsLoading, data, logout, navigate]);
 
   const handlePlayCard = (c: Card) => {
     if (!id) return;
@@ -295,9 +308,30 @@ export function TablePage() {
         return data.teamAStakeCount;
       else return data.teamBStakeCount;
   };
-  const shouldShowButton = isLeadPlayer() && canPass() && isCurrentPlayer();
+
+  const handleDisconnect = () => {
+    setDisconnectRequest(true);
+  };
 
   const isOwner = data?.ownerOfTableId === token;
+
+  const handleLeave = () => {
+    if (!id || !data || playerIdx === undefined) return;
+
+    const message: MessagePlayerIdx = {
+      type: 'handleLeave',
+      tableId: id,
+      playerIdx: playerIdx,
+    };
+    sendJsonMessage(message);
+    console.log('handleLeave');
+  };
+
+  const handleResume = () => {
+    setDisconnectRequest(false);
+  };
+
+  const shouldShowButton = isLeadPlayer() && canPass() && isCurrentPlayer();
 
   if (isLoading)
     return (
@@ -333,10 +367,7 @@ export function TablePage() {
                 <i
                   id="disconnect"
                   className="fas fa-sign-out-alt"
-                  onClick={() => {
-                    logout();
-                    navigate('/');
-                  }}
+                  onClick={handleDisconnect}
                 ></i>
               </div>
             </div>
@@ -552,6 +583,32 @@ export function TablePage() {
                   navigate('/');
                 }}
               >
+                Leave
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {disconnectRequest && (
+        <div className="resultsPopup">
+          <div className="resultsBox" style={{ minHeight: '200px' }}>
+            <h2>Are you sure you want to leave?</h2>
+            {isOwner && (
+              <p
+                style={{
+                  fontSize: '15px',
+                  alignContent: 'center',
+                  color: 'red',
+                }}
+              >
+                WARNING: Table will be deleted
+              </p>
+            )}
+            <div className="button-container">
+              <button className="button play-button" onClick={handleResume}>
+                Back
+              </button>
+              <button className="button leave-button" onClick={handleLeave}>
                 Leave
               </button>
             </div>

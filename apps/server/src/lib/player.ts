@@ -3,7 +3,7 @@ import { Card } from './card';
 import ws from 'ws';
 import debugLog from 'debug';
 import { Table } from './table';
-import { BlobOptions } from 'buffer';
+import { MessageForcePlayerDisconnect } from './wsServer';
 
 const debug = debugLog('table');
 export type AutoPlay = (table: Table, playerIdx: number) => void;
@@ -41,6 +41,13 @@ export class Player {
   public connectPlayer(ws: ws.WebSocket | null) {
     this.ws = ws;
     this.connected = true;
+  }
+  public disconnect() {
+    this.connected = false;
+    const message: MessageForcePlayerDisconnect = {
+      type: 'forcePlayerDisconnect',
+    };
+    this.ws.send(JSON.stringify(message));
   }
 
   public haveCards(): boolean {

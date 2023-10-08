@@ -522,6 +522,20 @@ export class Table {
       }, 1000);
     }
   }
+  public playerDisconnect(playerIdx: number) {
+    const isOwner = this.ownerOfTable.id === this.players[playerIdx].id;
+    if (isOwner) {
+      this.players.forEach((p, i) => {
+        if (p.name !== '' && i !== playerIdx) {
+          console.log('disconecting ', p.name);
+          this.playerDisconnect(i);
+        } else console.log('player', p.name, 'is not disconnecting');
+      });
+    }
+    this.players[playerIdx].disconnect();
+    this.players[playerIdx] = new Player('');
+    this.sendUpdates();
+  }
 
   public addPlayer(player: Player, seatPosition: number) {
     if (!this.ownerOfTable) this.ownerOfTable = player;

@@ -1,26 +1,29 @@
 import ws from 'ws';
-import { getTable } from './game';
+import { deleteTable, getTable } from './game';
 import { Card } from './card';
 import debugLog from 'debug';
-import { NumberLiteralType } from 'typescript';
 
 const debug = debugLog('wsServer');
 
 let wss: ws.Server = null;
 
+type MessageType =
+  | 'login'
+  | 'playCard'
+  | 'tableData'
+  | 'loginFailure'
+  | 'error'
+  | 'startGame'
+  | 'endRound'
+  | 'closeResults'
+  | 'closeEndGameResults'
+  | 'handleStakesNotReached'
+  | 'handleStakesReached'
+  | 'handleLeave'
+  | 'forcePlayerDisconnect';
+
 interface MessageBase {
-  type:
-    | 'login'
-    | 'playCard'
-    | 'tableData'
-    | 'loginFailure'
-    | 'error'
-    | 'startGame'
-    | 'endRound'
-    | 'closeResults'
-    | 'closeEndGameResults'
-    | 'handleStakesNotReached'
-    | 'handleStakesReached';
+  type: MessageType;
   tableId: string;
 }
 
@@ -34,6 +37,9 @@ interface MessagePlayCard extends MessageBase {
 }
 export interface MessagePlayerIdx extends MessageBase {
   playerIdx: number;
+}
+export interface MessageForcePlayerDisconnect {
+  type: 'forcePlayerDisconnect';
 }
 
 export interface TableData {
@@ -147,6 +153,14 @@ export function createWebSocketServer() {
       if (message.type === 'handleStakesReached') {
         const table = getTable(message.tableId);
         table.wantContinue();
+      }
+      if (message.type === 'handleLeave') {
+        const m: MessagePlayerIdx = message as MessagePlayerIdx;
+        const table = getTable(m.tableId);
+
+        const isOwner = table.players[m.playerIdx].id === table.ownerOfTable.id;
+        table.playerDisconnect(m.playerIdx);
+        if (isOwner) deleteTable(message.tableId);
       }
     });
     ws.on('close', () => {
