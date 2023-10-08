@@ -31,6 +31,7 @@ interface TableData {
   askContinue: boolean;
   stakesReached: boolean;
   playAgain: boolean;
+  isFirstDeal: number;
 }
 
 interface ChairProps {
@@ -253,8 +254,8 @@ export function TablePage() {
   };
 
   const canPass = () => {
-    if (data?.round) {
-      return data?.round > 0;
+    if (data?.isFirstDeal) {
+      return data?.isFirstDeal > 0;
     }
   };
 
@@ -320,6 +321,9 @@ export function TablePage() {
           {menuOpen && (
             <div className="dropdown-menu">
               <div className="menu-item">
+                <i id="chat" className="fas fa-comment"></i>
+              </div>
+              <div className="menu-item">
                 <i id="settings" className="fas fa-cog"></i>
               </div>
               <div className="menu-item">
@@ -331,9 +335,6 @@ export function TablePage() {
                     navigate('/');
                   }}
                 ></i>
-              </div>
-              <div className="menu-item">
-                <i id="chat" className="fas fa-comment"></i>
               </div>
             </div>
           )}

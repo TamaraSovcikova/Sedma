@@ -2,6 +2,7 @@ import ws from 'ws';
 import { getTable } from './game';
 import { Card } from './card';
 import debugLog from 'debug';
+import { NumberLiteralType } from 'typescript';
 
 const debug = debugLog('wsServer');
 
@@ -59,6 +60,7 @@ export interface TableData {
   askContinue: boolean;
   stakesReached: boolean;
   playAgain: boolean;
+  isFirstDeal: number;
 }
 
 export interface MessageTableData extends MessageBase {

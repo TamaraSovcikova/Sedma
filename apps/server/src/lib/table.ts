@@ -35,6 +35,7 @@ export class Table {
   gameEnd = false;
   askContinue = false;
   playAgain = false;
+  isFirstDeal = 0;
 
   constructor(id: string) {
     this.players = [
@@ -79,6 +80,7 @@ export class Table {
         askContinue: this.askContinue,
         stakesReached: this.stakesReached,
         playAgain: this.playAgain,
+        isFirstDeal: this.isFirstDeal,
       };
       const messageData: MessageTableData = {
         data,
@@ -129,6 +131,7 @@ export class Table {
     this.totalCollectedCardsB = [];
     this.wonPoints = 0;
     this.askContinue = false;
+    this.round = 0;
 
     this.resetPlayers();
 
@@ -277,6 +280,7 @@ export class Table {
 
     if (this.currentPlayer === this.leadPlayer) {
       this.round = this.round + 1;
+      this.isFirstDeal += 1;
     }
     this.currentPlayer = (this.currentPlayer + 1) % this.players.length; //current player is increased
 
@@ -285,7 +289,7 @@ export class Table {
     if (
       this.currentPlayer === this.leadPlayer &&
       !this.hasACardToTakeOver() &&
-      this.round != 0
+      this.isFirstDeal != 0
     ) {
       this.endRound();
       console.log('automatic passing');
@@ -311,7 +315,7 @@ export class Table {
     );
   }
   public canPlayCard(card: Card) {
-    if (this.leadPlayer === this.currentPlayer && this.round > 0) {
+    if (this.leadPlayer === this.currentPlayer && this.isFirstDeal > 0) {
       if (this.winningPlayer === this.currentPlayer) return true;
       else if (card.face === this.cardToBeat.face || card.face === 'seven')
         return true; //if not winning player but still played card
@@ -350,7 +354,7 @@ export class Table {
 
     debug('This round, ', team, ' won ', this.wonPoints, ' points');
     this.showresults = true;
-    this.round = 0;
+    this.isFirstDeal = 0;
     this.sendUpdates();
   }
 
