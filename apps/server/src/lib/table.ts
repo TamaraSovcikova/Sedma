@@ -532,6 +532,7 @@ export class Table {
     const isOwner = this.ownerOfTable.id === this.players[playerIdx].id;
     if (isOwner) {
       this.players.forEach((p, i) => {
+        if (p.autoplay !== null) return; //handling computer players
         if (p.name !== '' && i !== playerIdx) {
           console.log('disconecting ', p.name);
           this.playerDisconnect(i);
