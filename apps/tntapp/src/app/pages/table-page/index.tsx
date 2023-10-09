@@ -88,6 +88,7 @@ export function TablePage() {
   const [errorMessage, setErrorMessage] = useState<string>();
   const [menuOpen, setMenuOpen] = useState(false);
   const [disconnectRequest, setDisconnectRequest] = useState(false);
+  const [kickedOut, setkickedOut] = useState(false);
 
   const { logout } = useAuth();
   const navigate = useNavigate();
@@ -131,13 +132,17 @@ export function TablePage() {
         setTimeout(() => setErrorMessage(undefined), 3000);
       }
       if (lastJsonMessage.type === 'forcePlayerDisconnect') {
-        logout();
         console.log('leaving table');
-        navigate('/');
+        setkickedOut(true);
+        setTimeout(() => {
+          setkickedOut(false);
+          logout();
+          navigate('/');
+        }, 2000);
       }
     }
   }, [lastJsonMessage, token, setIsLoading, data, logout, navigate]);
-
+  //TODO: check if the name already exists on table to prevent error
   const handlePlayCard = (c: CardData) => {
     if (!id) return;
     const message: MessagePlayCard = {
@@ -430,7 +435,15 @@ export function TablePage() {
           />
         ))}
       </div>
-      {/* add a character limit for names and deal with them */}
+      {kickedOut && (
+        <div className="disconnectPopup">
+          <h3>DISCONNECTED</h3>
+          <p>
+            The owner disconnected,
+            <br></br>leaving table...
+          </p>
+        </div>
+      )}
       {data.showresults && (
         <div className="resultsPopup">
           <div className="resultsBox">
