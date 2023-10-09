@@ -243,7 +243,7 @@ max-height: 100vh;
 .top-right-menu {
     position: absolute;
     top: 5px;
-    right: 0;
+    right: 0;    
     display: flex;
     align-items: flex-start;
 }
@@ -251,9 +251,9 @@ max-height: 100vh;
 .icon {
     cursor: pointer;
     font-size: 30px;
-    transition: color 0.3s;
-    margin-right: 30px;
+    transition: color 0.3s;    
     transform: rotate(90deg);
+    margin-right: 20px;
 }
 
 .icon.active {
@@ -263,17 +263,17 @@ max-height: 100vh;
 .dropdown-menu {
     position: absolute;
     top: 35px;
-    left: -10px;
-    background-color: transparent;
+    right: 0;
     z-index: 1;
     display: flex;
     flex-direction: column;
     gap: 10px;
-    backdrop-filter: blur(10%);
-    opacity: 0;
-    max-height: 0;
-    overflow: hidden;
+    backdrop-filter: blur(10%);  
     animation: fadeIn 0.4s ease-in-out;
+    background-color: rgba(0, 0, 0, 0.7);
+    align-items: flex-start;
+    width: auto;
+    min-width: fit-content;
 }
 
 .icon.active+.dropdown-menu {
@@ -309,6 +309,7 @@ max-height: 100vh;
     transition: background-color 0.3s;
     color: white;
     width: fit-content;
+    padding: 8px;
 }
 
 .menu-item:hover {
