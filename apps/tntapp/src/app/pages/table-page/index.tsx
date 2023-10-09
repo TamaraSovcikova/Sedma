@@ -536,13 +536,12 @@ export function TablePage() {
       )}
       {disconnectRequest && (
         <div className="resultsPopup">
-          <div className="resultsBox" style={{ minHeight: '200px' }}>
+          <div className="resultsBox">
             <h2>Are you sure you want to leave?</h2>
             {isOwner && (
               <p
                 style={{
                   fontSize: '15px',
-                  alignContent: 'center',
                   color: 'red',
                 }}
               >
