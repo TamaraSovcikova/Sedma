@@ -89,10 +89,28 @@ button:hover {
   background-color: #a0a1a2;
 }
 
-#username-input{
-  margin-left: 5px; 
+.username-input-container {
+  display: flex;
+  align-items: center;
 }
 
+.username-label {
+  min-width: 150px;
+  margin-right: 10px;
+
+  font-size: 20px;
+}
+
+.username-input {
+  flex: 1;
+  border: 1px solid #ccc;
+  padding: 5px;
+  border-radius: 3px;
+}
+
+.username-input-error {
+  border: 1px solid red;
+}
 .tableID-text{
   margin-bottom: -50px;
   font-size: 10px;
@@ -106,4 +124,22 @@ button:hover {
   color: rgb(153, 26, 26);
   font-weight: bold;
 
+}
+
+.stake-input-container {
+  display: flex;
+  align-items: center;
+}
+
+.stake-label {
+  min-width: 150px;
+  font-size: 20px;
+  margin-right: 10px;
+}
+
+.stake-input {
+  flex: 1;  
+  border: 1px solid #ccc;
+  padding: 5px;
+  border-radius: 3px;
 }

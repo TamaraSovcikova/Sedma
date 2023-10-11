@@ -26,7 +26,9 @@ export function createRoutes(app: any) {
     const tableId = params.id;
     const { username } = req.body;
     const table = getTable(tableId);
-    const isUsernameTaken = table.players.find((p) => p.name === username);
+    const isUsernameTaken = table.players.find(
+      (p) => p.name === username && p.name !== ''
+    );
 
     if (isUsernameTaken) {
       res.status(404).json({ message: 'Username is taken' });
@@ -76,6 +78,7 @@ export function createRoutes(app: any) {
     }
     const player = addPlayer(username, table, seatId - 1);
     debug('adding player to table: ', table, getTable(tableId));
+
     res.status(200).json({ id: player.id });
   });
 

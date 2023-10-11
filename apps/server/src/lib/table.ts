@@ -102,7 +102,6 @@ export class Table {
   public startGame(): void {
     this.teamAStakeCount = 0;
     this.teamBStakeCount = 0;
-    this.finalStakeCount = 3;
     this.teamWonRound = '';
     this.stakesReached = false;
     this.playAgain = false;

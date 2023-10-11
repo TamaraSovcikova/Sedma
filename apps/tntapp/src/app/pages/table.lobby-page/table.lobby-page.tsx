@@ -51,6 +51,7 @@ export function LobbyPage() {
   const [newtoken, setNewToken] = useState<string>();
   const [isCreatingTable, setIsCreatingTable] = useState(false);
   const [isUsernameAvailable, setIsUsernameAvailable] = useState(true);
+  const [stakeLimit, setStakeLimit] = useState('');
 
   const [query] = useSearchParams();
 
@@ -166,14 +167,25 @@ export function LobbyPage() {
   };
 
   useEffect(() => {
-    setIsFormValid(username.trim() !== '' && selectedSeatId !== null);
-  }, [username, selectedSeatId]);
+    setIsFormValid(
+      username.trim() !== '' &&
+        selectedSeatId !== null &&
+        (!isCreatingTable || (isCreatingTable && stakeLimit !== ''))
+    );
+  }, [username, selectedSeatId, stakeLimit, isCreatingTable]);
 
   const handleContinue = () => {
     if (isFormValid) {
       console.log(`${username} just chose a seat and is ready to play`);
       setToken(newtoken);
     }
+  };
+
+  const handleStakeLimitChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const newStakeLimit = event.target.value;
+    setStakeLimit(newStakeLimit);
   };
 
   const handleReturn = () => {
@@ -238,29 +250,29 @@ export function LobbyPage() {
       <div className="row justify-content-center mt-4">
         <div className="col-md-12">
           <div className="form-group">
-            <label style={{ fontSize: '20px' }} htmlFor="username-input">
-              ENTER USERNAME:
-            </label>
-            <input
-              id="username-input"
-              type="text"
-              className={`form-control ${
-                !isUsernameAvailable ? 'username-input-error' : ''
-              }`}
-              name="Username"
-              placeholder="Username"
-              maxLength={11}
-              value={username}
-              onChange={handleUsernameChange}
-              required
-            />
+            <div className="username-input-container">
+              <label className="username-label" htmlFor="username-input">
+                ENTER USERNAME:
+              </label>
+              <input
+                id="username-input"
+                type="text"
+                className={`form-control username-input ${
+                  !isUsernameAvailable ? 'username-input-error' : ''
+                }`}
+                name="Username"
+                placeholder="Username"
+                maxLength={11}
+                value={username}
+                onChange={handleUsernameChange}
+                required
+              />
+            </div>
             {isUsernameAvailable === false && (
               <span style={{ color: 'red' }}>Username is already taken</span>
             )}
           </div>
         </div>
-
-        {isCreatingTable && <div>HELLOOOOOOOOOOOO</div>}
       </div>
       <p className="teamInfo">
         After entering your username, please select the seat you want to be
@@ -289,6 +301,22 @@ export function LobbyPage() {
           </div>
         </div>
       </div>
+      {isCreatingTable && (
+        <div className="stake-input-container mb-5">
+          <label className="stake-label" htmlFor="username-input">
+            GOAL STAKE COUNT:
+          </label>
+          <input
+            type="number"
+            className="form-control stake-input"
+            name="stakes count"
+            placeholder="Stake Count"
+            value={stakeLimit}
+            onChange={handleStakeLimitChange}
+            required
+          />
+        </div>
+      )}
       <div className="row justify-content-center">
         <div className="col-md-12 mb-5">
           <button
