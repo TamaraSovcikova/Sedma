@@ -19,6 +19,22 @@ export function createRoutes(app: any) {
   app.get('/api', (req, res) => {
     res.json({ message: 'Hello API' });
   });
+
+  app.post('/table/newUsername/:id', (req, res) => {
+    console.log('entered');
+    const params = req.params;
+    const tableId = params.id;
+    const { username } = req.body;
+    const table = getTable(tableId);
+    const isUsernameTaken = table.players.find((p) => p.name === username);
+
+    if (isUsernameTaken) {
+      res.status(404).json({ message: 'Username is taken' });
+    } else {
+      res.status(200).json({ message: 'Username is free' });
+    }
+  });
+
   app.get('/table/Lobby/:id', (req, res) => {
     const params = req.params;
     const tableId = params.id;

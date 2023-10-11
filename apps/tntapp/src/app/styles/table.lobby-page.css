@@ -99,3 +99,9 @@ button:hover {
 .teamInfo{
   font-size: 10px;
 }
+
+.username-input-error {
+  color: rgb(153, 26, 26);
+  font-weight: bold;
+
+}

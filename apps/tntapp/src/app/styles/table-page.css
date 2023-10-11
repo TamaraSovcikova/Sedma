@@ -145,8 +145,7 @@
 
 .disconnectPopup h3 {
     font-size: 24px;
-    color: #640d0d;
-    /* Red color for the header */
+    color: #640d0d;   
 }
 
 .disconnectPopup p {
@@ -181,7 +180,7 @@
     align-items: center;     
     width: 300px;
     min-height: 250px; 
-max-height: 100vh;
+    max-height: 100vh;
     overflow-y:auto;
 }
 
@@ -190,12 +189,11 @@ max-height: 100vh;
     width: 100%;
     display: flex;
     justify-content: space-between;
-    font-size: 16px;
+    font-size: 15px;
 }
 
 .resultsContainer {
     max-height: 80vh;
-    /* Adjust as needed */
     overflow-y: auto;
 }
 

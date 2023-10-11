@@ -50,7 +50,7 @@ export function LobbyPage() {
   const { token, setToken } = useAuth();
   const [newtoken, setNewToken] = useState<string>();
   const [isCreatingTable, setIsCreatingTable] = useState(false);
-
+  const [isUsernameAvailable, setIsUsernameAvailable] = useState(true);
   const [query] = useSearchParams();
 
   useEffect(() => {
@@ -91,9 +91,42 @@ export function LobbyPage() {
     { id: 4, name: '', taken: false },
   ]);
   const [selectedSeatId, setSelectedSeatId] = useState<number | null>(null);
+  let usernameInputTimer: string | number | NodeJS.Timeout | undefined;
 
-  const handleUsernameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setUsername(event.target.value);
+  const handleUsernameChange = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const newUsername = event.target.value;
+    console.log('handling username change');
+    setUsername(newUsername);
+
+    // Clear the previous timer if it exists
+    if (usernameInputTimer) {
+      clearTimeout(usernameInputTimer);
+    }
+
+    // Set a new timer to send the request after 2 seconds
+    usernameInputTimer = setTimeout(async () => {
+      if (!isCreatingTable) {
+        const response = await postData(
+          getServerUrl().checkUsernameUrl(id),
+          {
+            username: newUsername,
+          },
+          token
+        );
+
+        if (response.message === 'Username is free') {
+          console.log('This username is available');
+          setIsUsernameAvailable(true);
+        } else if (response.message === 'Username is taken') {
+          console.log('Username is taken');
+          setIsUsernameAvailable(false);
+        } else {
+          console.log('An error occurred:', response);
+        }
+      }
+    }, 1000);
   };
 
   const handleSeatClick = async (seatId: number) => {
@@ -201,13 +234,19 @@ export function LobbyPage() {
             <input
               id="username-input"
               type="text"
-              className="form-control"
+              className={`form-control ${
+                !isUsernameAvailable ? 'username-input-error' : ''
+              }`}
               name="Username"
               placeholder="Username"
               maxLength={11}
               value={username}
               onChange={handleUsernameChange}
+              required
             />
+            {isUsernameAvailable === false && (
+              <span style={{ color: 'red' }}>Username is already taken</span>
+            )}
           </div>
         </div>
 

@@ -138,7 +138,7 @@ export function TablePage() {
           setkickedOut(false);
           logout();
           navigate('/');
-        }, 2000);
+        }, 1500);
       }
     }
   }, [lastJsonMessage, token, setIsLoading, data, logout, navigate]);
@@ -452,7 +452,7 @@ export function TablePage() {
             </button>
             <h2>Round Results</h2>
             <p>
-              Player who Won the deal :{' '}
+              Deal winner :{' '}
               <span className="dynamicData">
                 {data.players.find((p) => p.id === data.winningPlayerId)?.name}
               </span>
@@ -481,7 +481,7 @@ export function TablePage() {
             </button>
             <h2>GAME FINISHED</h2>
             <p>
-              Team who won the game!:{' '}
+              Game-winning Team!:{' '}
               <span className="dynamicData"> {data.teamWonRound}</span>{' '}
             </p>
             <p>
@@ -558,7 +558,7 @@ export function TablePage() {
                   color: 'red',
                 }}
               >
-                WARNING: Table will be deleted
+                WARNING: Table will be deleted!
               </p>
             )}
             <div className="button-container">
