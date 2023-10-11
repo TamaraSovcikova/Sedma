@@ -142,7 +142,6 @@ export function TablePage() {
       }
     }
   }, [lastJsonMessage, token, setIsLoading, data, logout, navigate]);
-  //TODO: check if the name already exists on table to prevent error
   const handlePlayCard = (c: CardData) => {
     if (!id) return;
     const message: MessagePlayCard = {

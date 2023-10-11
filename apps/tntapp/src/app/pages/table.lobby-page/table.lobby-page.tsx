@@ -51,12 +51,15 @@ export function LobbyPage() {
   const [newtoken, setNewToken] = useState<string>();
   const [isCreatingTable, setIsCreatingTable] = useState(false);
   const [isUsernameAvailable, setIsUsernameAvailable] = useState(true);
+
   const [query] = useSearchParams();
+
+  const [isFormValid, setIsFormValid] = useState(false);
 
   useEffect(() => {
     const create = query.get('create');
     if (create === '1') setIsCreatingTable(true);
-  });
+  }, [query]);
 
   useEffect(() => {
     console.log('lobby page token: ', token);
@@ -162,10 +165,17 @@ export function LobbyPage() {
     );
   };
 
+  useEffect(() => {
+    setIsFormValid(username.trim() !== '' && selectedSeatId !== null);
+  }, [username, selectedSeatId]);
+
   const handleContinue = () => {
-    console.log(`${username} just chose a seat and is ready to play`);
-    setToken(newtoken);
+    if (isFormValid) {
+      console.log(`${username} just chose a seat and is ready to play`);
+      setToken(newtoken);
+    }
   };
+
   const handleReturn = () => {
     navigate('/');
   };
@@ -282,8 +292,9 @@ export function LobbyPage() {
       <div className="row justify-content-center">
         <div className="col-md-12 mb-5">
           <button
-            className="btn btn-primary lobby-button"
+            className="btn lobby-button"
             onClick={handleContinue}
+            disabled={!isFormValid}
           >
             Continue
           </button>
