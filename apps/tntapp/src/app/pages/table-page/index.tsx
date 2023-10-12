@@ -77,7 +77,7 @@ function Chair(props: ChairProps) {
     </div>
   );
 }
-
+//TODO: ADD LIVE CHAT FEATURE
 export function TablePage() {
   const params = useParams();
   const id = params.id;

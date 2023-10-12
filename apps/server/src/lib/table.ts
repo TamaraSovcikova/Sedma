@@ -33,7 +33,7 @@ export class Table {
   round = 0;
   teamAStakeCount = 0;
   teamBStakeCount = 0;
-  finalStakeCount = 1;
+  finalStakeCount = 1; // set to 1 as base;
   teamWonRound = '';
   stakesReached = false;
   wonPoints = 0;

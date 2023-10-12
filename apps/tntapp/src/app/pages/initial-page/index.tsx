@@ -47,6 +47,12 @@ export function InitialPage() {
       }
     );
   };
+
+  const handleRulesButton = () => {
+    window.scrollTo(0, 0);
+    navigate('/rules');
+  };
+
   const isPlayingOnComputer = () => {
     const screenWidth =
       window.innerWidth ||
@@ -56,7 +62,7 @@ export function InitialPage() {
     const computerScreenWidthThreshold = 768;
     return screenWidth >= computerScreenWidthThreshold;
   };
-
+  //TODO: implement stake setting for singleplayer aswell
   return (
     <div className="container p-0">
       <div className="row mt-4">
@@ -126,6 +132,14 @@ export function InitialPage() {
               SINGLEPLAYER GAME
             </button>
           </div>
+          <h3 className="mt-5">RULES</h3>
+          <p>
+            There are many variations of Sedma out there, so click here to find
+            out how we like to play the game!
+          </p>
+          <button className="btn btn-secondary" onClick={handleRulesButton}>
+            <i className="fas fa-book" />
+          </button>
         </div>
         {isPlayingOnComputer() && (
           <div className="col-lg-4">

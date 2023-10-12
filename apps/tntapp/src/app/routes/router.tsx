@@ -3,6 +3,7 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { InitialPage } from '../pages/initial-page/index';
 import { TablePage } from '../pages/table-page/index';
 import { LobbyPage } from '../pages/table.lobby-page/table.lobby-page';
+import { RulesPage } from '../pages/rules-page';
 
 const router = createBrowserRouter([
   {
@@ -16,6 +17,10 @@ const router = createBrowserRouter([
   {
     path: '/table/lobby/:id',
     element: <LobbyPage />,
+  },
+  {
+    path: '/rules',
+    element: <RulesPage />,
   },
 ]);
 
