@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../../styles/inicial-page.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -11,7 +11,16 @@ export function InitialPage() {
   const [error, setError] = useState<boolean>(false);
   const [name, setName] = useState<string>('');
   const { token, logout, setToken } = useAuth();
+  const [stakeLimit, setStakeLimit] = useState('');
+  const [isFormValid, setIsFormValid] = useState(false);
   const navigate = useNavigate();
+
+  const handleStakeLimitChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const newStakeLimit = event.target.value;
+    setStakeLimit(newStakeLimit);
+  };
 
   const handleCreateTable = () => {
     window.scrollTo(0, 0);
@@ -19,6 +28,10 @@ export function InitialPage() {
       navigate(`/table/lobby/${id}/?create=1`)
     );
   };
+
+  useEffect(() => {
+    setIsFormValid(name.trim() !== '' && stakeLimit !== '');
+  }, [name, stakeLimit]);
 
   const joinGame = async () => {
     try {
@@ -40,12 +53,16 @@ export function InitialPage() {
   };
 
   const startSinglePlayer = () => {
-    postData(getServerUrl().singlePlayerTableUrl, { name }, token).then(
-      ({ tableId, playerId }) => {
+    if (isFormValid) {
+      postData(
+        getServerUrl().singlePlayerTableUrl,
+        { name, stakeLimit },
+        token
+      ).then(({ tableId, playerId }) => {
         setToken(playerId);
         navigate(`/table/${tableId}`);
-      }
-    );
+      });
+    }
   };
 
   const handleRulesButton = () => {
@@ -118,9 +135,24 @@ export function InitialPage() {
           <h3 className="mt-5">SINGLEPLAYER MODE</h3>
           <p>
             In case you want to play a relaxing game on your own, feel free to
-            enter your player's name and get ready to play!
+            enter your player's name and stake count to reach and get ready to
+            play!
           </p>
-          <div className="input-group mt-5 mb-3">
+          <div className="stake-input-container mb-1">
+            <label className="stake-label" htmlFor="username-input">
+              GOAL STAKE COUNT:
+            </label>
+            <input
+              type="number"
+              className="form-control stake-input"
+              name="stakes count"
+              placeholder="Stake Count"
+              value={stakeLimit}
+              onChange={handleStakeLimitChange}
+              required
+            />
+          </div>
+          <div className="input-group mt-1 mb-3">
             <input
               className="form-control"
               placeholder="Enter Name"
@@ -128,7 +160,11 @@ export function InitialPage() {
               maxLength={11}
               onChange={(e) => setName(e.target.value)}
             />
-            <button className="btn btn-secondary" onClick={startSinglePlayer}>
+            <button
+              className="btn btn-secondary"
+              disabled={!isFormValid}
+              onClick={startSinglePlayer}
+            >
               SINGLEPLAYER GAME
             </button>
           </div>

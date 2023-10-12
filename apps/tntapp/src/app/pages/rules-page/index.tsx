@@ -8,7 +8,7 @@ export function RulesPage() {
   return (
     <div className="container mt-5 p-0">
       <div className="row justify-content-center p-0">
-        <div className="col-10 col-md-8 col-lg-6 p-0">
+        <div className=" col-lg-4 p-3">
           <button
             className="btn btn-secondary returnButton"
             onClick={handleReturn}
@@ -30,7 +30,7 @@ export function RulesPage() {
               others play a card in turn.
             </p>
             <p>After all have played a card, the first player can:</p>
-            <ul>
+            <ul style={{ fontSize: '15px', fontStyle: 'italic' }}>
               <li>
                 End the trick, won by the last player matching the first card or
                 a seven.
@@ -55,7 +55,7 @@ export function RulesPage() {
               plus a extra 10 points for the team which won the last deal, for a
               total of 90 points in the game.
             </p>
-            <ul>
+            <ul style={{ fontSize: '15px', fontStyle: 'italic' }}>
               <li>
                 If no team has all 90 points, the player or team with the most
                 points wins 1 stake.
@@ -96,7 +96,7 @@ export function RulesPage() {
             className="btn border-white "
             onClick={() => window.scrollTo(0, 0)}
           >
-            <i className="fas fa-arrow-up" />
+            <i className="fas fa-arrow-up" style={{ color: 'white' }} />
           </button>
         </div>
       </div>

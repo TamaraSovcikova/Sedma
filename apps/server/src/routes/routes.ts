@@ -61,6 +61,17 @@ export function createRoutes(app: any) {
     }
   });
 
+  app.post('/table/lobby/data/:id', (req, res) => {
+    const data = req.body;
+    const params = req.params;
+    const tableId = params.id;
+    const { stakeLimit } = data;
+    const table = getTable(tableId);
+
+    table.finalStakeCount = parseInt(stakeLimit, 10);
+    res.sendStatus(200);
+  });
+
   app.post('/table/Lobby/:id', (req, res) => {
     const data = req.body;
     const params = req.params;
@@ -82,17 +93,6 @@ export function createRoutes(app: any) {
     res.status(200).json({ id: player.id });
   });
 
-  app.post('/table/lobby/data/:id', (req, res) => {
-    const data = req.body;
-    const params = req.params;
-    const tableId = params.id;
-    const { stakeLimit } = data;
-    const table = getTable(tableId);
-
-    table.finalStakeCount = stakeLimit;
-    res.sendStatus(200);
-  });
-
   app.post('/table/new', (req, res) => {
     //create table
     const newTableID = randomUUID();
@@ -101,10 +101,15 @@ export function createRoutes(app: any) {
 
     debug(`Created new table}`);
   });
+
   app.post('/table/newSinglePlayer', (req, res) => {
     debug('Creating new Single player table');
+
     const newTableID = randomUUID();
     const table = createTable(newTableID);
+
+    const stakeLimit = parseInt(req.body.stakeLimit, 10);
+    table.finalStakeCount = stakeLimit;
 
     const p1 = addPlayer(req.body.name, table, 0);
     const p2 = addPlayer('Player 2', table, 1);
