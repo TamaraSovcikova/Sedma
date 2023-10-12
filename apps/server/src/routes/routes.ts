@@ -82,6 +82,17 @@ export function createRoutes(app: any) {
     res.status(200).json({ id: player.id });
   });
 
+  app.post('/table/lobby/data/:id', (req, res) => {
+    const data = req.body;
+    const params = req.params;
+    const tableId = params.id;
+    const { stakeLimit } = data;
+    const table = getTable(tableId);
+
+    table.finalStakeCount = stakeLimit;
+    res.sendStatus(200);
+  });
+
   app.post('/table/new', (req, res) => {
     //create table
     const newTableID = randomUUID();

@@ -8,4 +8,5 @@ export const getServerUrl = () => ({
   singlePlayerTableUrl: `${url}/table/newSinglePlayer`,
   exitTableUrl: (id: string) => `${url}/table/exists/${id}`,
   checkUsernameUrl: (id: string) => `${url}/table/newUsername/${id}`,
+  tabledata: (id: string) => `${url}/table/lobby/data/${id}`,
 });

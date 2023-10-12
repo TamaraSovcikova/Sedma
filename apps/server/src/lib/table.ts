@@ -33,7 +33,7 @@ export class Table {
   round = 0;
   teamAStakeCount = 0;
   teamBStakeCount = 0;
-  finalStakeCount = 1; //TODO make players set the stake count at the beginning setting it to 6 for testing
+  finalStakeCount = 1;
   teamWonRound = '';
   stakesReached = false;
   wonPoints = 0;

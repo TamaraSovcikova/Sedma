@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import '../../styles/table.lobby-page.css';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { fetchData, postData } from '../../lib/api';
@@ -174,9 +174,14 @@ export function LobbyPage() {
     );
   }, [username, selectedSeatId, stakeLimit, isCreatingTable]);
 
-  const handleContinue = () => {
+  const handleContinue = async () => {
     if (isFormValid) {
       console.log(`${username} just chose a seat and is ready to play`);
+
+      if (isCreatingTable) {
+        postData(getServerUrl().tabledata(id), { stakeLimit }, token);
+      }
+
       setToken(newtoken);
     }
   };
