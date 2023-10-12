@@ -5,7 +5,6 @@ import { fetchData, postData } from '../../lib/api';
 import { getServerUrl } from '../../global';
 import { useAuth } from '../../components/auth/auth-context';
 
-//TODO: ADD Rules explanation and explanation of the sunglasses and crown
 interface Seat {
   id: number;
   name: string;

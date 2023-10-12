@@ -4,7 +4,7 @@ export function RulesPage() {
   const navigate = useNavigate();
 
   const handleReturn = () => navigate('/');
-
+  //TODO, include explanation of the sunglasses and crown.
   return (
     <div className="container mt-5 p-0">
       <div className="row justify-content-center p-0">
