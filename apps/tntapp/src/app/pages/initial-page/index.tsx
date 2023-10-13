@@ -79,7 +79,7 @@ export function InitialPage() {
     const computerScreenWidthThreshold = 768;
     return screenWidth >= computerScreenWidthThreshold;
   };
-  //TODO: implement stake setting for singleplayer aswell
+
   return (
     <div className="container p-0">
       <div className="row mt-4">

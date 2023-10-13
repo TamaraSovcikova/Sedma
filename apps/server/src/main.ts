@@ -6,9 +6,7 @@ import { createRoutes } from './routes/routes';
 import debugLog from 'debug';
 
 const debug = debugLog('main');
-debugLog.enable(
-  '* -routes -wsServer table -table.sendUpdates -computerPlayer1'
-);
+debugLog.enable('* -routes wsServer table -table.sendUpdates -computerPlayer1');
 
 const host = process.env.HOST ?? 'localhost';
 const port = process.env.PORT ? Number(process.env.PORT) : 3000;

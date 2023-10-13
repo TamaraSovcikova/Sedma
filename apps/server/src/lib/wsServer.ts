@@ -1,7 +1,9 @@
 import ws from 'ws';
 import { deleteTable, getTable } from './game';
 import {
+  Message,
   MessageBase,
+  MessageChat,
   MessageError,
   MessageLogin,
   MessagePlayCard,
@@ -20,7 +22,6 @@ export function createWebSocketServer() {
       const message = JSON.parse(m.toString()) as MessageBase;
       debug('messsage recieved:', message);
       if (message.type === 'login') {
-        debug('entered');
         const loginMessage: MessageLogin = message as MessageLogin;
         const table = getTable(loginMessage.tableId);
         const player = table
@@ -97,6 +98,16 @@ export function createWebSocketServer() {
         const isOwner = table.players[m.playerIdx].id === table.ownerOfTable.id;
         table.playerDisconnect(m.playerIdx);
         if (isOwner) deleteTable(message.tableId);
+      }
+      if (message.type === 'chatMessage') {
+        const chatMessage = message as unknown as MessageChat;
+        debug('chat message received:', chatMessage);
+        const table = getTable(message.tableId);
+        if (table)
+          table.players.forEach((p) => {
+            if (p.autoplay === null && p.name !== '')
+              p.ws.send(JSON.stringify(chatMessage));
+          });
       }
     });
     ws.on('close', () => {

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ShowCard } from '../../components/show-card';
 import { getServerUrl } from '../../global';
@@ -8,7 +8,9 @@ import { useAuth } from '../../components/auth/auth-context';
 import useWebSocket from 'react-use-websocket';
 import {
   CardData,
+  Message,
   MessageBase,
+  MessageChat,
   MessageError,
   MessageLogin,
   MessagePlayCard,
@@ -16,6 +18,7 @@ import {
   MessageTableData,
   TableData,
 } from '@tnt-react/ws-messages';
+import { SendJsonMessage } from 'react-use-websocket/dist/lib/types';
 
 interface ChairProps {
   chairPosition: string;
@@ -77,7 +80,78 @@ function Chair(props: ChairProps) {
     </div>
   );
 }
+
+export interface ChatProps {
+  sendJsonMessage: SendJsonMessage;
+  lastMessage: MessageChat;
+  username: string;
+}
 //TODO: ADD LIVE CHAT FEATURE
+function ChatComponent({ sendJsonMessage, lastMessage, username }: ChatProps) {
+  const params = useParams();
+  const id = params.id;
+  const [message, setMessage] = useState('');
+  const messagesContainerRef = useRef<HTMLDivElement | null>(null);
+  const [receivedMessages, setReceivedMessages] = useState<Message[]>([]);
+
+  useEffect(() => {
+    if (lastMessage && lastMessage.message !== '') {
+      setReceivedMessages((prevMessages) => [
+        ...prevMessages,
+        {
+          username: lastMessage.username,
+          message: lastMessage.message,
+        },
+      ]);
+    }
+  }, [lastMessage, username]);
+
+  const handleSendMessage = () => {
+    if (message && id) {
+      const newMessage: MessageChat = {
+        type: 'chatMessage',
+        tableId: id,
+        username: username,
+        message: message,
+      };
+      sendJsonMessage(newMessage);
+      setMessage('');
+      console.log('handleSendMessage');
+    }
+  };
+
+  useEffect(() => {
+    if (messagesContainerRef.current) {
+      messagesContainerRef.current.scrollTop =
+        messagesContainerRef.current.scrollHeight;
+    }
+  }, [receivedMessages]);
+
+  return (
+    <div className="chat-popup">
+      <div className="chat-messages" ref={messagesContainerRef}>
+        {receivedMessages.map((msg, index) => (
+          <div key={index} className="chat-message">
+            <p className="message-username">{msg.username}</p>
+            <p className="message-text">{msg.message}</p>
+          </div>
+        ))}
+      </div>
+      <div className="chat-input">
+        <input
+          type="text"
+          placeholder="Type your message..."
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+        />
+        <button onClick={handleSendMessage}>Send</button>
+      </div>
+    </div>
+  );
+}
+
+export default ChatComponent;
+//TODO: disable chat if not all 4 players present or make it work with less
 export function TablePage() {
   const params = useParams();
   const id = params.id;
@@ -88,7 +162,14 @@ export function TablePage() {
   const [errorMessage, setErrorMessage] = useState<string>();
   const [menuOpen, setMenuOpen] = useState(false);
   const [disconnectRequest, setDisconnectRequest] = useState(false);
-  const [kickedOut, setkickedOut] = useState(false);
+  const [kickedOut, setKickedOut] = useState(false);
+  const [chatOpen, setChatOpen] = useState(false);
+  const [message, setMessage] = useState<MessageChat>({
+    type: 'chatMessage',
+    tableId: '',
+    username: '',
+    message: '',
+  });
 
   const { logout } = useAuth();
   const navigate = useNavigate();
@@ -96,8 +177,9 @@ export function TablePage() {
   console.log('data', data);
   const { token } = useAuth();
 
-  const { sendJsonMessage, lastJsonMessage, getWebSocket } =
-    useWebSocket<MessageBase>(getServerUrl().tableUrl, {
+  const { sendJsonMessage, lastJsonMessage } = useWebSocket<MessageBase>(
+    getServerUrl().tableUrl,
+    {
       onOpen: () => {
         if (token && id) {
           const message: MessageLogin = { token, type: 'login', tableId: id };
@@ -106,7 +188,8 @@ export function TablePage() {
       },
 
       shouldReconnect: (closeEvent) => true,
-    });
+    }
+  );
 
   useEffect(() => {
     if (lastJsonMessage !== null) {
@@ -133,15 +216,20 @@ export function TablePage() {
       }
       if (lastJsonMessage.type === 'forcePlayerDisconnect') {
         console.log('leaving table');
-        setkickedOut(true);
+        setKickedOut(true);
         setTimeout(() => {
-          setkickedOut(false);
+          setKickedOut(false);
           logout();
           navigate('/');
         }, 1500);
       }
+      if (lastJsonMessage?.type === 'chatMessage') {
+        const chatMessage = lastJsonMessage as MessageChat;
+        setMessage(chatMessage);
+      }
     }
   }, [lastJsonMessage, token, setIsLoading, data, logout, navigate]);
+
   const handlePlayCard = (c: CardData) => {
     if (!id) return;
     const message: MessagePlayCard = {
@@ -242,9 +330,6 @@ export function TablePage() {
       }
     }
   };
-  const toggleMenu = () => {
-    setMenuOpen(!menuOpen);
-  };
 
   const whoWon = () => {
     if (data)
@@ -280,13 +365,24 @@ export function TablePage() {
     setDisconnectRequest(false);
   };
 
+  const toggleMenu = () => {
+    setMenuOpen(!menuOpen);
+  };
+  const toggleChat = () => {
+    console.log('toggling chat');
+    setChatOpen(!chatOpen);
+    console.log('chat is', chatOpen);
+  };
+
   const shouldShowButton = isLeadPlayer() && canPass() && isCurrentPlayer();
 
   if (isLoading)
     return (
       <div>
-        <h1>404</h1>
-        <h2>Waiting for server connection...</h2>
+        <h2 style={{ marginTop: '20px', marginBottom: '0px' }}>
+          Waiting for server connection...
+        </h2>
+        <p>Please be pacient</p>
         <button className="returnToButton" onClick={() => navigate('/')}>
           Return
         </button>
@@ -297,6 +393,13 @@ export function TablePage() {
     <div>
       <div className="header">
         <h1 className="name-header">{data.players[playerIdx].name}</h1>
+        {chatOpen && message && (
+          <ChatComponent
+            sendJsonMessage={sendJsonMessage}
+            lastMessage={message}
+            username={data.players[playerIdx].name}
+          />
+        )}
         <div className="top-right-menu">
           <div
             className={`icon ${menuOpen ? 'active' : ''}`}
@@ -307,7 +410,11 @@ export function TablePage() {
           {menuOpen && (
             <div className="dropdown-menu">
               <div className="menu-item">
-                <i id="chat" className="fas fa-comment"></i>
+                <i
+                  id="chat"
+                  className="fas fa-comment"
+                  onClick={toggleChat}
+                ></i>
               </div>
               <div className="menu-item">
                 <i id="settings" className="fas fa-cog"></i>

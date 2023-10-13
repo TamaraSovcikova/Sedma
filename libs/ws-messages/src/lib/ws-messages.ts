@@ -11,7 +11,8 @@ type MessageType =
   | 'handleStakesNotReached'
   | 'handleStakesReached'
   | 'handleLeave'
-  | 'forcePlayerDisconnect';
+  | 'forcePlayerDisconnect'
+  | 'chatMessage';
 
 export interface MessageBase {
   type: MessageType;
@@ -31,6 +32,16 @@ export interface MessagePlayerIdx extends MessageBase {
 }
 export interface MessageForcePlayerDisconnect {
   type: 'forcePlayerDisconnect';
+}
+
+export interface MessageChat extends MessageBase {
+  username: string;
+  message: string;
+}
+
+export interface Message {
+  username: string;
+  message: string;
 }
 
 export interface TableData {
