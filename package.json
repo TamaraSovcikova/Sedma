@@ -6,7 +6,9 @@
     "frontend": "nx run tntapp:serve",
     "server": "nx run server:serve",
     "start": "npx nx run tntapp:serve & npx nx run server:serve",
-    "build": "nx run-many --target=build --projects=server,tntapp "
+    "build": "nx run-many --target=build --projects=server,tntapp ",
+    "docker:client": "sudo docker build -t tamarasov/sedma-client:latest -f Dockerfile.client . && docker push tamarasov/sedma-client:latest",
+     "docker:server": "sudo docker build -t tamarasov/sedma-server:latest -f Dockerfile.server . && docker push tamarasov/sedma-server:latest"
   },
   "private": true,
   "dependencies": {
