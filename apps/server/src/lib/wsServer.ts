@@ -1,7 +1,6 @@
 import ws from 'ws';
 import { deleteTable, getTable } from './game';
 import {
-  Message,
   MessageBase,
   MessageChat,
   MessageError,

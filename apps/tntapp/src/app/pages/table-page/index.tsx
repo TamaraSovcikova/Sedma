@@ -86,7 +86,7 @@ export interface ChatProps {
   lastMessage: MessageChat;
   username: string;
 }
-//TODO: ADD LIVE CHAT FEATURE
+
 function ChatComponent({ sendJsonMessage, lastMessage, username }: ChatProps) {
   const params = useParams();
   const id = params.id;
