@@ -1,28 +1,35 @@
-.lobby-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 20px;
-}
-
 .lobby-header {
-  font-size: 50px;
+  font-size: 40px;
   margin: 0 auto;
   text-align: center;
 }
 
 .lobby-sub-header {
-  font-size: 40px;
+  font-size: 30px;
   margin: 0 auto;
   text-align: center;
   justify-content: center;
   align-items: center;
 }
+.lobbyPageContainer{
+  max-width: 600px;
+  align-items: center;
+  padding: 10px;
+;
+}
+
+.block{
+  display: block;
+  width: 100%;
+}
 
 .teams-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center; 
+ border: 2px solid rgb(255, 255, 255);
+ padding: 10px;
+ padding-top: 40px !important;
+ padding-bottom: 0px;
+ margin:0;
+ align-items: center;
 }
 
 .team {
@@ -37,14 +44,16 @@
 }
 
 .seat {
-  width: 100px;
-  height: 100px;
-  border: 2px solid #000;
+  width: 130px;
+  height: 130px;
+  border: 3px solid #000;
   display: flex;
   justify-content: center;
   align-items: center;
   cursor: pointer;
   text-align: center;
+  margin: 20px 10px ;
+  font-size: 20px;
 }
 
 .taken {
@@ -53,28 +62,84 @@
 }
 
 .lobby-button {
-  margin-top: 100px;
   padding: 5px 10px;
   background-color: #d3d7db;
   color: #000000;
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 14px; 
+  margin: 0 auto;
+  width: 100%;
+  align-self: center;
+  height: 60px;
+}
+
+
+.returnButton{
+  border-radius: 10%;
+  padding:4px 10px;
+  left: 0;
+  background-color: aliceblue;
+  position:absolute;
+  top:0;
 }
 
 button:hover {
   background-color: #a0a1a2;
 }
 
-#username-input{
-  margin-left: 20px; 
+.username-input-container {
+  display: flex;
+  align-items: center;
 }
 
-.lobby-info{
-  margin-bottom: 10px;
+.username-label {
+  min-width: 150px;
+  margin-right: 10px;
+
+  font-size: 20px;
 }
 
-#lobby-label{
-  margin-bottom: 80px;
+.username-input {
+  flex: 1;
+  border: 1px solid #ccc;
+  padding: 5px;
+  border-radius: 3px;
+}
+
+.username-input-error {
+  border: 1px solid red;
+}
+.tableID-text{
+  margin-bottom: -50px;
+  font-size: 10px;
+}
+
+.teamInfo{
+  font-size: 10px;
+}
+
+.username-input-error {
+  color: rgb(153, 26, 26);
+  font-weight: bold;
+
+}
+
+.stake-input-container {
+  display: flex;
+  align-items: center;
+}
+
+.stake-label {
+  min-width: 150px;
+  font-size: 20px;
+  margin-right: 10px;
+}
+
+.stake-input {
+  flex: 1;  
+  border: 1px solid #ccc;
+  padding: 5px;
+  border-radius: 3px;
 }

@@ -1,0 +1,59 @@
+name: Build and Deploy Docker Image
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
+  DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Add SHORT_SHA env property with commit short sha
+        id: get_short_sha
+        run: echo "SHORT_SHA=echo ${GITHUB_SHA} | cut -c1-8" >> $GITHUB_OUTPUT
+
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build apps
+        run: npm build
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ env.DOCKER_HUB_USERNAME }}
+          password: ${{ env.DOCKER_HUB_PASSWORD }}
+
+      - name: Dockerize client
+        uses: docker/build-push-action@v5
+        with:
+          file: ./Dockerfile.client
+          context: .
+          push: true
+          tags: tamarasov/sedma-client:latest, tamarasov/sedma-client:sha-${{steps.get_short_sha.outputs.SHORT_SHA}}
+
+      - name: Dockerize server
+        uses: docker/build-push-action@v5
+        with:
+          file: ./Dockerfile.server
+          context: .
+          push: true
+          tags: tamarasov/sedma-server:latest, tamarasov/sedma-server:sha-${{steps.get_short_sha.outputs.SHORT_SHA}}

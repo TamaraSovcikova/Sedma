@@ -1,9 +1,10 @@
-import { Card, Player } from '../types';
+import { CardData } from '@tnt-react/ws-messages';
+import { Player } from '../types';
 import { ShowCard } from './show-card';
 
 interface ShowPlayerProps {
   player: Player;
-  playCard: (card: Card) => void;
+  playCard: (card: CardData) => void;
   takeCard: () => void;
   current: boolean;
 }

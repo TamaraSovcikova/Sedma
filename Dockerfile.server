@@ -1,0 +1,26 @@
+# Description: Dockerfile for server
+
+FROM node:19-slim
+
+RUN mkdir -p /server
+
+WORKDIR /server
+
+# copy project package files
+COPY package.json .
+COPY package-lock.json .
+
+# install dependencies
+RUN npm install --production
+
+# copy server files
+COPY dist/apps/server .
+
+# expose port 3000
+EXPOSE 3000
+
+# making sure container starts from the right folder
+WORKDIR /server
+
+# run server
+ENTRYPOINT ["node", "main.js"]

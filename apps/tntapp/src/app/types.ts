@@ -1,19 +1,15 @@
-export interface Card {
-  suit: 'heart' | 'leaf' | 'acorn' | 'bell';
-  face: 'seven' | 'eight' | 'nine' | 'ten' | 'lower' | 'upper' | 'king' | 'ace';
-  id: string;
-}
+import { CardData } from '@tnt-react/ws-messages';
 
 export interface Player {
   name: string;
-  hand: Card[];
-  lastPlayedCard?: Card;
+  hand: CardData[];
+  lastPlayedCard?: CardData;
   id: string;
 }
 
 export interface Table {
   players: Player[];
-  deck: Card[];
-  discard: Card[];
+  deck: CardData[];
+  discard: CardData[];
   tableId: string;
 }
