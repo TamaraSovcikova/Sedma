@@ -19,7 +19,7 @@ jobs:
 
       - name: Add SHORT_SHA env property with commit short sha
         id: get_short_sha
-        run: echo "SHORT_SHA=echo ${GITHUB_SHA} | cut -c1-8" >> $GITHUB_OUTPUT
+        run: echo "SHORT_SHA=`echo ${GITHUB_SHA} | cut -c1-8`" >> $GITHUB_OUTPUT
 
       - name: Use Node.js
         uses: actions/setup-node@v3
