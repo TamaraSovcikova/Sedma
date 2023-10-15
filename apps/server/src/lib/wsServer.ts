@@ -9,13 +9,14 @@ import {
   MessagePlayerIdx,
 } from '@tnt-react/ws-messages';
 import debugLog from 'debug';
+import { getConfig } from '../global';
 
 const debug = debugLog('wsServer');
 
 let wss: ws.Server = null;
 
 export function createWebSocketServer() {
-  wss = new ws.Server({ port: 4500 });
+  wss = new ws.Server({ port: getConfig().wsPort });
   wss.on('connection', (ws) => {
     ws.on('message', (m) => {
       const message = JSON.parse(m.toString()) as MessageBase;
