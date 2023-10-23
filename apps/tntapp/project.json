@@ -15,7 +15,7 @@
         "baseHref": "/",
         "main": "apps/tntapp/src/main.tsx",
         "tsConfig": "apps/tntapp/tsconfig.app.json",
-        "assets": ["apps/tntapp/src/favicon.ico", "apps/tntapp/src/assets"],
+        "assets": ["apps/tntapp/src/assets"],
         "styles": [],
         "scripts": [],
         "isolatedConfig": true,
