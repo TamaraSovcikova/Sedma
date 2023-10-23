@@ -13,7 +13,8 @@ services:
       - CLIENT_URL=https://sedma.spv99.com
       - WS_PORT=4500
       - PORT=3000
-      - DEBUG
+      - DEBUG=${DEBUG}
+
     networks:
       - proxy-net
     expose:
