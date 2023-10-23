@@ -53,3 +53,4 @@ jobs:
           context: .
           push: true
           tags: tamarasov/sedma-server:latest, tamarasov/sedma-server:sha-${{steps.get_short_sha.outputs.SHORT_SHA}}
+
