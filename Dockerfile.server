@@ -18,6 +18,7 @@ COPY dist/apps/server .
 
 # expose port 3000
 EXPOSE 3000
+EXPOSE 4500
 
 # making sure container starts from the right folder
 WORKDIR /server
