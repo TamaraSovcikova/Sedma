@@ -53,23 +53,3 @@ jobs:
           context: .
           push: true
           tags: tamarasov/sedma-server:latest, tamarasov/sedma-server:sha-${{steps.get_short_sha.outputs.SHORT_SHA}}
-
-      - name: Copy docker-compose.yaml to production server
-        # made by a random appleboy to copy specified file to target server
-        uses: appleboy/scp-action@v0.1.4
-        with:
-          host: ${{ secrets.DEPLOY_HOST }}
-          username: ${{ secrets.DEPLOY_HOST_USERNAME }}
-          key: ${{ secrets.DEPLOY_HOST_SSH_KEY }}
-          source: 'docker-compose.yaml'
-          target: '~/.deploy/'
-
-      - name: Run docker-compose up on production server
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.DEPLOY_HOST }}
-          username: ${{ secrets.DEPLOY_HOST_USERNAME }}
-          key: ${{ secrets.DEPLOY_HOST_SSH_KEY }}
-          script: |
-            cd ~/
-            sudo deploy-compose.sh deploy
