@@ -1,0 +1,42 @@
+version: "3.9"
+name: sedma
+
+services:
+  server:
+    restart: always
+    image: tamarasov/sedma-server:latest    
+    environment: 
+    # the environment variables are used by a service that automaically manages letsencrypt certificates
+      - VIRTUAL_HOST=api.sedma.spv99.com
+      - VIRTUAL_PORT=3000
+      - LETSENCRYPT_HOST=api.sedma.spv99.com  
+      - CLIENT_URL=https://sedma.spv99.com
+      - WS_PORT=4500
+      - PORT=3000
+    networks:
+      - sedma
+      - proxy-net
+    expose:
+      - 3000
+      - 4500
+
+  client:
+    restart: always
+    image: tamarasov/sedma-client:latest
+    depends_on:
+      - server
+    environment:
+      - VIRTUAL_HOST=sedma.spv99.com
+      - VIRTUAL_PORT=80
+      - LETSENCRYPT_HOST=sedma.spv99.com
+      - NX_SERVER_API_URL=https://api.sedma.spv99.com
+    expose:
+      - 80
+    networks:
+      - proxy-net
+
+networks:
+  sedma:
+  proxy-net:
+    name: proxy-net
+    external: true

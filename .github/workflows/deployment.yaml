@@ -5,10 +5,6 @@ on:
     branches:
       - main
 
-env:
-  DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
-  DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
-
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -39,8 +35,8 @@ jobs:
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
-          username: ${{ env.DOCKER_HUB_USERNAME }}
-          password: ${{ env.DOCKER_HUB_PASSWORD }}
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_PASSWORD }}
 
       - name: Dockerize client
         uses: docker/build-push-action@v5
@@ -57,3 +53,23 @@ jobs:
           context: .
           push: true
           tags: tamarasov/sedma-server:latest, tamarasov/sedma-server:sha-${{steps.get_short_sha.outputs.SHORT_SHA}}
+
+      - name: Copy docker-compose.yaml to production server
+        # made by a random appleboy to copy specified file to target server
+        uses: appleboy/scp-action@v0.1.4
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_HOST_USERNAME }}
+          key: ${{ secrets.DEPLOY_HOST_SSH_KEY }}
+          source: 'docker-compose.yaml'
+          target: '~/.deploy/'
+
+      - name: Run docker-compose up on production server
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_HOST_USERNAME }}
+          key: ${{ secrets.DEPLOY_HOST_SSH_KEY }}
+          script: |
+            cd ~/
+            sudo deploy-compose.sh deploy
