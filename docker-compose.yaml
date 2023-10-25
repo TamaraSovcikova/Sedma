@@ -4,12 +4,12 @@ name: sedma
 services:
   server:
     restart: always
-    image: tamarasov/sedma-server:latest    
+    image: tamarasov/sedma-server:latest
     environment: 
     # the environment variables are used by a service that automaically manages letsencrypt certificates
-      - VIRTUAL_HOST=api.sedma.spv99.com
-      - VIRTUAL_PORT=3000
-      - LETSENCRYPT_HOST=api.sedma.spv99.com  
+      - VIRTUAL_HOST=api.sedma.spv99.com,ws.sedma.spv99.com
+      - VIRTUAL_PORT=3000,4500
+      - LETSENCRYPT_HOST=api.sedma.spv99.com
       - CLIENT_URL=https://sedma.spv99.com
       - WS_PORT=4500
       - PORT=3000
