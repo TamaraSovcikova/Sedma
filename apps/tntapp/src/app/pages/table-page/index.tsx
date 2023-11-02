@@ -18,7 +18,6 @@ import {
   MessageTableData,
   TableData,
 } from '@tnt-react/ws-messages';
-import { SendJsonMessage } from 'react-use-websocket/dist/lib/types';
 
 interface ChairProps {
   chairPosition: string;
@@ -81,80 +80,11 @@ function Chair(props: ChairProps) {
   );
 }
 
-export interface ChatProps {
-  sendJsonMessage: SendJsonMessage;
-  lastMessage: MessageChat;
-  username: string;
-}
-
-function ChatComponent({ sendJsonMessage, lastMessage, username }: ChatProps) {
-  const params = useParams();
-  const id = params.id;
-  const [message, setMessage] = useState('');
-  const messagesContainerRef = useRef<HTMLDivElement | null>(null);
-  const [receivedMessages, setReceivedMessages] = useState<Message[]>([]);
-
-  useEffect(() => {
-    if (lastMessage && lastMessage.message !== '') {
-      setReceivedMessages((prevMessages) => [
-        ...prevMessages,
-        {
-          username: lastMessage.username,
-          message: lastMessage.message,
-        },
-      ]);
-    }
-  }, [lastMessage, username]);
-
-  const handleSendMessage = () => {
-    if (message && id) {
-      const newMessage: MessageChat = {
-        type: 'chatMessage',
-        tableId: id,
-        username: username,
-        message: message,
-      };
-      sendJsonMessage(newMessage);
-      setMessage('');
-      console.log('handleSendMessage');
-    }
-  };
-
-  useEffect(() => {
-    if (messagesContainerRef.current) {
-      messagesContainerRef.current.scrollTop =
-        messagesContainerRef.current.scrollHeight;
-    }
-  }, [receivedMessages]);
-
-  return (
-    <div className="chat-popup">
-      <div className="chat-messages" ref={messagesContainerRef}>
-        {receivedMessages.map((msg, index) => (
-          <div key={index} className="chat-message">
-            <p className="message-username">{msg.username}</p>
-            <p className="message-text">{msg.message}</p>
-          </div>
-        ))}
-      </div>
-      <div className="chat-input">
-        <input
-          type="text"
-          placeholder="Type your message..."
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-        />
-        <button onClick={handleSendMessage}>Send</button>
-      </div>
-    </div>
-  );
-}
-
-export default ChatComponent;
 //TODO: disable chat if not all 4 players present or make it work with less
 export function TablePage() {
   const params = useParams();
   const id = params.id;
+  const chatContainerRef = useRef(null);
 
   const [data, setData] = useState<TableData>();
   const [playerIdx, setPlayerIdx] = useState<number>();
@@ -164,12 +94,9 @@ export function TablePage() {
   const [disconnectRequest, setDisconnectRequest] = useState(false);
   const [kickedOut, setKickedOut] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
-  const [message, setMessage] = useState<MessageChat>({
-    type: 'chatMessage',
-    tableId: '',
-    username: '',
-    message: '',
-  });
+  const [inputMessage, setInputMessage] = useState<string>('');
+  const [receivedMessages, setReceivedMessages] = useState<Message[]>([]);
+  const [popupMessage, setPopupMessage] = useState<string | null>(null);
 
   const { logout } = useAuth();
   const navigate = useNavigate();
@@ -224,11 +151,32 @@ export function TablePage() {
         }, 1500);
       }
       if (lastJsonMessage?.type === 'chatMessage') {
-        const chatMessage = lastJsonMessage as MessageChat;
-        setMessage(chatMessage);
+        console.log('Received chat message:', lastJsonMessage);
+        const newMessage = lastJsonMessage as MessageChat;
+        setReceivedMessages((prevMessages) => [
+          ...prevMessages,
+          {
+            username: newMessage.username,
+            message: newMessage.message,
+          },
+        ]);
       }
     }
   }, [lastJsonMessage, token, setIsLoading, data, logout, navigate]);
+
+  useEffect(() => {
+    if (receivedMessages.length > 0) {
+      const latestMessage = receivedMessages[receivedMessages.length - 1];
+      const formattedMessage = `<strong>${latestMessage.username}</strong><br>${latestMessage.message}`;
+      setPopupMessage(formattedMessage);
+
+      const popupTimer = setTimeout(() => {
+        setPopupMessage(null);
+      }, 3000);
+
+      return () => clearTimeout(popupTimer);
+    }
+  }, [receivedMessages]);
 
   const handlePlayCard = (c: CardData) => {
     if (!id) return;
@@ -369,9 +317,23 @@ export function TablePage() {
     setMenuOpen(!menuOpen);
   };
   const toggleChat = () => {
-    console.log('toggling chat');
     setChatOpen(!chatOpen);
-    console.log('chat is', chatOpen);
+  };
+
+  const handleSendMessage = () => {
+    if (inputMessage && id && playerIdx !== undefined) {
+      const newMessage: MessageChat = {
+        type: 'chatMessage',
+        tableId: id,
+        username: data?.players[playerIdx].name || '',
+        message: inputMessage,
+      };
+
+      sendJsonMessage(newMessage);
+      console.log('sending chat message');
+
+      setInputMessage('');
+    }
   };
 
   const shouldShowButton = isLeadPlayer() && canPass() && isCurrentPlayer();
@@ -393,12 +355,32 @@ export function TablePage() {
     <div>
       <div className="header">
         <h1 className="name-header">{data.players[playerIdx].name}</h1>
-        {chatOpen && message && (
-          <ChatComponent
-            sendJsonMessage={sendJsonMessage}
-            lastMessage={message}
-            username={data.players[playerIdx].name}
-          />
+        {chatOpen && (
+          <div className="chat-popup" ref={chatContainerRef}>
+            <div className="chat-messages">
+              {receivedMessages.map((msg, index) => (
+                <div key={index} className="chat-message">
+                  <p className="message-username">{msg.username}</p>
+                  <p className="message-text">{msg.message}</p>
+                </div>
+              ))}
+            </div>
+            <div className="chat-input">
+              <input
+                type="text"
+                placeholder="Type your message..."
+                value={inputMessage}
+                onChange={(e) => setInputMessage(e.target.value)}
+              />
+              <button onClick={handleSendMessage}>Send</button>
+            </div>
+          </div>
+        )}
+        {popupMessage && (
+          <div
+            className="popup-message"
+            dangerouslySetInnerHTML={{ __html: popupMessage }}
+          ></div>
         )}
         <div className="top-right-menu">
           <div
