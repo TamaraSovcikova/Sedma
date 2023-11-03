@@ -97,6 +97,9 @@ export function TablePage() {
   const [inputMessage, setInputMessage] = useState<string>('');
   const [receivedMessages, setReceivedMessages] = useState<Message[]>([]);
   const [popupMessage, setPopupMessage] = useState<string | null>(null);
+  const [unopenedMessage, setUnopenedMessage] = useState(0);
+  const [lastReceivedMessage, setLastReceivedMessage] =
+    useState<MessageChat | null>(null);
 
   const { logout } = useAuth();
   const navigate = useNavigate();
@@ -160,23 +163,37 @@ export function TablePage() {
             message: newMessage.message,
           },
         ]);
+        setLastReceivedMessage(newMessage);
       }
     }
   }, [lastJsonMessage, token, setIsLoading, data, logout, navigate]);
 
   useEffect(() => {
-    if (receivedMessages.length > 0) {
-      const latestMessage = receivedMessages[receivedMessages.length - 1];
-      const formattedMessage = `<strong>${latestMessage.username}</strong><br>${latestMessage.message}`;
-      setPopupMessage(formattedMessage);
+    if (lastReceivedMessage && data && playerIdx !== undefined) {
+      const formattedMessage = `<strong>${lastReceivedMessage.username}</strong><br>${lastReceivedMessage.message}`;
 
-      const popupTimer = setTimeout(() => {
-        setPopupMessage(null);
-      }, 3000);
+      if (lastReceivedMessage.username === data.players[playerIdx].name) {
+        setUnopenedMessage(0);
+        return;
+      }
 
-      return () => clearTimeout(popupTimer);
+      if (!chatOpen) {
+        setUnopenedMessage((prevUnopenedMessage) => prevUnopenedMessage + 1);
+        setPopupMessage(formattedMessage);
+
+        console.log('Popup is set');
+
+        const popupTimer = setTimeout(() => {
+          console.log('Popup will be cleared');
+          setPopupMessage(null);
+        }, 2000);
+
+        console.log('popupTimer:', popupTimer); // Log the timer ID
+        return () => clearTimeout(popupTimer);
+      }
     }
-  }, [receivedMessages]);
+    setLastReceivedMessage(null);
+  }, [chatOpen, data, lastReceivedMessage, playerIdx, receivedMessages]);
 
   const handlePlayCard = (c: CardData) => {
     if (!id) return;
@@ -318,6 +335,11 @@ export function TablePage() {
   };
   const toggleChat = () => {
     setChatOpen(!chatOpen);
+
+    if (chatOpen) {
+      setUnopenedMessage(0);
+      console.log('setting to 0 messages');
+    }
   };
 
   const handleSendMessage = () => {
@@ -376,12 +398,13 @@ export function TablePage() {
             </div>
           </div>
         )}
-        {popupMessage && (
+        {popupMessage && !chatOpen && (
           <div
             className="popup-message"
             dangerouslySetInnerHTML={{ __html: popupMessage }}
           ></div>
         )}
+
         <div className="top-right-menu">
           <div
             className={`icon ${menuOpen ? 'active' : ''}`}
@@ -433,6 +456,7 @@ export function TablePage() {
         <div>
           <h5>Round: {data.round}/8</h5>
         </div>
+        <p>Unopened Messages: {unopenedMessage}</p>
       </div>
       <div className="table">
         <Chair
