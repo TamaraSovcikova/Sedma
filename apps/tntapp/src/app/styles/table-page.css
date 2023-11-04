@@ -425,21 +425,37 @@
 
 .popup-message {
     position: absolute;
-    top: 5px;
-    left: 55%;
+    top: 15px;
+    left: 50%;
     font-size: 15px;
-    background-color: #000000;
+    background-color: #fffffff5;
+    color:#000000;
     padding: 10px;
-    border-radius: 20% 0 20% 20%;
+    border-radius: 15% 0 15% 15%;
     margin: 0;
+    min-width: 120px;
     max-width: 120px;
     align-content: center;
     line-height: 1;
     z-index: 1034;
-
 }
 
 .popup-message p {
     margin: 0 !important;
     row-gap: 2px;
+}
+
+.message-count {
+    position: absolute;
+    top: 12px;
+    right: 3px;
+    background-color: rgb(139, 16, 16);
+    color: white;
+    border-radius: 50%;
+    padding: 4px 8px;
+    font-size: 12px;
+    font-weight: bold;
+    z-index: 999;
+    margin:0;
+    line-height: 1;
 }

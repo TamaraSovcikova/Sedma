@@ -80,7 +80,6 @@ function Chair(props: ChairProps) {
   );
 }
 
-//TODO: disable chat if not all 4 players present or make it work with less
 export function TablePage() {
   const params = useParams();
   const id = params.id;
@@ -181,14 +180,10 @@ export function TablePage() {
         setUnopenedMessage((prevUnopenedMessage) => prevUnopenedMessage + 1);
         setPopupMessage(formattedMessage);
 
-        console.log('Popup is set');
-
         const popupTimer = setTimeout(() => {
-          console.log('Popup will be cleared');
           setPopupMessage(null);
         }, 2000);
 
-        console.log('popupTimer:', popupTimer); // Log the timer ID
         return () => clearTimeout(popupTimer);
       }
     }
@@ -335,11 +330,7 @@ export function TablePage() {
   };
   const toggleChat = () => {
     setChatOpen(!chatOpen);
-
-    if (chatOpen) {
-      setUnopenedMessage(0);
-      console.log('setting to 0 messages');
-    }
+    setUnopenedMessage(0);
   };
 
   const handleSendMessage = () => {
@@ -420,6 +411,9 @@ export function TablePage() {
                   className="fas fa-comment"
                   onClick={toggleChat}
                 ></i>
+                {unopenedMessage > 0 && (
+                  <div className="message-count">{unopenedMessage}</div>
+                )}
               </div>
               <div className="menu-item">
                 <i id="settings" className="fas fa-cog"></i>
@@ -456,7 +450,6 @@ export function TablePage() {
         <div>
           <h5>Round: {data.round}/8</h5>
         </div>
-        <p>Unopened Messages: {unopenedMessage}</p>
       </div>
       <div className="table">
         <Chair
