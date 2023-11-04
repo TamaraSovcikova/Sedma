@@ -4,7 +4,6 @@ import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { fetchData, postData } from '../../lib/api';
 import { getServerUrl } from '../../global';
 import { useAuth } from '../../components/auth/auth-context';
-import { debug } from 'console';
 
 interface Seat {
   id: number;
@@ -52,6 +51,7 @@ export function LobbyPage() {
   const [isCreatingTable, setIsCreatingTable] = useState(false);
   const [isUsernameAvailable, setIsUsernameAvailable] = useState(true);
   const [stakeLimit, setStakeLimit] = useState('');
+  const [selectedColor, setSelectedColor] = useState('');
 
   const [query] = useSearchParams();
 
@@ -203,9 +203,11 @@ export function LobbyPage() {
     if (isFormValid) {
       console.log(`${username} just chose a seat and is ready to play`);
 
-      if (isCreatingTable) {
-        postData(getServerUrl().tabledata(id), { stakeLimit }, token);
-      }
+      postData(
+        getServerUrl().tabledata(id),
+        { isCreatingTable, username, stakeLimit, selectedColor },
+        token
+      );
 
       setToken(newtoken);
     }
@@ -235,11 +237,32 @@ export function LobbyPage() {
       textArea.select();
       document.execCommand('copy');
       document.body.removeChild(textArea);
-
-      alert('Text copied to clipboard!');
     } else {
       alert('ERROR NO ID');
     }
+  };
+
+  const colorOptions = [
+    { id: 'red', name: 'Red' },
+    { id: 'blue', name: 'Blue' },
+    { id: 'green', name: 'Green' },
+    { id: 'yellow', name: 'Yellow' },
+    { id: 'gold', name: 'Gold' },
+    { id: 'purple', name: 'Purple' },
+    { id: 'orange', name: 'Orange' },
+    { id: 'pink', name: 'Pink' },
+    { id: 'teal', name: 'Teal' },
+    { id: 'violet', name: 'Violet' },
+    { id: 'cyan', name: 'Cyan' },
+    { id: 'lime', name: 'Lime' },
+    { id: 'indigo', name: 'Indigo' },
+    { id: 'brown', name: 'Brown' },
+    { id: 'grey', name: 'Grey' },
+    { id: 'black', name: 'Black' },
+  ];
+
+  const handleColorChange = (colorId: string) => {
+    setSelectedColor(colorId);
   };
 
   return (
@@ -304,10 +327,32 @@ export function LobbyPage() {
           </div>
         </div>
       </div>
+      <div className="row justify-content-center mt-4">
+        <div className="col-md-12">
+          <p>Select Shirt Color:</p>
+          <div className="color-options">
+            {colorOptions.map((color) => (
+              <label key={color.id} className="color-option">
+                <input
+                  type="checkbox"
+                  value={color.id}
+                  checked={selectedColor === color.id}
+                  onChange={() => handleColorChange(color.id)}
+                />
+                {color.name}
+                <span
+                  className="color-box"
+                  style={{ backgroundColor: color.id }}
+                ></span>
+              </label>
+            ))}
+          </div>
+        </div>
+      </div>
       <p className="teamInfo">
-        After entering your username, please select the seat you want to be
-        seated at whilst simultaneously choosing your teamate. Pick any of the
-        'Available' slots.
+        After entering your username and customising your character, please
+        select the seat you want to be seated at whilst simultaneously choosing
+        your teamate. Pick any of the 'Available' slots.
       </p>
       <div className="row justify-content-center mt-4">
         <div className="col-md-8">

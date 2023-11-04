@@ -25,6 +25,7 @@ interface ChairProps {
   lastPlayedCard: CardData;
   currentPlayer: boolean;
   winningPlayer: boolean;
+  bodyColor: string;
 }
 
 function Chair(props: ChairProps) {
@@ -34,6 +35,7 @@ function Chair(props: ChairProps) {
     lastPlayedCard,
     currentPlayer,
     winningPlayer,
+    bodyColor,
   } = props;
   return (
     <div className={`chair ${chairPosition}`}>
@@ -69,7 +71,10 @@ function Chair(props: ChairProps) {
       {playerName && (
         <div>
           <div className="player on-chair"></div>
-          <div className="player body"></div>
+          <div
+            className="player body"
+            style={{ backgroundColor: bodyColor }}
+          ></div>
         </div>
       )}
       <div className="name">{playerName}</div>
@@ -348,6 +353,10 @@ export function TablePage() {
       setInputMessage('');
     }
   };
+  const myBodyColor =
+    data && playerIdx !== undefined
+      ? data.players[playerIdx].bodyColor
+      : 'black';
 
   const shouldShowButton = isLeadPlayer() && canPass() && isCurrentPlayer();
 
@@ -460,6 +469,7 @@ export function TablePage() {
           winningPlayer={
             data.players[(playerIdx + 2) % 4].id === data.winningPlayerId
           }
+          bodyColor={data.players[(playerIdx + 2) % 4].bodyColor}
         />
         <Chair
           chairPosition="left"
@@ -469,6 +479,7 @@ export function TablePage() {
           winningPlayer={
             data.players[(playerIdx + 1) % 4].id === data.winningPlayerId
           }
+          bodyColor={data.players[(playerIdx + 1) % 4].bodyColor}
         />
         <Chair
           chairPosition="right"
@@ -478,10 +489,14 @@ export function TablePage() {
           winningPlayer={
             data.players[(playerIdx + 3) % 4].id === data.winningPlayerId
           }
+          bodyColor={data.players[(playerIdx + 3) % 4].bodyColor}
         />
         <div className="chair bottom">
           <div className="player on-chair"></div>
-          <div className="player body"></div>
+          <div
+            className="player body"
+            style={{ backgroundColor: myBodyColor }}
+          ></div>
           {data.players[playerIdx].id === data.winningPlayerId && (
             <img
               src="https://clipart-library.com/newimages/crown-clip-art-18.png"

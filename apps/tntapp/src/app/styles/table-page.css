@@ -86,8 +86,7 @@
     transform: translateX(-50%);
     width: 35px;
     height: 30px;
-    border-radius: 50% 50% 20% 20%;
-    background-color: black !important;
+    border-radius: 50% 50% 20% 20%; 
     z-index: 0;
 }
 

@@ -5,7 +5,7 @@ export function RulesPage() {
 
   const handleReturn = () => navigate('/');
   //TODO, include explanation of the sunglasses and crown.
-  //TODO, make loggin back into a table if you still have the token work
+
   return (
     <div className="container mt-5 p-0">
       <div className="row justify-content-center p-0">

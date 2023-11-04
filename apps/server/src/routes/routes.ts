@@ -86,10 +86,13 @@ export function createRoutes(app: any) {
     const data = req.body;
     const params = req.params;
     const tableId = params.id;
-    const { stakeLimit } = data;
+    const { isCreatingTable, username, stakeLimit, selectedColor } = data;
     const table = getTable(tableId);
+    const player = table.players.find((p) => p.name === username);
+    player.bodyColor = selectedColor;
 
-    table.finalStakeCount = parseInt(stakeLimit, 10);
+    if (isCreatingTable) table.finalStakeCount = parseInt(stakeLimit, 10);
+
     res.sendStatus(200);
   });
 
