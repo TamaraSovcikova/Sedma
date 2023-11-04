@@ -20,12 +20,33 @@ export function createRoutes(app: any) {
     res.json({ message: 'Hello API' });
   });
 
+  app.post('/table/deletePlayer/:id', (req, res) => {
+    const data = req.body;
+    const params = req.params;
+    const tableId = params.id;
+    const { oldUsername } = data;
+    const table = getTable(tableId);
+    const oldPlayer = table.players.find((p) => p.name === oldUsername);
+
+    const seatPosition: number = table.players.indexOf(oldPlayer);
+    deletePlayer(oldPlayer, table, seatPosition);
+    debug(
+      '----------just deleted player: ',
+      oldPlayer,
+      ' seatPosition ',
+      seatPosition
+    );
+
+    res.sendStatus(200);
+  });
+
   app.post('/table/newUsername/:id', (req, res) => {
     console.log('entered');
     const params = req.params;
     const tableId = params.id;
     const { username } = req.body;
     const table = getTable(tableId);
+
     const isUsernameTaken = table.players.find(
       (p) => p.name === username && p.name !== ''
     );

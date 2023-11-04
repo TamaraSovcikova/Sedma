@@ -7,7 +7,9 @@ import debugLog from 'debug';
 import { getConfig } from './global';
 
 const debug = debugLog('main');
-debugLog.enable('* routes wsServer table -table.sendUpdates -computerPlayer1');
+debugLog.enable(
+  '* routes -wsServer -table -table.sendUpdates -computerPlayer1'
+);
 
 const port = getConfig().port;
 

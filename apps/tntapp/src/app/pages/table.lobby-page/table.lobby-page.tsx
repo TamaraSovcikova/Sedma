@@ -4,6 +4,7 @@ import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { fetchData, postData } from '../../lib/api';
 import { getServerUrl } from '../../global';
 import { useAuth } from '../../components/auth/auth-context';
+import { debug } from 'console';
 
 interface Seat {
   id: number;
@@ -101,6 +102,29 @@ export function LobbyPage() {
   ) => {
     const newUsername = event.target.value;
     console.log('handling username change');
+
+    if (!username) {
+      setUsername(newUsername);
+    }
+
+    if (selectedSeatId) {
+      console.log(
+        'entered, becuase has selected seat: ',
+        selectedSeatId,
+        'past username: ',
+        username
+      );
+      postData(
+        getServerUrl().deletePlayerUrl(id),
+        {
+          oldUsername: username,
+        },
+        token
+      );
+      setSeatStatus(selectedSeatId, { name: '', taken: false });
+      setSelectedSeatId(null);
+    }
+
     setUsername(newUsername);
 
     // Clear the previous timer if it exists
@@ -115,6 +139,7 @@ export function LobbyPage() {
           getServerUrl().checkUsernameUrl(id),
           {
             username: newUsername,
+            selectedSeatId,
           },
           token
         );
@@ -134,6 +159,7 @@ export function LobbyPage() {
 
   const handleSeatClick = async (seatId: number) => {
     //first has to check if not taken , then clear the previous or at least try
+    if (!username || !isUsernameAvailable) return;
     console.log(seatId);
     if (!seats[seatId - 1].taken)
       if (selectedSeatId !== null) {
