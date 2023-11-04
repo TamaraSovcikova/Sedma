@@ -140,7 +140,7 @@ export function InitialPage() {
           </p>
           <div className="stake-input-container mb-1">
             <label className="stake-label" htmlFor="username-input">
-              GOAL STAKE COUNT:
+              Set a goal stake count:
             </label>
             <input
               type="number"

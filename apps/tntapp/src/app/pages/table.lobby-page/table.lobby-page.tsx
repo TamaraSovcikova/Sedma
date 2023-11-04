@@ -224,6 +224,12 @@ export function LobbyPage() {
     navigate('/');
   };
 
+  function shareViaWhatsApp(tableId: string) {
+    const message = `Join our Sedma game! Table ID: ${tableId}`;
+    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+    window.open(whatsappUrl, '_blank');
+  }
+
   const handleCopy = () => {
     const inputElement = document.getElementById(
       'table-id-input'
@@ -295,6 +301,12 @@ export function LobbyPage() {
               <button className="btn btn-secondary m-0" onClick={handleCopy}>
                 Copy
               </button>
+              <button
+                className="btn btn-secondary"
+                onClick={() => shareViaWhatsApp(id)}
+              >
+                <i className="fab fa-whatsapp"></i>
+              </button>
             </div>
           </div>
         </div>
@@ -329,7 +341,7 @@ export function LobbyPage() {
       </div>
       <div className="row justify-content-center mt-4">
         <div className="col-md-12">
-          <p>Select Shirt Color:</p>
+          <p>SELECT A SHIRT COLOR:</p>
           <div className="color-options">
             {colorOptions.map((color) => (
               <label key={color.id} className="color-option">
