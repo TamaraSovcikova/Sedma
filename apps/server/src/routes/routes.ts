@@ -3,6 +3,8 @@ import { createTable, getTable } from '../lib/game';
 import { addPlayer, deletePlayer } from '../lib/table';
 import debugLog from 'debug';
 import { computerLevel1 } from '../lib/computerPlayer1';
+import expressWs from 'express-ws';
+import { handleWs } from '../lib/wsServer';
 
 const debug = debugLog('routes');
 
@@ -16,8 +18,33 @@ function extractAuth(req, res, next) {
 export function createRoutes(app: any) {
   app.use(extractAuth); //middlewere
 
+  expressWs(app);
+
+  //if route to root found, recieve two parameters and call a function to process it
+  app.ws('/', (ws, req) => handleWs(ws));
+
   app.get('/api', (req, res) => {
     res.json({ message: 'Hello API' });
+  });
+
+  app.post('/table/deletePlayer/:id', (req, res) => {
+    const data = req.body;
+    const params = req.params;
+    const tableId = params.id;
+    const { oldUsername } = data;
+    const table = getTable(tableId);
+    const oldPlayer = table.players.find((p) => p.name === oldUsername);
+
+    const seatPosition: number = table.players.indexOf(oldPlayer);
+    deletePlayer(oldPlayer, table, seatPosition);
+    debug(
+      '----------just deleted player: ',
+      oldPlayer,
+      ' seatPosition ',
+      seatPosition
+    );
+
+    res.sendStatus(200);
   });
 
   app.post('/table/newUsername/:id', (req, res) => {
@@ -26,6 +53,7 @@ export function createRoutes(app: any) {
     const tableId = params.id;
     const { username } = req.body;
     const table = getTable(tableId);
+
     const isUsernameTaken = table.players.find(
       (p) => p.name === username && p.name !== ''
     );
@@ -65,10 +93,13 @@ export function createRoutes(app: any) {
     const data = req.body;
     const params = req.params;
     const tableId = params.id;
-    const { stakeLimit } = data;
+    const { isCreatingTable, username, stakeLimit, selectedColor } = data;
     const table = getTable(tableId);
+    const player = table.players.find((p) => p.name === username);
+    player.bodyColor = selectedColor;
 
-    table.finalStakeCount = parseInt(stakeLimit, 10);
+    if (isCreatingTable) table.finalStakeCount = parseInt(stakeLimit, 10);
+
     res.sendStatus(200);
   });
 

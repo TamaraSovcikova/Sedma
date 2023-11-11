@@ -54,7 +54,11 @@ export class Table {
   }
 
   public sendUpdates() {
-    const playerList = this.players.map((p) => ({ name: p.name, id: p.id }));
+    const playerList = this.players.map((p) => ({
+      name: p.name,
+      id: p.id,
+      bodyColor: p.bodyColor,
+    }));
     const lastPlayedCards = this.players.map((p) => p.lastPlayedCard);
 
     const debug2 = debug.extend('sendUpdates');

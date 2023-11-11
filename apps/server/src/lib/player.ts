@@ -19,6 +19,7 @@ export class Player {
   ws: ws.WebSocket | null = null;
   connected: boolean;
   isReadyToPlay: boolean;
+  bodyColor: string;
   /**measures the level of computer inteligence used.
    * 0 - human
    * 1 - stupid computer
@@ -28,6 +29,7 @@ export class Player {
   constructor(name: string) {
     this.name = name;
     this.id = randomUUID();
+    this.bodyColor = 'black';
   }
 
   public getName() {

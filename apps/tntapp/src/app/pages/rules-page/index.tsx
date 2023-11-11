@@ -4,11 +4,11 @@ export function RulesPage() {
   const navigate = useNavigate();
 
   const handleReturn = () => navigate('/');
-  //TODO, include explanation of the sunglasses and crown.
+
   return (
     <div className="container mt-5 p-0">
       <div className="row justify-content-center p-0">
-        <div className=" col-lg-4 p-3">
+        <div className=" col-lg-6 col-sm-4 p-3">
           <button
             className="btn btn-secondary returnButton"
             onClick={handleReturn}
@@ -91,6 +91,41 @@ export function RulesPage() {
               E: A, S: 7, W: A, N: K. East is satisfied with this and stops.
               Everyone draws a card. West won so begins the next trick.
             </p>
+          </div>
+          <div className="mb-4">
+            <h3 className="font-weight-bold">
+              <i className="fas fa-splotch"></i> Our Special Twist
+            </h3>
+            <p>
+              We like to make our sedma games fun. One way of doing that is with
+              pesonalised looks.
+            </p>
+            <h4>
+              We use a crown to symbolise the player who currently owns the pile
+            </h4>
+            <p>
+              Below is an example of a game, which had just begun, we are the
+              creator of the table, hence we are the one to begin and therefore
+              also own the pile pesonalised looks.
+            </p>
+            <img
+              src="../../../assets/crown-example.png"
+              alt="crown example"
+              className="mb-5"
+              style={{ width: '100%', alignItems: 'center' }}
+            />
+            <h4>We use sunglasses to symbolise who's turn it is to play</h4>
+            <p>
+              Below is an example of a game, Player 4 has started the round off,
+              my playing an eight, now, we have the sunglasses, meaning it is
+              our turn to pick a card to play.
+            </p>
+            <img
+              src="../../../assets/sunglasses-example.png"
+              alt="sunglasses example"
+              className="mb-5"
+              style={{ width: '100%', alignItems: 'center' }}
+            />
           </div>
           <button
             className="btn border-white "

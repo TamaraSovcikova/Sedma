@@ -6,14 +6,16 @@ declare global {
 }
 
 const url = window.serverApi ?? 'http://localhost:3000';
+const wsUrl = window.serverWs ?? 'ws://localhost:3000';
 
 export const getServerUrl = () => ({
   serverUrl: `${url}/api`,
-  tableUrl: window.serverWs ?? `ws://localhost:4500`,
+  tableUrl: wsUrl,
   lobbyUrl: (id: string) => `${url}/table/lobby/${id}`,
   newtableUrl: `${url}/table/new`,
   singlePlayerTableUrl: `${url}/table/newSinglePlayer`,
   exitTableUrl: (id: string) => `${url}/table/exists/${id}`,
   checkUsernameUrl: (id: string) => `${url}/table/newUsername/${id}`,
   tabledata: (id: string) => `${url}/table/lobby/data/${id}`,
+  deletePlayerUrl: (id: string) => `${url}/table/deletePlayer/${id}`,
 });
