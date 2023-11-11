@@ -18,7 +18,6 @@ import {
   MessageTableData,
   TableData,
 } from '@tnt-react/ws-messages';
-import { SendJsonMessage } from 'react-use-websocket/dist/lib/types';
 
 interface ChairProps {
   chairPosition: string;
@@ -26,6 +25,7 @@ interface ChairProps {
   lastPlayedCard: CardData;
   currentPlayer: boolean;
   winningPlayer: boolean;
+  bodyColor: string;
 }
 
 function Chair(props: ChairProps) {
@@ -35,6 +35,7 @@ function Chair(props: ChairProps) {
     lastPlayedCard,
     currentPlayer,
     winningPlayer,
+    bodyColor,
   } = props;
   return (
     <div className={`chair ${chairPosition}`}>
@@ -70,7 +71,10 @@ function Chair(props: ChairProps) {
       {playerName && (
         <div>
           <div className="player on-chair"></div>
-          <div className="player body"></div>
+          <div
+            className="player body"
+            style={{ backgroundColor: bodyColor }}
+          ></div>
         </div>
       )}
       <div className="name">{playerName}</div>
@@ -81,80 +85,10 @@ function Chair(props: ChairProps) {
   );
 }
 
-export interface ChatProps {
-  sendJsonMessage: SendJsonMessage;
-  lastMessage: MessageChat;
-  username: string;
-}
-
-function ChatComponent({ sendJsonMessage, lastMessage, username }: ChatProps) {
-  const params = useParams();
-  const id = params.id;
-  const [message, setMessage] = useState('');
-  const messagesContainerRef = useRef<HTMLDivElement | null>(null);
-  const [receivedMessages, setReceivedMessages] = useState<Message[]>([]);
-
-  useEffect(() => {
-    if (lastMessage && lastMessage.message !== '') {
-      setReceivedMessages((prevMessages) => [
-        ...prevMessages,
-        {
-          username: lastMessage.username,
-          message: lastMessage.message,
-        },
-      ]);
-    }
-  }, [lastMessage, username]);
-
-  const handleSendMessage = () => {
-    if (message && id) {
-      const newMessage: MessageChat = {
-        type: 'chatMessage',
-        tableId: id,
-        username: username,
-        message: message,
-      };
-      sendJsonMessage(newMessage);
-      setMessage('');
-      console.log('handleSendMessage');
-    }
-  };
-
-  useEffect(() => {
-    if (messagesContainerRef.current) {
-      messagesContainerRef.current.scrollTop =
-        messagesContainerRef.current.scrollHeight;
-    }
-  }, [receivedMessages]);
-
-  return (
-    <div className="chat-popup">
-      <div className="chat-messages" ref={messagesContainerRef}>
-        {receivedMessages.map((msg, index) => (
-          <div key={index} className="chat-message">
-            <p className="message-username">{msg.username}</p>
-            <p className="message-text">{msg.message}</p>
-          </div>
-        ))}
-      </div>
-      <div className="chat-input">
-        <input
-          type="text"
-          placeholder="Type your message..."
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-        />
-        <button onClick={handleSendMessage}>Send</button>
-      </div>
-    </div>
-  );
-}
-
-export default ChatComponent;
-//TODO: disable chat if not all 4 players present or make it work with less
 export function TablePage() {
   const params = useParams();
   const id = params.id;
+  const chatContainerRef = useRef(null);
 
   const [data, setData] = useState<TableData>();
   const [playerIdx, setPlayerIdx] = useState<number>();
@@ -164,12 +98,12 @@ export function TablePage() {
   const [disconnectRequest, setDisconnectRequest] = useState(false);
   const [kickedOut, setKickedOut] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
-  const [message, setMessage] = useState<MessageChat>({
-    type: 'chatMessage',
-    tableId: '',
-    username: '',
-    message: '',
-  });
+  const [inputMessage, setInputMessage] = useState<string>('');
+  const [receivedMessages, setReceivedMessages] = useState<Message[]>([]);
+  const [popupMessage, setPopupMessage] = useState<string | null>(null);
+  const [unopenedMessage, setUnopenedMessage] = useState(0);
+  const [lastReceivedMessage, setLastReceivedMessage] =
+    useState<MessageChat | null>(null);
 
   const { logout } = useAuth();
   const navigate = useNavigate();
@@ -224,11 +158,42 @@ export function TablePage() {
         }, 1500);
       }
       if (lastJsonMessage?.type === 'chatMessage') {
-        const chatMessage = lastJsonMessage as MessageChat;
-        setMessage(chatMessage);
+        console.log('Received chat message:', lastJsonMessage);
+        const newMessage = lastJsonMessage as MessageChat;
+        setReceivedMessages((prevMessages) => [
+          ...prevMessages,
+          {
+            username: newMessage.username,
+            message: newMessage.message,
+          },
+        ]);
+        setLastReceivedMessage(newMessage);
       }
     }
   }, [lastJsonMessage, token, setIsLoading, data, logout, navigate]);
+
+  useEffect(() => {
+    if (lastReceivedMessage && data && playerIdx !== undefined) {
+      const formattedMessage = `<strong>${lastReceivedMessage.username}</strong><br>${lastReceivedMessage.message}`;
+
+      if (lastReceivedMessage.username === data.players[playerIdx].name) {
+        setUnopenedMessage(0);
+        return;
+      }
+
+      if (!chatOpen) {
+        setUnopenedMessage((prevUnopenedMessage) => prevUnopenedMessage + 1);
+        setPopupMessage(formattedMessage);
+
+        const popupTimer = setTimeout(() => {
+          setPopupMessage(null);
+        }, 2000);
+
+        return () => clearTimeout(popupTimer);
+      }
+    }
+    setLastReceivedMessage(null);
+  }, [chatOpen, data, lastReceivedMessage, playerIdx, receivedMessages]);
 
   const handlePlayCard = (c: CardData) => {
     if (!id) return;
@@ -369,10 +334,29 @@ export function TablePage() {
     setMenuOpen(!menuOpen);
   };
   const toggleChat = () => {
-    console.log('toggling chat');
     setChatOpen(!chatOpen);
-    console.log('chat is', chatOpen);
+    setUnopenedMessage(0);
   };
+
+  const handleSendMessage = () => {
+    if (inputMessage && id && playerIdx !== undefined) {
+      const newMessage: MessageChat = {
+        type: 'chatMessage',
+        tableId: id,
+        username: data?.players[playerIdx].name || '',
+        message: inputMessage,
+      };
+
+      sendJsonMessage(newMessage);
+      console.log('sending chat message');
+
+      setInputMessage('');
+    }
+  };
+  const myBodyColor =
+    data && playerIdx !== undefined
+      ? data.players[playerIdx].bodyColor
+      : 'black';
 
   const shouldShowButton = isLeadPlayer() && canPass() && isCurrentPlayer();
 
@@ -393,13 +377,34 @@ export function TablePage() {
     <div>
       <div className="header">
         <h1 className="name-header">{data.players[playerIdx].name}</h1>
-        {chatOpen && message && (
-          <ChatComponent
-            sendJsonMessage={sendJsonMessage}
-            lastMessage={message}
-            username={data.players[playerIdx].name}
-          />
+        {chatOpen && (
+          <div className="chat-popup" ref={chatContainerRef}>
+            <div className="chat-messages">
+              {receivedMessages.map((msg, index) => (
+                <div key={index} className="chat-message">
+                  <p className="message-username">{msg.username}</p>
+                  <p className="message-text">{msg.message}</p>
+                </div>
+              ))}
+            </div>
+            <div className="chat-input">
+              <input
+                type="text"
+                placeholder="Type your message..."
+                value={inputMessage}
+                onChange={(e) => setInputMessage(e.target.value)}
+              />
+              <button onClick={handleSendMessage}>Send</button>
+            </div>
+          </div>
         )}
+        {popupMessage && !chatOpen && (
+          <div
+            className="popup-message"
+            dangerouslySetInnerHTML={{ __html: popupMessage }}
+          ></div>
+        )}
+
         <div className="top-right-menu">
           <div
             className={`icon ${menuOpen ? 'active' : ''}`}
@@ -415,6 +420,9 @@ export function TablePage() {
                   className="fas fa-comment"
                   onClick={toggleChat}
                 ></i>
+                {unopenedMessage > 0 && (
+                  <div className="message-count">{unopenedMessage}</div>
+                )}
               </div>
               <div className="menu-item">
                 <i id="settings" className="fas fa-cog"></i>
@@ -461,6 +469,7 @@ export function TablePage() {
           winningPlayer={
             data.players[(playerIdx + 2) % 4].id === data.winningPlayerId
           }
+          bodyColor={data.players[(playerIdx + 2) % 4].bodyColor}
         />
         <Chair
           chairPosition="left"
@@ -470,6 +479,7 @@ export function TablePage() {
           winningPlayer={
             data.players[(playerIdx + 1) % 4].id === data.winningPlayerId
           }
+          bodyColor={data.players[(playerIdx + 1) % 4].bodyColor}
         />
         <Chair
           chairPosition="right"
@@ -479,10 +489,14 @@ export function TablePage() {
           winningPlayer={
             data.players[(playerIdx + 3) % 4].id === data.winningPlayerId
           }
+          bodyColor={data.players[(playerIdx + 3) % 4].bodyColor}
         />
         <div className="chair bottom">
           <div className="player on-chair"></div>
-          <div className="player body"></div>
+          <div
+            className="player body"
+            style={{ backgroundColor: myBodyColor }}
+          ></div>
           {data.players[playerIdx].id === data.winningPlayerId && (
             <img
               src="https://clipart-library.com/newimages/crown-clip-art-18.png"

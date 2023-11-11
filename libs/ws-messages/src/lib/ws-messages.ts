@@ -45,7 +45,7 @@ export interface Message {
 }
 
 export interface TableData {
-  players: { name: string; id: string | undefined }[];
+  players: { name: string; id: string | undefined; bodyColor: string }[];
   hand: CardData[];
   lastPlayedCards: CardData[];
   waitingForPlayers: boolean;
