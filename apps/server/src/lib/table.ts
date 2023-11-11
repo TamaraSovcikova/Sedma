@@ -465,40 +465,41 @@ export class Table {
   }
 
   public closeResults(playerIdx: number) {
-    this.showresults = false;
-    this.wonPoints = 0;
     this.playerIsReady(playerIdx);
-    this.setcomputerToReady();
-    this.currentPlayer = this.leadPlayer;
-    //resets the last played cards to nothing
-    this.players.forEach((p) => {
-      p.lastPlayedCard = null;
-    });
 
-    if (!this.deckHasCards() && this.allCardsPlayed()) {
-      if (this.players[this.leadPlayer].team === 'A') {
-        debug('for winning the last deal, team A gets extra 10 points!');
-        this.teamAPoints += 10;
-      } else {
-        debug('for winning the last deal, team B gets extra 10 points!');
-        this.teamBPoints += 10;
+    if (this.leadPlayer === playerIdx) {
+      this.wonPoints = 0;
+      this.setcomputerToReady();
+      this.currentPlayer = this.leadPlayer;
+      //resets the last played cards to nothing
+      this.players.forEach((p) => {
+        p.lastPlayedCard = null;
+      });
+
+      if (!this.deckHasCards() && this.allCardsPlayed()) {
+        if (this.players[this.leadPlayer].team === 'A') {
+          debug('for winning the last deal, team A gets extra 10 points!');
+          this.teamAPoints += 10;
+        } else {
+          debug('for winning the last deal, team B gets extra 10 points!');
+          this.teamBPoints += 10;
+        }
+        this.endGame();
+        return;
       }
-      this.endGame();
-      return;
-    }
 
-    if (this.deckHasCards) {
-      debug('not end of game, so handing out cards');
-      this.handOutCards();
+      if (this.deckHasCards) {
+        debug('not end of game, so handing out cards');
+        this.handOutCards();
 
-      this.playIfAutoplay();
+        this.playIfAutoplay();
+      }
     }
 
     this.sendUpdates();
   }
   public closeEndGameResults(playerIdx: number) {
     this.gameEnd = false;
-    this.showresults = false;
 
     this.playerIsReady(playerIdx);
     this.setcomputerToReady();

@@ -13,6 +13,7 @@ export function InitialPage() {
   const { token, logout, setToken } = useAuth();
   const [stakeLimit, setStakeLimit] = useState('');
   const [isFormValid, setIsFormValid] = useState(false);
+
   const navigate = useNavigate();
 
   const handleStakeLimitChange = (

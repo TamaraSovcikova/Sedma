@@ -104,6 +104,7 @@ export function TablePage() {
   const [unopenedMessage, setUnopenedMessage] = useState(0);
   const [lastReceivedMessage, setLastReceivedMessage] =
     useState<MessageChat | null>(null);
+  const [showResults, setShowResults] = useState(false);
 
   const { logout } = useAuth();
   const navigate = useNavigate();
@@ -132,6 +133,7 @@ export function TablePage() {
         console.log('entered table data');
         const d: MessageTableData = lastJsonMessage as MessageTableData;
         setData(d.data);
+        if (d.data.showresults) setShowResults(true);
         const playerIdx = d.data.players.findIndex((p) => p.id === token);
         if (playerIdx >= 0) {
           setPlayerIdx(playerIdx);
@@ -228,6 +230,8 @@ export function TablePage() {
   };
 
   const handleCloseResults = () => {
+    setShowResults(false);
+
     if (!id || playerIdx === undefined) return;
 
     const message: MessagePlayerIdx = {
@@ -464,7 +468,7 @@ export function TablePage() {
         <Chair
           chairPosition="top"
           playerName={data.players[(playerIdx + 2) % 4].name}
-          lastPlayedCard={data.lastPlayedCards[2]}
+          lastPlayedCard={data.lastPlayedCards[(playerIdx + 2) % 4]}
           currentPlayer={data.currentPlayer === (playerIdx + 2) % 4}
           winningPlayer={
             data.players[(playerIdx + 2) % 4].id === data.winningPlayerId
@@ -474,7 +478,7 @@ export function TablePage() {
         <Chair
           chairPosition="left"
           playerName={data.players[(playerIdx + 1) % 4].name}
-          lastPlayedCard={data.lastPlayedCards[1]}
+          lastPlayedCard={data.lastPlayedCards[(playerIdx + 1) % 4]}
           currentPlayer={data.currentPlayer === (playerIdx + 1) % 4}
           winningPlayer={
             data.players[(playerIdx + 1) % 4].id === data.winningPlayerId
@@ -484,7 +488,7 @@ export function TablePage() {
         <Chair
           chairPosition="right"
           playerName={data.players[(playerIdx + 3) % 4].name}
-          lastPlayedCard={data.lastPlayedCards[3]}
+          lastPlayedCard={data.lastPlayedCards[(playerIdx + 3) % 4]}
           currentPlayer={data.currentPlayer === (playerIdx + 3) % 4}
           winningPlayer={
             data.players[(playerIdx + 3) % 4].id === data.winningPlayerId
@@ -564,7 +568,7 @@ export function TablePage() {
           </p>
         </div>
       )}
-      {data.showresults && (
+      {showResults && (
         <div className="resultsPopup">
           <div className="resultsBox">
             <button className="closeButton" onClick={handleCloseResults}>
