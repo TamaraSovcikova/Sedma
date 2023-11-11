@@ -1,7 +1,6 @@
 import express from 'express';
 import cors from 'cors';
 import bodyParser from 'body-parser';
-import { createWebSocketServer } from './lib/wsServer';
 import { createRoutes } from './routes/routes';
 import debugLog from 'debug';
 import { getConfig } from './global';
@@ -14,7 +13,6 @@ debugLog.enable(
 const port = getConfig().port;
 
 const app = express();
-createWebSocketServer();
 
 app.use(bodyParser.json());
 app.use(

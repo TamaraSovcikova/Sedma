@@ -3,6 +3,8 @@ import { createTable, getTable } from '../lib/game';
 import { addPlayer, deletePlayer } from '../lib/table';
 import debugLog from 'debug';
 import { computerLevel1 } from '../lib/computerPlayer1';
+import expressWs from 'express-ws';
+import { handleWs } from '../lib/wsServer';
 
 const debug = debugLog('routes');
 
@@ -15,6 +17,11 @@ function extractAuth(req, res, next) {
 
 export function createRoutes(app: any) {
   app.use(extractAuth); //middlewere
+
+  expressWs(app);
+
+  //if route to root found, recieve two parameters and call a function to process it
+  app.ws('/', (ws, req) => handleWs(ws));
 
   app.get('/api', (req, res) => {
     res.json({ message: 'Hello API' });
