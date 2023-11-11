@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import '../../styles/inicial-page.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import '../../styles/inicial-page.css';
 import { postData } from '../../lib/api';
 import { getServerUrl } from '../../global';
 import { useAuth } from '../../components/auth/auth-context';
