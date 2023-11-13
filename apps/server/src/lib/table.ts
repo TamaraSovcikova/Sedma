@@ -53,51 +53,64 @@ export class Table {
     this.id = id;
   }
 
-  public sendUpdates() {
-    const playerList = this.players.map((p) => ({
+  private getPlayerList(): { name: string; id: string; bodyColor: string }[] {
+    return this.players.map((p) => ({
       name: p.name,
       id: p.id,
       bodyColor: p.bodyColor,
     }));
-    const lastPlayedCards = this.players.map((p) => p.lastPlayedCard);
+  }
 
+  private getLastPlayedCards(): CardData[] {
+    return this.players.map((p) => p.lastPlayedCard);
+  }
+
+  private getPlayerData(p: Player): TableData {
+    const hand = p.onHand;
+    const waitingForPlayers = this.playerCount() < 4;
+
+    return {
+      players: this.getPlayerList(),
+      lastPlayedCards: this.getLastPlayedCards(),
+      hand,
+      waitingForPlayers,
+      currentPlayer: this.currentPlayer,
+      ownerOfTableId: this.ownerOfTable.id,
+      gameInProgress: this.gameInProgress,
+      winningPlayerId: this.players[this.winningPlayer].id,
+      leadPlayerId: this.players[this.leadPlayer].id,
+      round: this.round,
+      cardToBeat: this.cardToBeat,
+      teamWonRound: this.teamWonRound,
+      wonPoints: this.wonPoints,
+      showresults: this.showresults,
+      gameEnd: this.gameEnd,
+      teamAPoints: this.teamAPoints,
+      teamBPoints: this.teamBPoints,
+      teamAStakeCount: this.teamAStakeCount,
+      teamBStakeCount: this.teamBStakeCount,
+      finalStakeCount: this.finalStakeCount,
+      askContinue: this.askContinue,
+      stakesReached: this.stakesReached,
+      playAgain: this.playAgain,
+      isFirstDeal: this.isFirstDeal,
+    };
+  }
+
+  private createMessageData(p: Player): MessageTableData {
+    const data: TableData = this.getPlayerData(p);
+    return {
+      data,
+      type: 'tableData',
+      tableId: this.id,
+    };
+  }
+
+  public sendUpdates() {
     const debug2 = debug.extend('sendUpdates');
     for (const p of this.players) {
-      const hand = p.onHand;
-      const waitingForPlayers = this.playerCount() < 4;
-
-      const data: TableData = {
-        players: playerList,
-        lastPlayedCards,
-        hand,
-        waitingForPlayers,
-        currentPlayer: this.currentPlayer,
-        ownerOfTableId: this.ownerOfTable.id,
-        gameInProgress: this.gameInProgress,
-        winningPlayerId: this.players[this.winningPlayer].id,
-        leadPlayerId: this.players[this.leadPlayer].id,
-        round: this.round,
-        cardToBeat: this.cardToBeat,
-        teamWonRound: this.teamWonRound,
-        wonPoints: this.wonPoints,
-        showresults: this.showresults,
-        gameEnd: this.gameEnd,
-        teamAPoints: this.teamAPoints,
-        teamBPoints: this.teamBPoints,
-        teamAStakeCount: this.teamAStakeCount,
-        teamBStakeCount: this.teamBStakeCount,
-        finalStakeCount: this.finalStakeCount,
-        askContinue: this.askContinue,
-        stakesReached: this.stakesReached,
-        playAgain: this.playAgain,
-        isFirstDeal: this.isFirstDeal,
-      };
-      const messageData: MessageTableData = {
-        data,
-        type: 'tableData',
-        tableId: this.id,
-      };
-      debug2('players data:', data, 'and player id: ', p.id);
+      const messageData = this.createMessageData(p);
+      debug2('players data:', messageData.data, 'and player id: ', p.id);
 
       if (p.ws) p.ws.send(JSON.stringify(messageData));
     }
