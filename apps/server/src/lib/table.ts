@@ -130,16 +130,25 @@ export class Table {
 
   public setUpGame(): void {
     if (!this.allPlayersReady()) {
-      debug('waiting for all players to be ready');
+      debug('waiting for all players to be ready'); //TODO WILL ADD THE DISPLAY MESSAGE FROM HERE
       return;
     }
     debug('----A New Game Has Begun----');
+    this.initializeGame();
+
+    if (this.deckHasCards()) {
+      this.handOutCards();
+      this.sendUpdates();
+    }
+    this.playIfAutoplay();
+  }
+
+  private initializeGame(): void {
     this.createDeck();
     this.shuffleDeck();
     this.assignTeams();
 
-    if (this.leadPlayer) this.currentPlayer = this.leadPlayer;
-    else this.currentPlayer = 0;
+    this.currentPlayer = this.leadPlayer ?? 0;
 
     this.gameInProgress = true;
     this.leadPlayer = this.currentPlayer;
@@ -156,12 +165,6 @@ export class Table {
     this.round = 0;
 
     this.resetPlayers();
-
-    if (this.deckHasCards()) {
-      this.handOutCards();
-      this.sendUpdates();
-    }
-    this.playIfAutoplay();
   }
 
   public allPlayersReady() {
@@ -254,17 +257,24 @@ export class Table {
   public validateTurn(player: Player, card: CardData): boolean {
     if (!player) {
       throw new Error('Player not found on the table');
-    } else if (player.isReadyToPlay !== true) {
-      debug(
-        'how if the world are you playing a card if you arent ready to play?'
-      );
+    }
+
+    if (!player.isReadyToPlay) {
+      debug('Why are you playing a card if you are not ready to play?');
       return false;
-    } else if (this.players.indexOf(player) !== this.currentPlayer) {
+    }
+
+    if (this.players.indexOf(player) !== this.currentPlayer) {
       throw new Error('It is not your turn to play');
-    } else if (!this.canPlayCard(card)) {
-      throw new Error('You cant play this card');
-    } else return true;
+    }
+
+    if (!this.canPlayCard(card)) {
+      throw new Error('You cannot play this card');
+    }
+
+    return true;
   }
+
   public cardPlayed(player, card) {
     this.wonPoints += card.points;
     this.discardPile.push(card);
@@ -278,19 +288,32 @@ export class Table {
 
   public playCard(playerId: string, card: CardData) {
     const player = this.players.find((p) => p.id === playerId);
-    debug(
-      this.players[this.currentPlayer].name,
-      ' has ',
-      this.players[this.currentPlayer].onHand.length,
-      'cards and is playing card: ',
-      card
-    );
 
     if (!this.validateTurn(player, card)) return;
 
     this.cardPlayed(player, card);
 
-    // Check if the card beats the current card to beat
+    this.checkIfCardToBeatBet(player, card);
+    this.updateRound();
+
+    this.sendUpdates();
+
+    if (this.shouldEndRoundAutomatically()) {
+      this.endRoundAutomatically();
+      return;
+    }
+
+    if (this.shouldEndGame()) {
+      debug('Game is ending, no cards left');
+      setTimeout(() => this.endRound(), 3000);
+      return;
+    }
+
+    this.sendUpdates();
+    this.playIfAutoplay();
+  }
+
+  private checkIfCardToBeatBet(player: Player, card: CardData): void {
     if (this.cardToBeat === null) {
       this.cardToBeat = card;
     } else {
@@ -299,35 +322,32 @@ export class Table {
         debug(`${player.name} owns the pile`);
       }
     }
+  }
 
+  private updateRound(): void {
     if (this.currentPlayer === this.leadPlayer) {
-      this.round = this.round + 1;
-      this.isFirstDeal += 1;
+      this.round++;
+      this.isFirstDeal++;
     }
-    this.currentPlayer = (this.currentPlayer + 1) % this.players.length; //current player is increased
 
-    this.sendUpdates();
+    this.currentPlayer = (this.currentPlayer + 1) % this.players.length;
+  }
 
-    if (
+  private shouldEndRoundAutomatically(): boolean {
+    return (
       this.currentPlayer === this.leadPlayer &&
       !this.hasACardToTakeOver() &&
-      this.isFirstDeal != 0
-    ) {
-      this.endRound();
-      console.log('automatic passing');
-      return;
-    }
+      this.isFirstDeal !== 0
+    );
+  }
 
-    if (!this.deckHasCards && this.playersDontHaveCards()) {
-      debug('game is ending, no cards left');
-      setTimeout(() => {
-        this.endRound();
-        return;
-      }, 3000);
-    }
+  private endRoundAutomatically(): void {
+    this.endRound();
+    console.log('Automatic passing');
+  }
 
-    this.sendUpdates();
-    this.playIfAutoplay();
+  private shouldEndGame(): boolean {
+    return !this.deckHasCards && this.playersDontHaveCards();
   }
 
   public hasACardToTakeOver() {
