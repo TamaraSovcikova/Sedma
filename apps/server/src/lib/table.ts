@@ -474,26 +474,24 @@ export class Table {
     else return false;
   }
 
-  public closeResults(playerIdx: number) {
+  public closeResults(playerIdx: number): void {
     this.playerIsReady(playerIdx);
 
     if (this.leadPlayer === playerIdx) {
       this.wonPoints = 0;
       this.setcomputerToReady();
       this.currentPlayer = this.leadPlayer;
-      //resets the last played cards to nothing
-      this.players.forEach((p) => {
-        p.lastPlayedCard = null;
-      });
+
+      this.players.forEach((p) => (p.lastPlayedCard = null));
 
       if (!this.deckHasCards() && this.allCardsPlayed()) {
-        if (this.players[this.leadPlayer].team === 'A') {
-          debug('for winning the last deal, team A gets extra 10 points!');
-          this.teamAPoints += 10;
-        } else {
-          debug('for winning the last deal, team B gets extra 10 points!');
-          this.teamBPoints += 10;
-        }
+        const winningTeam = this.players[this.leadPlayer].team;
+        debug(
+          `for winning the last deal, team ${winningTeam} gets extra 10 points!`
+        );
+        winningTeam === 'A'
+          ? (this.teamAPoints += 10)
+          : (this.teamBPoints += 10);
         this.endGame();
         return;
       }
@@ -501,13 +499,13 @@ export class Table {
       if (this.deckHasCards) {
         debug('not end of game, so handing out cards');
         this.handOutCards();
-
         this.playIfAutoplay();
       }
     }
 
     this.sendUpdates();
   }
+
   public closeEndGameResults(playerIdx: number) {
     this.gameEnd = false;
 
