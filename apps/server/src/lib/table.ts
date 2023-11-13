@@ -299,7 +299,8 @@ export class Table {
     this.sendUpdates();
 
     if (this.shouldEndRoundAutomatically()) {
-      this.endRoundAutomatically();
+      this.endRound();
+      console.log('Automatic passing');
       return;
     }
 
@@ -341,11 +342,6 @@ export class Table {
     );
   }
 
-  private endRoundAutomatically(): void {
-    this.endRound();
-    console.log('Automatic passing');
-  }
-
   private shouldEndGame(): boolean {
     return !this.deckHasCards && this.playersDontHaveCards();
   }
@@ -373,21 +369,24 @@ export class Table {
     this.playersArentReady();
     this.players[this.winningPlayer].collectWonCards(this.discardPile);
 
-    if (this.players[this.winningPlayer].team === 'A')
-      this.discardPile.forEach((c) => {
-        this.totalCollectedCardsA.push(c);
-      });
-    else
-      this.discardPile.forEach((c) => {
-        this.totalCollectedCardsB.push(c);
-      });
+    const winningTeam = this.players[this.winningPlayer].team;
+    this.collectWonCards(winningTeam);
 
     this.leadPlayer = this.winningPlayer;
-
     this.discardPile = [];
     this.cardToBeat = null;
+
     this.evaluateRound();
   }
+
+  private collectWonCards(winningTeam: string): void {
+    const collectedCards =
+      winningTeam === 'A'
+        ? this.totalCollectedCardsA
+        : this.totalCollectedCardsB;
+    this.discardPile.forEach((card) => collectedCards.push(card));
+  }
+
   public evaluateRound() {
     const team =
       this.players[this.leadPlayer].team === 'A' ? 'Team A' : 'Team B';
@@ -437,54 +436,32 @@ export class Table {
     });
   }
 
-  public calculateStakes() {
-    const {
-      teamAPoints,
-      teamBPoints,
-      totalCollectedCardsA,
-      totalCollectedCardsB,
-    } = this;
+  public calculateStakes(): void {
+    const { teamAPoints, teamBPoints, totalCollectedCardsA } = this;
+    const winningTeam = teamAPoints > teamBPoints ? 'A' : 'B';
 
     if (teamAPoints >= 90 || teamBPoints >= 90) {
-      if (totalCollectedCardsA.length === 32) {
-        debug(`\nTeam A won all deals and therefore gained 3 stakes!`);
-        this.teamWonRound = 'Team A';
-        this.teamAStakeCount += 3;
-      } else if (totalCollectedCardsB.length === 32) {
-        debug(`\nTeam B won all deals and therefore gained 3 stakes!`);
-        this.teamWonRound = 'Team B';
-        this.teamBStakeCount += 3;
-      } else {
-        if (teamAPoints > teamBPoints) {
-          this.teamAStakeCount += 2;
-          this.teamWonRound = 'Team A';
-        } else {
-          this.teamBStakeCount += 2;
-          this.teamWonRound = 'Team B';
-        }
-        const winningTeam = teamAPoints > teamBPoints ? 'A' : 'B';
-        debug(
-          `\nTeam ${winningTeam} has more points, but not all deals, so they win 2 stakes!`
-        );
-        this.teamWonRound = `Team ${winningTeam}`;
-      }
-    } else {
-      if (teamAPoints > teamBPoints) {
-        this.teamAStakeCount += 1;
-        this.teamWonRound = 'Team A';
-      } else {
-        this.teamBStakeCount += 1;
-        this.teamWonRound = 'Team B';
-      }
-      const winningTeam = teamAPoints > teamBPoints ? 'A' : 'B';
-      debug(
-        `\nNo team has earned 90 points. Team ${winningTeam} has more points, so they earn 1 stake.`
-      );
+      const isTeamAWinner = winningTeam === 'A';
+      let stakeCount = isTeamAWinner
+        ? this.teamAStakeCount
+        : this.teamBStakeCount;
+
+      stakeCount += totalCollectedCardsA.length === 32 ? 3 : 2;
       this.teamWonRound = `Team ${winningTeam}`;
+      debug(
+        `\nTeam ${winningTeam} won all deals and therefore gained ${stakeCount} stakes!`
+      );
+    } else {
+      this.teamWonRound = winningTeam === 'A' ? 'Team A' : 'Team B';
+      this.teamAStakeCount += winningTeam === 'A' ? 2 : 1;
+      this.teamBStakeCount += winningTeam === 'B' ? 2 : 1;
+      debug(
+        `\nTeam ${winningTeam} has more points, but not all deals, so they win 2 stakes!`
+      );
     }
+
     debug(
-      '--------at end of calculate stakes, winnnig team: ',
-      this.teamWonRound
+      `\n--------at end of calculate stakes, winning team: ${this.teamWonRound}`
     );
   }
 
