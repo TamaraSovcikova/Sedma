@@ -4,6 +4,7 @@ import {
   SuitType,
   FaceType,
   CardData,
+  MessageBase,
 } from '@tnt-react/ws-messages';
 import { Card } from './card';
 import { Player } from './player';
@@ -36,10 +37,8 @@ export class Table {
   finalStakeCount = 1; // set to 1 as base;
   teamWonRound = '';
   stakesReached = false;
+  /* count of points collected at the end of the deal */
   wonPoints = 0;
-  showresults = false;
-  gameEnd = false;
-  askContinue = false;
   playAgain = false;
   isFirstDeal = 0;
 
@@ -52,7 +51,7 @@ export class Table {
     ];
     this.id = id;
   }
-
+  //LEFT OFF: Works up to the second game lap
   private getPlayerList(): { name: string; id: string; bodyColor: string }[] {
     return this.players.map((p) => ({
       name: p.name,
@@ -83,33 +82,26 @@ export class Table {
       cardToBeat: this.cardToBeat,
       teamWonRound: this.teamWonRound,
       wonPoints: this.wonPoints,
-      showresults: this.showresults,
-      gameEnd: this.gameEnd,
       teamAPoints: this.teamAPoints,
       teamBPoints: this.teamBPoints,
       teamAStakeCount: this.teamAStakeCount,
       teamBStakeCount: this.teamBStakeCount,
       finalStakeCount: this.finalStakeCount,
-      askContinue: this.askContinue,
       stakesReached: this.stakesReached,
       playAgain: this.playAgain,
       isFirstDeal: this.isFirstDeal,
     };
   }
 
-  private createMessageData(p: Player): MessageTableData {
-    const data: TableData = this.getPlayerData(p);
-    return {
-      data,
-      type: 'tableData',
-      tableId: this.id,
-    };
-  }
-
   public sendUpdates() {
     const debug2 = debug.extend('sendUpdates');
     for (const p of this.players) {
-      const messageData = this.createMessageData(p);
+      const data: TableData = this.getPlayerData(p);
+      const messageData = {
+        data,
+        type: 'tableData',
+        tableId: this.id,
+      };
       debug2('players data:', messageData.data, 'and player id: ', p.id);
 
       if (p.ws) p.ws.send(JSON.stringify(messageData));
@@ -155,13 +147,11 @@ export class Table {
     this.winningPlayer = this.leadPlayer;
     this.discardPile = [];
     this.cardToBeat = null;
-    this.gameEnd = false;
     this.teamAPoints = 0;
     this.teamBPoints = 0;
     this.totalCollectedCardsA = [];
     this.totalCollectedCardsB = [];
     this.wonPoints = 0;
-    this.askContinue = false;
     this.round = 0;
 
     this.resetPlayers();
@@ -224,13 +214,12 @@ export class Table {
   public deckHasCards(): boolean {
     return this.deck.length > 0;
   }
-  public playersDontHaveCards(): boolean {
-    let count = 0;
-    this.players.forEach((p) => {
-      if (p.onHand.length === 0) count += 1;
-    });
 
-    return count === 4;
+  public playersDontHaveCards(): boolean {
+    const playersWithoutCardsCount = this.players.filter(
+      (player) => player.onHand.length === 0
+    ).length;
+    return playersWithoutCardsCount === this.players.length;
   }
 
   public handOutCards(): void {
@@ -298,15 +287,9 @@ export class Table {
 
     this.sendUpdates();
 
-    if (this.shouldEndRoundAutomatically()) {
-      this.endRound();
-      console.log('Automatic passing');
-      return;
-    }
-
-    if (this.shouldEndGame()) {
-      debug('Game is ending, no cards left');
-      setTimeout(() => this.endRound(), 3000);
+    if (this.leadPlayerHasToPass() || this.isLastRound) {
+      setTimeout(() => this.endRound(), 2000);
+      debug('Automatic passing');
       return;
     }
 
@@ -320,7 +303,6 @@ export class Table {
     } else {
       if (card.face === this.cardToBeat.face || card.face === 'seven') {
         this.winningPlayer = this.players.indexOf(player);
-        debug(`${player.name} owns the pile`);
       }
     }
   }
@@ -334,16 +316,12 @@ export class Table {
     this.currentPlayer = (this.currentPlayer + 1) % this.players.length;
   }
 
-  private shouldEndRoundAutomatically(): boolean {
+  private leadPlayerHasToPass(): boolean {
     return (
       this.currentPlayer === this.leadPlayer &&
       !this.hasACardToTakeOver() &&
       this.isFirstDeal !== 0
     );
-  }
-
-  private shouldEndGame(): boolean {
-    return !this.deckHasCards && this.playersDontHaveCards();
   }
 
   public hasACardToTakeOver() {
@@ -352,6 +330,7 @@ export class Table {
       (c) => c.face === this.cardToBeat.face || c.face === 'seven'
     );
   }
+
   public canPlayCard(card: CardData) {
     if (this.leadPlayer === this.currentPlayer && this.isFirstDeal > 0) {
       if (this.winningPlayer === this.currentPlayer) return true;
@@ -366,11 +345,11 @@ export class Table {
 
   public endRound() {
     // Calculate the winner of the round
-    this.playersArentReady();
+    this.setPlayersNotReady();
     this.players[this.winningPlayer].collectWonCards(this.discardPile);
 
     const winningTeam = this.players[this.winningPlayer].team;
-    this.collectWonCards(winningTeam);
+    this.addWonCardsToTeam(winningTeam);
 
     this.leadPlayer = this.winningPlayer;
     this.discardPile = [];
@@ -379,7 +358,7 @@ export class Table {
     this.evaluateRound();
   }
 
-  private collectWonCards(winningTeam: string): void {
+  private addWonCardsToTeam(winningTeam: string): void {
     const collectedCards =
       winningTeam === 'A'
         ? this.totalCollectedCardsA
@@ -394,18 +373,41 @@ export class Table {
     this.teamWonRound = team;
 
     debug('This round, ', team, ' won ', this.wonPoints, ' points');
-    this.showresults = true;
+    this.showResults();
+
     this.isFirstDeal = 0;
     this.sendUpdates();
+  }
+
+  private showResults() {
+    for (const p of this.players) {
+      const messageData: MessageBase = {
+        type: 'showResults',
+        tableId: this.id,
+      };
+
+      if (p.ws) p.ws.send(JSON.stringify(messageData));
+    }
   }
 
   public endGame() {
     debug('GAMEOVER');
     this.sumUpPoints();
     this.calculateStakes();
-    this.gameEnd = true;
-    this.showresults = false;
+
+    this.showEndGameResults();
     this.sendUpdates();
+  }
+
+  private showEndGameResults() {
+    for (const p of this.players) {
+      const messageData: MessageBase = {
+        type: 'showEndGameResults',
+        tableId: this.id,
+      };
+
+      if (p.ws) p.ws.send(JSON.stringify(messageData));
+    }
   }
 
   public sumUpPoints() {
@@ -424,16 +426,16 @@ export class Table {
       this.teamBPoints
     );
   }
-  public playersArentReady() {
-    this.players.forEach((p) => (p.isReadyToPlay = false));
+
+  public setPlayersNotReady() {
+    this.players.forEach((p) => {
+      if (p.autoplay === null) p.isReadyToPlay = false;
+      else p.isReadyToPlay = true;
+    });
   }
+
   public setPlayersToReady() {
     this.players.forEach((p) => (p.isReadyToPlay = true));
-  }
-  public setcomputerToReady() {
-    this.players.forEach((p) => {
-      if (p.autoplay !== null) p.isReadyToPlay = true;
-    });
   }
 
   public calculateStakes(): void {
@@ -442,27 +444,29 @@ export class Table {
 
     if (teamAPoints >= 90 || teamBPoints >= 90) {
       const isTeamAWinner = winningTeam === 'A';
-      let stakeCount = isTeamAWinner
-        ? this.teamAStakeCount
-        : this.teamBStakeCount;
+      const stakeCount = isTeamAWinner
+        ? totalCollectedCardsA.length === 32
+          ? 3
+          : 2
+        : 0;
 
-      stakeCount += totalCollectedCardsA.length === 32 ? 3 : 2;
       this.teamWonRound = `Team ${winningTeam}`;
-      debug(
-        `\nTeam ${winningTeam} won all deals and therefore gained ${stakeCount} stakes!`
-      );
+
+      if (isTeamAWinner) {
+        this.teamAStakeCount += stakeCount;
+      } else {
+        this.teamBStakeCount += stakeCount;
+      }
     } else {
       this.teamWonRound = winningTeam === 'A' ? 'Team A' : 'Team B';
-      this.teamAStakeCount += winningTeam === 'A' ? 2 : 1;
-      this.teamBStakeCount += winningTeam === 'B' ? 2 : 1;
-      debug(
-        `\nTeam ${winningTeam} has more points, but not all deals, so they win 2 stakes!`
-      );
-    }
+      const stakeCount = totalCollectedCardsA.length === 32 ? 3 : 1;
 
-    debug(
-      `\n--------at end of calculate stakes, winning team: ${this.teamWonRound}`
-    );
+      if (winningTeam === 'A') {
+        this.teamAStakeCount += stakeCount;
+      } else {
+        this.teamBStakeCount += stakeCount;
+      }
+    }
   }
 
   public checkStakeCount() {
@@ -477,40 +481,35 @@ export class Table {
   public closeResults(playerIdx: number): void {
     this.playerIsReady(playerIdx);
 
-    if (this.leadPlayer === playerIdx) {
-      this.wonPoints = 0;
-      this.setcomputerToReady();
-      this.currentPlayer = this.leadPlayer;
-
-      this.players.forEach((p) => (p.lastPlayedCard = null));
-
-      if (!this.deckHasCards() && this.allCardsPlayed()) {
-        const winningTeam = this.players[this.leadPlayer].team;
-        debug(
-          `for winning the last deal, team ${winningTeam} gets extra 10 points!`
-        );
-        winningTeam === 'A'
-          ? (this.teamAPoints += 10)
-          : (this.teamBPoints += 10);
-        this.endGame();
-        return;
-      }
-
-      if (this.deckHasCards) {
-        debug('not end of game, so handing out cards');
-        this.handOutCards();
-        this.playIfAutoplay();
-      }
+    if (this.allPlayersReady) {
+      this.setUpNewDeal();
     }
 
     this.sendUpdates();
   }
 
-  public closeEndGameResults(playerIdx: number) {
-    this.gameEnd = false;
+  private setUpNewDeal() {
+    this.players.forEach((p) => (p.lastPlayedCard = null));
 
+    if (this.isLastRound()) {
+      const winningTeam = this.players[this.leadPlayer].team;
+
+      winningTeam === 'A' ? (this.teamAPoints += 10) : (this.teamBPoints += 10);
+      this.endGame();
+    } else {
+      this.currentPlayer = this.leadPlayer;
+      this.wonPoints = 0;
+      this.handOutCards();
+      this.playIfAutoplay();
+    }
+  }
+
+  private isLastRound(): boolean {
+    return !this.deckHasCards() && this.allCardsPlayed();
+  }
+
+  public closeEndGameResults(playerIdx: number) {
     this.playerIsReady(playerIdx);
-    this.setcomputerToReady();
 
     if (this.checkStakeCount()) {
       debug('THE STAKE COUNT HAS BEEN REACHED! END OF GAME!');
@@ -518,8 +517,20 @@ export class Table {
       this.sendUpdates();
     } else {
       debug('The stake count has not been reached yet');
-      this.askContinue = true;
+
+      this.askGameContinue();
       this.sendUpdates();
+    }
+  }
+
+  private askGameContinue() {
+    for (const p of this.players) {
+      const messageData: MessageBase = {
+        type: 'askGameContinue',
+        tableId: this.id,
+      };
+
+      if (p.ws) p.ws.send(JSON.stringify(messageData));
     }
   }
 
@@ -546,9 +557,9 @@ export class Table {
       this.players.forEach((p, i) => {
         if (p.autoplay !== null) return; //handling computer players
         if (p.name !== '' && i !== playerIdx) {
-          console.log('disconecting ', p.name);
+          debug('disconecting ', p.name);
           this.playerDisconnect(i);
-        } else console.log('player', p.name, 'is not disconnecting');
+        } else debug('player', p.name, 'is not disconnecting');
       });
     }
     this.players[playerIdx].disconnect();
@@ -579,13 +590,8 @@ export class Table {
     return playerCount;
   }
 
-  public allCardsPlayed(): boolean {
-    for (const player of this.players) {
-      if (player.haveCards()) {
-        return false;
-      }
-    }
-    return true;
+  private allCardsPlayed(): boolean {
+    return this.players.every((player) => player.onHand.length === 0);
   }
 }
 

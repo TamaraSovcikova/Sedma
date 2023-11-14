@@ -105,6 +105,8 @@ export function TablePage() {
   const [lastReceivedMessage, setLastReceivedMessage] =
     useState<MessageChat | null>(null);
   const [showResults, setShowResults] = useState(false);
+  const [showEndGameResults, setShowEndGameResults] = useState(false);
+  const [askGameContinue, setAskGameContinue] = useState(false);
 
   const { logout } = useAuth();
   const navigate = useNavigate();
@@ -133,7 +135,6 @@ export function TablePage() {
         console.log('entered table data');
         const d: MessageTableData = lastJsonMessage as MessageTableData;
         setData(d.data);
-        if (d.data.showresults) setShowResults(true);
         const playerIdx = d.data.players.findIndex((p) => p.id === token);
         if (playerIdx >= 0) {
           setPlayerIdx(playerIdx);
@@ -170,6 +171,15 @@ export function TablePage() {
           },
         ]);
         setLastReceivedMessage(newMessage);
+      }
+      if (lastJsonMessage?.type === 'showResults') {
+        setShowResults(true);
+      }
+      if (lastJsonMessage?.type === 'showEndGameResults') {
+        setShowEndGameResults(true);
+      }
+      if (lastJsonMessage?.type === 'askGameContinue') {
+        setAskGameContinue(true);
       }
     }
   }, [lastJsonMessage, token, setIsLoading, data, logout, navigate]);
@@ -245,6 +255,7 @@ export function TablePage() {
 
   const handleCloseEndGameResults = () => {
     if (!id || playerIdx === undefined) return;
+    setShowEndGameResults(false);
     const message: MessagePlayerIdx = {
       type: 'closeEndGameResults',
       tableId: id,
@@ -255,6 +266,7 @@ export function TablePage() {
   };
   const handleStakesNotReached = () => {
     if (!id) return;
+    setAskGameContinue(false);
     const message: MessageBase = {
       type: 'handleStakesNotReached',
       tableId: id,
@@ -450,7 +462,7 @@ export function TablePage() {
             TAP TO START GAME
           </button>
         )}
-        {data.askContinue && (
+        {askGameContinue && (
           <button
             onClick={handleStakesNotReached}
             className="btn btn-secondary startGameButton"
@@ -597,7 +609,7 @@ export function TablePage() {
           </div>
         </div>
       )}
-      {data.gameEnd && (
+      {showEndGameResults && (
         <div className="resultsPopup" style={{ zIndex: 101 }}>
           <div className="resultsBox">
             <button className="closeButton" onClick={handleCloseEndGameResults}>

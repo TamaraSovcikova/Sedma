@@ -12,7 +12,10 @@ type MessageType =
   | 'handleStakesReached'
   | 'handleLeave'
   | 'forcePlayerDisconnect'
-  | 'chatMessage';
+  | 'chatMessage'
+  | 'showResults'
+  | 'showEndGameResults'
+  | 'askGameContinue';
 
 export interface MessageBase {
   type: MessageType;
@@ -58,14 +61,11 @@ export interface TableData {
   cardToBeat: CardData;
   teamWonRound: string;
   wonPoints: number;
-  showresults: boolean;
-  gameEnd: boolean;
   teamAPoints: number;
   teamBPoints: number;
   teamAStakeCount: number;
   teamBStakeCount: number;
   finalStakeCount: number;
-  askContinue: boolean;
   stakesReached: boolean;
   playAgain: boolean;
   isFirstDeal: number;
