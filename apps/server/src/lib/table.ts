@@ -287,8 +287,8 @@ export class Table {
 
     this.sendUpdates();
 
-    if (this.leadPlayerHasToPass() || this.isLastRound) {
-      setTimeout(() => this.endRound(), 2000);
+    if (this.leadPlayerHasToPass()) {
+      this.endRound();
       debug('Automatic passing');
       return;
     }
