@@ -122,7 +122,7 @@ export class Table {
 
   public setUpGame(): void {
     if (!this.allPlayersReady()) {
-      debug('waiting for all players to be ready'); //TODO WILL ADD THE DISPLAY MESSAGE FROM HERE
+      debug('waiting for all players to be ready');
       return;
     }
     debug('----A New Game Has Begun----');

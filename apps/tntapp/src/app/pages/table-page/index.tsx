@@ -317,6 +317,7 @@ export function TablePage() {
   };
 
   const isOwner = data?.ownerOfTableId === token;
+  const playerCount = data?.players.filter((p) => p.name !== '').length;
 
   const handleLeave = () => {
     if (!id || !data || playerIdx === undefined) return;
@@ -460,9 +461,15 @@ export function TablePage() {
             TAP TO CONTINUE
           </button>
         )}
-        <div>
-          <h5>Round: {data.round}/8</h5>
-        </div>
+        <div></div>
+        {data.waitingForPlayers && (
+          <div className="info-message">
+            <p className="centreMessage">
+              {' '}
+              Waiting for players to join : {playerCount}/4{' '}
+            </p>
+          </div>
+        )}
       </div>
       <div className="table">
         <Chair

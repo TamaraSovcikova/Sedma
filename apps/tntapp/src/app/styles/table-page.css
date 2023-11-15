@@ -1,7 +1,10 @@
 .name-header {
+    z-index: 0;
     font-size: 40px; 
     margin-bottom: 0; 
+    position: relative;
 }
+
 
 .table {
     position: absolute;
@@ -128,6 +131,24 @@
     width: 100%;  
     justify-content: center;
     align-items: center;
+}
+
+.info-message {
+    background-color: rgba(0, 0, 0, 0.689);
+    position: absolute;
+    z-index: 2;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;  
+}
+
+.centreMessage {
+    margin: 45px;
+    
 }
 .disconnectPopup {
     position: fixed;
@@ -260,8 +281,8 @@
     gap: 40px;
 }
 
-
 .top-right-menu {
+    z-index: 5;
     position: absolute;
     top: 5px;
     right: 0;    
