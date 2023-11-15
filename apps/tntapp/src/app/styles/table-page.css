@@ -148,6 +148,7 @@
 
 .centreMessage {
     margin: 45px;
+    align-items: center;
     
 }
 .disconnectPopup {

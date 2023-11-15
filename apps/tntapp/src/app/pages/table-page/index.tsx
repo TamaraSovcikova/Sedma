@@ -109,6 +109,7 @@ export function TablePage() {
   const [showResults, setShowResults] = useState(false);
   const [showEndGameResults, setShowEndGameResults] = useState(false);
   const [askGameContinue, setAskGameContinue] = useState(false);
+  const [waitingForOwner, setWaitingForOwner] = useState(true);
 
   const { logout } = useAuth();
   const navigate = useNavigate();
@@ -181,6 +182,9 @@ export function TablePage() {
       }
       if (lastJsonMessage?.type === 'askGameContinue') {
         setAskGameContinue(true);
+      }
+      if (lastJsonMessage?.type === 'startingGame') {
+        setWaitingForOwner(false);
       }
     }
   }, [lastJsonMessage, token, setIsLoading, data, logout, navigate]);
@@ -468,6 +472,11 @@ export function TablePage() {
               {' '}
               Waiting for players to join : {playerCount}/4{' '}
             </p>
+          </div>
+        )}
+        {!isOwner && waitingForOwner && !data.waitingForPlayers && (
+          <div className="info-message">
+            <p className="centreMessage">Waiting for Owner to Start Game</p>
           </div>
         )}
       </div>

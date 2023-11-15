@@ -6,8 +6,6 @@ import { postData } from '../../lib/api';
 import { getServerUrl } from '../../global';
 import { useAuth } from '../../components/auth/auth-context';
 
-//TODO: include waiting for lead plyaer to start the game or waiting for 4 players
-//TODO: add separate messages for each 'show results, stakesa reached, ask continue...and other'
 //TODO: moxt the close button of showresults into box
 
 export function InitialPage() {

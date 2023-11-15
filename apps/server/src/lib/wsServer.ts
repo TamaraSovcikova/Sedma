@@ -70,6 +70,14 @@ export function processMessage(ws: ws, message: MessageBase) {
   }
   if (message.type === 'startGame') {
     const table = getTable(message.tableId);
+    const allertMessage: MessageBase = {
+      type: 'startingGame',
+      tableId: table.id,
+    };
+    table.players.forEach((p) => {
+      if (p.autoplay === null && p.name !== '')
+        p.ws.send(JSON.stringify(allertMessage));
+    });
     table.startGame();
   }
   if (message.type === 'endRound') {

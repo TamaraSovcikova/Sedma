@@ -16,7 +16,8 @@ type MessageType =
   | 'showResults'
   | 'showEndGameResults'
   | 'askGameContinue'
-  | 'gameData';
+  | 'gameData'
+  | 'startingGame';
 
 export interface MessageBase {
   type: MessageType;
