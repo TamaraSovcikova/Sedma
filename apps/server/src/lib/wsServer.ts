@@ -50,7 +50,6 @@ export function processMessage(ws: ws, message: MessageBase) {
     }
 
     table.sendUpdates();
-    table.sendGameData();
   }
   if (message.type === 'playCard') {
     const m: MessagePlayCard = message as MessagePlayCard;
