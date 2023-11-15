@@ -1,10 +1,10 @@
 import {
   TableData,
-  MessageTableData,
   SuitType,
   FaceType,
   CardData,
   MessageBase,
+  GameData,
 } from '@tnt-react/ws-messages';
 import { Card } from './card';
 import { Player } from './player';
@@ -24,6 +24,7 @@ export class Table {
   currentPlayer = 0;
   discardPile: Card[] = [];
   cardToBeat: CardData | null = null;
+  winningTeamPoints = 0;
   teamAPoints = 0;
   teamBPoints = 0;
   totalCollectedCardsA: Card[] = [];
@@ -51,7 +52,7 @@ export class Table {
     ];
     this.id = id;
   }
-  //LEFT OFF: Works up to the second game lap
+
   private getPlayerList(): { name: string; id: string; bodyColor: string }[] {
     return this.players.map((p) => ({
       name: p.name,
@@ -74,7 +75,6 @@ export class Table {
       hand,
       waitingForPlayers,
       currentPlayer: this.currentPlayer,
-      ownerOfTableId: this.ownerOfTable.id,
       gameInProgress: this.gameInProgress,
       winningPlayerId: this.players[this.winningPlayer].id,
       leadPlayerId: this.players[this.leadPlayer].id,
@@ -82,14 +82,14 @@ export class Table {
       cardToBeat: this.cardToBeat,
       teamWonRound: this.teamWonRound,
       wonPoints: this.wonPoints,
-      teamAPoints: this.teamAPoints,
-      teamBPoints: this.teamBPoints,
       teamAStakeCount: this.teamAStakeCount,
       teamBStakeCount: this.teamBStakeCount,
-      finalStakeCount: this.finalStakeCount,
       stakesReached: this.stakesReached,
       playAgain: this.playAgain,
       isFirstDeal: this.isFirstDeal,
+      winningTeamPoints: this.winningTeamPoints,
+      ownerOfTableId: this.ownerOfTable.id,
+      finalStakeCount: this.finalStakeCount,
     };
   }
 
@@ -438,9 +438,18 @@ export class Table {
     this.players.forEach((p) => (p.isReadyToPlay = true));
   }
 
+  private calculateWinningTeamPoints(teamAPoints: number, teamBPoints: number) {
+    if (teamAPoints > teamBPoints) {
+      this.winningTeamPoints = teamAPoints;
+    } else {
+      this.winningTeamPoints = teamBPoints;
+    }
+  }
+
   public calculateStakes(): void {
     const { teamAPoints, teamBPoints, totalCollectedCardsA } = this;
     const winningTeam = teamAPoints > teamBPoints ? 'A' : 'B';
+    this.calculateWinningTeamPoints(teamAPoints, teamBPoints);
 
     if (teamAPoints >= 90 || teamBPoints >= 90) {
       const isTeamAWinner = winningTeam === 'A';

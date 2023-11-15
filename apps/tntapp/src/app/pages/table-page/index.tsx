@@ -8,10 +8,12 @@ import { useAuth } from '../../components/auth/auth-context';
 import useWebSocket from 'react-use-websocket';
 import {
   CardData,
+  GameData,
   Message,
   MessageBase,
   MessageChat,
   MessageError,
+  MessageGameData,
   MessageLogin,
   MessagePlayCard,
   MessagePlayerIdx,
@@ -132,7 +134,6 @@ export function TablePage() {
     if (lastJsonMessage !== null) {
       console.log(lastJsonMessage, 'this is the last message');
       if (lastJsonMessage.type === 'tableData') {
-        console.log('entered table data');
         const d: MessageTableData = lastJsonMessage as MessageTableData;
         setData(d.data);
         const playerIdx = d.data.players.findIndex((p) => p.id === token);
@@ -297,19 +298,6 @@ export function TablePage() {
   };
   const isCurrentPlayer = () => {
     return data?.players[data.currentPlayer].id === token;
-  };
-
-  const winningTeamPoints = () => {
-    if (data) {
-      const teamAPoints = data?.teamAPoints ?? 0;
-      const teamBPoints = data?.teamBPoints ?? 0;
-
-      if (teamAPoints > teamBPoints) {
-        return teamAPoints;
-      } else {
-        return teamBPoints;
-      }
-    }
   };
 
   const whoWon = () => {
@@ -622,7 +610,7 @@ export function TablePage() {
             </p>
             <p>
               Points Collected:{' '}
-              <span className="dynamicData">{winningTeamPoints()}</span>
+              <span className="dynamicData">{data.winningTeamPoints}</span>
             </p>
             <p>
               Stakes to HIT:{' '}
