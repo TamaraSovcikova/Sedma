@@ -8,10 +8,12 @@ import { useAuth } from '../../components/auth/auth-context';
 import useWebSocket from 'react-use-websocket';
 import {
   CardData,
+  GameData,
   Message,
   MessageBase,
   MessageChat,
   MessageError,
+  MessageGameData,
   MessageLogin,
   MessagePlayCard,
   MessagePlayerIdx,
@@ -105,6 +107,9 @@ export function TablePage() {
   const [lastReceivedMessage, setLastReceivedMessage] =
     useState<MessageChat | null>(null);
   const [showResults, setShowResults] = useState(false);
+  const [showEndGameResults, setShowEndGameResults] = useState(false);
+  const [askGameContinue, setAskGameContinue] = useState(false);
+  const [waitingForOwner, setWaitingForOwner] = useState(true);
 
   const { logout } = useAuth();
   const navigate = useNavigate();
@@ -130,10 +135,8 @@ export function TablePage() {
     if (lastJsonMessage !== null) {
       console.log(lastJsonMessage, 'this is the last message');
       if (lastJsonMessage.type === 'tableData') {
-        console.log('entered table data');
         const d: MessageTableData = lastJsonMessage as MessageTableData;
         setData(d.data);
-        if (d.data.showresults) setShowResults(true);
         const playerIdx = d.data.players.findIndex((p) => p.id === token);
         if (playerIdx >= 0) {
           setPlayerIdx(playerIdx);
@@ -170,6 +173,18 @@ export function TablePage() {
           },
         ]);
         setLastReceivedMessage(newMessage);
+      }
+      if (lastJsonMessage?.type === 'showResults') {
+        setShowResults(true);
+      }
+      if (lastJsonMessage?.type === 'showEndGameResults') {
+        setShowEndGameResults(true);
+      }
+      if (lastJsonMessage?.type === 'askGameContinue') {
+        setAskGameContinue(true);
+      }
+      if (lastJsonMessage?.type === 'startingGame') {
+        setWaitingForOwner(false);
       }
     }
   }, [lastJsonMessage, token, setIsLoading, data, logout, navigate]);
@@ -245,6 +260,7 @@ export function TablePage() {
 
   const handleCloseEndGameResults = () => {
     if (!id || playerIdx === undefined) return;
+    setShowEndGameResults(false);
     const message: MessagePlayerIdx = {
       type: 'closeEndGameResults',
       tableId: id,
@@ -255,6 +271,7 @@ export function TablePage() {
   };
   const handleStakesNotReached = () => {
     if (!id) return;
+    setAskGameContinue(false);
     const message: MessageBase = {
       type: 'handleStakesNotReached',
       tableId: id,
@@ -287,19 +304,6 @@ export function TablePage() {
     return data?.players[data.currentPlayer].id === token;
   };
 
-  const winningTeamPoints = () => {
-    if (data) {
-      const teamAPoints = data?.teamAPoints ?? 0;
-      const teamBPoints = data?.teamBPoints ?? 0;
-
-      if (teamAPoints > teamBPoints) {
-        return teamAPoints;
-      } else {
-        return teamBPoints;
-      }
-    }
-  };
-
   const whoWon = () => {
     if (data)
       if (data?.teamAStakeCount > data?.teamBStakeCount) return 'TEAM A';
@@ -317,6 +321,7 @@ export function TablePage() {
   };
 
   const isOwner = data?.ownerOfTableId === token;
+  const playerCount = data?.players.filter((p) => p.name !== '').length;
 
   const handleLeave = () => {
     if (!id || !data || playerIdx === undefined) return;
@@ -450,7 +455,7 @@ export function TablePage() {
             TAP TO START GAME
           </button>
         )}
-        {data.askContinue && (
+        {askGameContinue && (
           <button
             onClick={handleStakesNotReached}
             className="btn btn-secondary startGameButton"
@@ -460,9 +465,20 @@ export function TablePage() {
             TAP TO CONTINUE
           </button>
         )}
-        <div>
-          <h5>Round: {data.round}/8</h5>
-        </div>
+        <div></div>
+        {data.waitingForPlayers && (
+          <div className="info-message">
+            <p className="centreMessage">
+              {' '}
+              Waiting for players to join : {playerCount}/4{' '}
+            </p>
+          </div>
+        )}
+        {!isOwner && waitingForOwner && !data.waitingForPlayers && (
+          <div className="info-message">
+            <p className="centreMessage">Waiting for Owner to Start Game</p>
+          </div>
+        )}
       </div>
       <div className="table">
         <Chair
@@ -597,7 +613,7 @@ export function TablePage() {
           </div>
         </div>
       )}
-      {data.gameEnd && (
+      {showEndGameResults && (
         <div className="resultsPopup" style={{ zIndex: 101 }}>
           <div className="resultsBox">
             <button className="closeButton" onClick={handleCloseEndGameResults}>
@@ -610,7 +626,7 @@ export function TablePage() {
             </p>
             <p>
               Points Collected:{' '}
-              <span className="dynamicData">{winningTeamPoints()}</span>
+              <span className="dynamicData">{data.winningTeamPoints}</span>
             </p>
             <p>
               Stakes to HIT:{' '}

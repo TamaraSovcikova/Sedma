@@ -6,6 +6,8 @@ import { postData } from '../../lib/api';
 import { getServerUrl } from '../../global';
 import { useAuth } from '../../components/auth/auth-context';
 
+//TODO: moxt the close button of showresults into box
+
 export function InitialPage() {
   const [tableID, setTableID] = useState<string>('');
   const [error, setError] = useState<boolean>(false);

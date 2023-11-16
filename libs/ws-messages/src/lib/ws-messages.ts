@@ -12,7 +12,12 @@ type MessageType =
   | 'handleStakesReached'
   | 'handleLeave'
   | 'forcePlayerDisconnect'
-  | 'chatMessage';
+  | 'chatMessage'
+  | 'showResults'
+  | 'showEndGameResults'
+  | 'askGameContinue'
+  | 'gameData'
+  | 'startingGame';
 
 export interface MessageBase {
   type: MessageType;
@@ -50,7 +55,6 @@ export interface TableData {
   lastPlayedCards: CardData[];
   waitingForPlayers: boolean;
   currentPlayer: number;
-  ownerOfTableId: string;
   gameInProgress: boolean;
   winningPlayerId: string;
   leadPlayerId: string;
@@ -58,21 +62,27 @@ export interface TableData {
   cardToBeat: CardData;
   teamWonRound: string;
   wonPoints: number;
-  showresults: boolean;
-  gameEnd: boolean;
-  teamAPoints: number;
-  teamBPoints: number;
   teamAStakeCount: number;
   teamBStakeCount: number;
-  finalStakeCount: number;
-  askContinue: boolean;
   stakesReached: boolean;
   playAgain: boolean;
   isFirstDeal: number;
+  winningTeamPoints: number;
+  ownerOfTableId: string;
+  finalStakeCount: number;
+}
+
+export interface GameData {
+  finalStakeCount: number;
+  ownerOfTableId: string;
 }
 
 export interface MessageTableData extends MessageBase {
   data: TableData;
+}
+
+export interface MessageGameData extends MessageBase {
+  data: GameData;
 }
 
 export interface MessageError extends MessageBase {

@@ -1,7 +1,10 @@
 .name-header {
+    z-index: 0;
     font-size: 40px; 
     margin-bottom: 0; 
+    position: relative;
 }
+
 
 .table {
     position: absolute;
@@ -129,6 +132,25 @@
     justify-content: center;
     align-items: center;
 }
+
+.info-message {
+    background-color: rgba(0, 0, 0, 0.689);
+    position: absolute;
+    z-index: 2;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;  
+}
+
+.centreMessage {
+    margin: 45px;
+    align-items: center;
+    
+}
 .disconnectPopup {
     position: fixed;
     top: 50%;
@@ -169,8 +191,9 @@
 }
 
 .resultsBox {
+    position: relative;
     background-color: #a7a7a7;
-    padding: 30px;
+    padding: 40px 30px;
     border-radius: 8px;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
     display: flex;
@@ -219,25 +242,28 @@
 
 .resultsBox h2 {
     margin-bottom: 10px;
+    margin-top: 10px;
     text-align: center;
 }
 
 .closeButton {
-    position: absolute;
-    top: 10px;
-    right: 10px;
+    position: absolute;     
+    top: 5px;
+    right: 5px;
     background-color: #a7a7a7;
-    color: #ffffff;
-    border: none;
+    color: #000000;
+    border: 3px solid rgb(0, 0, 0);
     border-radius: 20%;
     padding: 0;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 40px;
-    height: 40px;
-    font-size: 18px;
-    cursor: pointer;
+    width: 35px;
+    height: 35px;
+    font-size: 15px;
+    cursor: pointer; 
+    font-weight: bold;
+   
 }
 
 .play-button {
@@ -260,8 +286,8 @@
     gap: 40px;
 }
 
-
 .top-right-menu {
+    z-index: 5;
     position: absolute;
     top: 5px;
     right: 0;    
