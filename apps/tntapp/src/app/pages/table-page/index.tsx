@@ -8,12 +8,10 @@ import { useAuth } from '../../components/auth/auth-context';
 import useWebSocket from 'react-use-websocket';
 import {
   CardData,
-  GameData,
   Message,
   MessageBase,
   MessageChat,
   MessageError,
-  MessageGameData,
   MessageLogin,
   MessagePlayCard,
   MessagePlayerIdx,

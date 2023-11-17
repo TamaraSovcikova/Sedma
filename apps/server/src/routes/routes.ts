@@ -89,6 +89,26 @@ export function createRoutes(app: any) {
     }
   });
 
+  app.post('/table/loggout/:id', (req, res) => {
+    const data = req.body;
+    const params = req.params;
+    const tableId = params.id;
+    const { token } = data;
+    const table = getTable(tableId);
+    const player = table.players.find((p) => p.id === token);
+
+    const seatPosition: number = table.players.indexOf(player);
+    deletePlayer(player, table, seatPosition);
+    debug(
+      '----------just deleted player: ',
+      player,
+      ' seatPosition ',
+      seatPosition
+    );
+
+    res.sendStatus(200);
+  });
+
   app.post('/table/lobby/data/:id', (req, res) => {
     const data = req.body;
     const params = req.params;

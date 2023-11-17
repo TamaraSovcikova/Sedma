@@ -5,18 +5,21 @@ import '../../styles/inicial-page.css';
 import { postData } from '../../lib/api';
 import { getServerUrl } from '../../global';
 import { useAuth } from '../../components/auth/auth-context';
-
-//TODO: moxt the close button of showresults into box
+import { MessageLogin } from '@tnt-react/ws-messages';
 
 export function InitialPage() {
   const [tableID, setTableID] = useState<string>('');
   const [error, setError] = useState<boolean>(false);
   const [name, setName] = useState<string>('');
-  const { token, logout, setToken } = useAuth();
+  const { token, logout, setToken, tableId, setTableId } = useAuth();
   const [stakeLimit, setStakeLimit] = useState('');
   const [isFormValid, setIsFormValid] = useState(false);
 
   const navigate = useNavigate();
+
+  const handleGameReturn = () => {
+    navigate(`/table/${tableId}`);
+  };
 
   const handleStakeLimitChange = (
     event: React.ChangeEvent<HTMLInputElement>
@@ -38,7 +41,7 @@ export function InitialPage() {
 
   const joinGame = async () => {
     try {
-      const response = await fetch(getServerUrl().exitTableUrl(tableID));
+      const response = await fetch(getServerUrl().existsTableUrl(tableID));
       if (response.status === 200) {
         setError(false);
         window.scrollTo(0, 0);
@@ -55,6 +58,20 @@ export function InitialPage() {
     }
   };
 
+  const logOutOfGame = () => {
+    logout();
+
+    if (tableId)
+      postData(
+        getServerUrl().playerLogOutUrl(tableId),
+        {
+          token: token,
+        },
+        token
+      );
+    console.log('handleLoggout');
+  };
+
   const startSinglePlayer = () => {
     if (isFormValid) {
       postData(
@@ -63,6 +80,7 @@ export function InitialPage() {
         token
       ).then(({ tableId, playerId }) => {
         setToken(playerId);
+        setTableId(tableId);
         navigate(`/table/${tableId}`);
       });
     }
@@ -93,11 +111,6 @@ export function InitialPage() {
       </div>
       <div className="row">
         <div className="col-lg-4 align-self-start">
-          {token && (
-            <button className="btn btn-secondary" onClick={logout}>
-              Exit previous game
-            </button>
-          )}
           <h1 className="mt-12">SEDMA</h1>
           <h5 className="mt-1">Welcome to the world of Sedma!</h5>
           <p>
@@ -105,21 +118,48 @@ export function InitialPage() {
             someone, enter their game ID in the input field below and click
             "JOIN GAME".
           </p>
-          <div className="input-group mt-5 mb-3">
-            <input
-              className="form-control"
-              placeholder="Enter ID"
-              value={tableID}
-              onChange={(e) => setTableID(e.target.value)}
-            />
-            <button className="btn btn-secondary" onClick={joinGame}>
-              JOIN GAME
-            </button>
-          </div>
-          {error && (
-            <p className="text-danger">
-              The entered table ID does not exist. Please try again.
-            </p>
+          {token && tableId && (
+            <div>
+              <p style={{ color: 'darkred' }}>
+                You are still Logged onto a game, To Join a new game, log out
+                first or rejoin by pressing button
+              </p>
+              <button
+                className="btn btn-secondary"
+                style={{ background: 'darkgreen', marginRight: '10px' }}
+                onClick={handleGameReturn}
+              >
+                Return to Game
+              </button>
+
+              <button
+                style={{ background: 'darkred' }}
+                className="btn btn-secondary"
+                onClick={logOutOfGame}
+              >
+                Leave Game
+              </button>
+            </div>
+          )}
+          {!token && (
+            <div>
+              <div className="input-group mt-5 mb-3">
+                <input
+                  className="form-control"
+                  placeholder="Enter ID"
+                  value={tableID}
+                  onChange={(e) => setTableID(e.target.value)}
+                />
+                <button className="btn btn-secondary" onClick={joinGame}>
+                  JOIN GAME
+                </button>
+              </div>
+              {error && (
+                <p className="text-danger">
+                  The entered table ID does not exist. Please try again.
+                </p>
+              )}
+            </div>
           )}
           <div className="mt-5 separator"></div>
           <h3 className="mt-5">CREATE GAME</h3>
@@ -129,12 +169,24 @@ export function InitialPage() {
             enjoy the thrill of playing Sedma. Simply click the "Click to Create
             Game" button below to get started.
           </p>
-          <button
-            className="mt-3 btn btn-primary createGameButton"
-            onClick={handleCreateTable}
-          >
-            Click to Create Game
-          </button>
+          {!token && (
+            <button
+              className="mt-3 btn btn-primary createGameButton"
+              onClick={handleCreateTable}
+            >
+              Click to Create Game
+            </button>
+          )}
+          {token && tableId && (
+            <div>
+              <p style={{ color: 'darkred' }}>
+                To Create A Game, You must Log out First!
+              </p>
+              <button className="btn btn-secondary" onClick={logOutOfGame}>
+                Leave Game
+              </button>
+            </div>
+          )}
           <h3 className="mt-5">SINGLEPLAYER MODE</h3>
           <p>
             In case you want to play a relaxing game on your own, feel free to

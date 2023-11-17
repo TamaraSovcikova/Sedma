@@ -10,6 +10,8 @@ interface UserContextType {
   token?: string;
   setToken: (token?: string) => void;
   logout: () => void;
+  tableId?: string;
+  setTableId: (tableId?: string) => void;
 }
 export const useAuth = () => {
   const context = useContext(UserContext);
@@ -20,6 +22,9 @@ export const useAuth = () => {
         /*empty*/
       },
       logout: () => {
+        /*empty*/
+      },
+      setTableId: (tableId?: string) => {
         /*empty*/
       },
     }
@@ -36,15 +41,28 @@ function deleteToken() {
   localStorage.removeItem('userToken');
 }
 
+function storeTableId(tableId: string) {
+  localStorage.setItem('tableId', tableId);
+}
+
+function deleteTableId() {
+  localStorage.removeItem('tableId');
+}
+
 export const UserContextProvider: React.FC<{
   children: ReactNode | ReactNode[];
 }> = ({ children }) => {
   const [token, setToken] = useState<string>();
+  const [tableId, setTableId] = useState<string>();
 
   useEffect(() => {
     const storedToken = localStorage.getItem('userToken');
     if (storedToken) {
       setToken(storedToken);
+    }
+    const storedTableId = localStorage.getItem('tableId');
+    if (storedTableId) {
+      setTableId(storedTableId);
     }
   }, []);
 
@@ -63,6 +81,16 @@ export const UserContextProvider: React.FC<{
         logout: () => {
           deleteToken();
           setToken(undefined);
+          deleteTableId();
+        },
+        tableId,
+        setTableId: (tableId?: string) => {
+          setTableId(tableId);
+          if (tableId) {
+            storeTableId(tableId);
+          } else {
+            deleteTableId();
+          }
         },
       }}
     >

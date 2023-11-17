@@ -46,7 +46,7 @@ export function LobbyPage() {
   const params = useParams();
   const navigate = useNavigate();
   const id = params.id ?? '0';
-  const { token, setToken } = useAuth();
+  const { token, setToken, setTableId } = useAuth();
   const [newtoken, setNewToken] = useState<string>();
   const [isCreatingTable, setIsCreatingTable] = useState(false);
   const [isUsernameAvailable, setIsUsernameAvailable] = useState(true);
@@ -210,6 +210,7 @@ export function LobbyPage() {
       );
 
       setToken(newtoken);
+      setTableId(id);
     }
   };
 
