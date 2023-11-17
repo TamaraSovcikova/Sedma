@@ -103,29 +103,33 @@ export function LobbyPage() {
     const newUsername = event.target.value;
     console.log('handling username change');
 
-    if (!username) {
+    try {
+      if (!username) {
+        setUsername(newUsername);
+      }
+
+      if (selectedSeatId) {
+        console.log(
+          'entered, because has selected seat: ',
+          selectedSeatId,
+          'past username: ',
+          username
+        );
+
+        await postData(
+          getServerUrl().deletePlayerUrl(id),
+          { oldUsername: username },
+          token
+        );
+
+        setSeatStatus(selectedSeatId, { name: '', taken: false });
+        setSelectedSeatId(null);
+      }
+
       setUsername(newUsername);
+    } catch (error) {
+      console.error('Error during handleUsernameChange:', error);
     }
-
-    if (selectedSeatId) {
-      console.log(
-        'entered, becuase has selected seat: ',
-        selectedSeatId,
-        'past username: ',
-        username
-      );
-      postData(
-        getServerUrl().deletePlayerUrl(id),
-        {
-          oldUsername: username,
-        },
-        token
-      );
-      setSeatStatus(selectedSeatId, { name: '', taken: false });
-      setSelectedSeatId(null);
-    }
-
-    setUsername(newUsername);
 
     // Clear the previous timer if it exists
     if (usernameInputTimer) {
@@ -207,10 +211,14 @@ export function LobbyPage() {
         getServerUrl().tabledata(id),
         { isCreatingTable, username, stakeLimit, selectedColor },
         token
-      );
-
-      setToken(newtoken);
-      setTableId(id);
+      )
+        .then(() => {
+          setToken(newtoken);
+          setTableId(id);
+        })
+        .catch((error) => {
+          console.error('Error during postData:', error);
+        });
     }
   };
 
