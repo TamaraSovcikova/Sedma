@@ -24,6 +24,7 @@ export const useAuth = () => {
       logout: () => {
         /*empty*/
       },
+      tableId: undefined,
       setTableId: (tableId?: string) => {
         /*empty*/
       },

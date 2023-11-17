@@ -5,7 +5,6 @@ import '../../styles/inicial-page.css';
 import { postData } from '../../lib/api';
 import { getServerUrl } from '../../global';
 import { useAuth } from '../../components/auth/auth-context';
-import { MessageLogin } from '@tnt-react/ws-messages';
 
 export function InitialPage() {
   const [tableID, setTableID] = useState<string>('');
