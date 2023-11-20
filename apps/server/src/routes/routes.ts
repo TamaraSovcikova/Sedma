@@ -1,4 +1,3 @@
-import { randomUUID } from 'crypto';
 import { createTable, getTable } from '../lib/game';
 import { addPlayer, deletePlayer } from '../lib/table';
 import debugLog from 'debug';
@@ -9,7 +8,9 @@ import { v4 as uuidv4 } from 'uuid';
 
 const debug = debugLog('routes');
 
-function extractAuth(req, res, next) {
+const generateUUID = () => uuidv4().slice(0, 8);
+
+function extractAuth(req, next) {
   const token = req.get('authorization');
   debug('token', token);
   req.user = { id: token };
@@ -18,13 +19,11 @@ function extractAuth(req, res, next) {
 
 export function createRoutes(app: any) {
   app.use(extractAuth); //middlewere
-
   expressWs(app);
 
   //if route to root found, recieve two parameters and call a function to process it
-  app.ws('/', (ws, req) => handleWs(ws));
-
-  app.get('/api', (req, res) => {
+  app.ws('/', (ws) => handleWs(ws));
+  app.get('/api', (res) => {
     res.json({ message: 'Hello API' });
   });
 
@@ -149,7 +148,7 @@ export function createRoutes(app: any) {
     let newTableID;
 
     do {
-      newTableID = uuidv4().slice(0, 8);
+      newTableID = generateUUID();
     } while (getTable(newTableID));
 
     createTable(newTableID);
@@ -165,7 +164,7 @@ export function createRoutes(app: any) {
     let newTableID;
 
     do {
-      newTableID = uuidv4().slice(0, 8);
+      newTableID = generateUUID();
     } while (getTable(newTableID));
 
     const table = createTable(newTableID);
