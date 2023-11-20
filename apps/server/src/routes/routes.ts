@@ -5,6 +5,7 @@ import debugLog from 'debug';
 import { computerLevel1 } from '../lib/computerPlayer1';
 import expressWs from 'express-ws';
 import { handleWs } from '../lib/wsServer';
+import { v4 as uuidv4 } from 'uuid';
 
 const debug = debugLog('routes');
 
@@ -145,18 +146,28 @@ export function createRoutes(app: any) {
   });
 
   app.post('/table/new', (req, res) => {
-    //create table
-    const newTableID = randomUUID();
+    let newTableID;
+
+    do {
+      newTableID = uuidv4().slice(0, 8);
+    } while (getTable(newTableID));
+
     createTable(newTableID);
+
     res.json(newTableID);
 
-    debug(`Created new table}`);
+    debug(`Created new table with ID: ${newTableID}`);
   });
 
   app.post('/table/newSinglePlayer', (req, res) => {
     debug('Creating new Single player table');
 
-    const newTableID = randomUUID();
+    let newTableID;
+
+    do {
+      newTableID = uuidv4().slice(0, 8);
+    } while (getTable(newTableID));
+
     const table = createTable(newTableID);
 
     const stakeLimit = parseInt(req.body.stakeLimit, 10);

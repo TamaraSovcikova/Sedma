@@ -307,11 +307,14 @@ export function LobbyPage() {
                 value={id}
                 readOnly
               />
-              <button className="btn btn-secondary m-0" onClick={handleCopy}>
+              <button
+                className="btn btn-secondary m-1 p-2"
+                onClick={handleCopy}
+              >
                 Copy
               </button>
               <button
-                className="btn btn-secondary"
+                className="btn btn-secondary m-1"
                 onClick={() => shareViaWhatsApp(id)}
               >
                 <i className="fab fa-whatsapp"></i>
