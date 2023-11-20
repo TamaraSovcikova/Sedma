@@ -10,7 +10,7 @@ const debug = debugLog('routes');
 
 const generateUUID = () => uuidv4().slice(0, 8);
 
-function extractAuth(req, next) {
+function extractAuth(req, res, next) {
   const token = req.get('authorization');
   debug('token', token);
   req.user = { id: token };
@@ -22,7 +22,7 @@ export function createRoutes(app: any) {
   expressWs(app);
 
   //if route to root found, recieve two parameters and call a function to process it
-  app.ws('/', (ws) => handleWs(ws));
+  app.ws('/', (ws, req) => handleWs(ws));
   app.get('/api', (res) => {
     res.json({ message: 'Hello API' });
   });

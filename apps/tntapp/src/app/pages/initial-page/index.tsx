@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { ReactEventHandler, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '../../styles/inicial-page.css';
@@ -6,15 +6,57 @@ import { postData } from '../../lib/api';
 import { getServerUrl } from '../../global';
 import { useAuth } from '../../components/auth/auth-context';
 
+interface StatusMessageProps {
+  message: string;
+  onReturn: ReactEventHandler | null;
+  onLeave: ReactEventHandler;
+  returnColor?: string;
+  leaveColor?: string;
+}
+
+export function StatusMessage({
+  message,
+  onReturn,
+  onLeave,
+  returnColor = 'darkgreen',
+  leaveColor = 'gray',
+}: StatusMessageProps) {
+  return (
+    <div>
+      <p style={{ color: 'darkred' }}>{message}</p>
+      {onReturn && (
+        <button
+          className="btn btn-secondary"
+          style={{ background: returnColor, marginRight: '10px' }}
+          onClick={onReturn}
+        >
+          Return to Game
+        </button>
+      )}
+      <button
+        className="btn btn-secondary"
+        style={{ background: leaveColor }}
+        onClick={onLeave}
+      >
+        Leave Game
+      </button>
+    </div>
+  );
+}
+
 export function InitialPage() {
-  const [tableID, setTableID] = useState<string>('');
-  const [error, setError] = useState<boolean>(false);
-  const [name, setName] = useState<string>('');
   const { token, logout, setToken, tableId, setTableId } = useAuth();
+  const [tableID, setTableID] = useState('');
+  const [error, setError] = useState(false);
+  const [name, setName] = useState('');
   const [stakeLimit, setStakeLimit] = useState('');
   const [isFormValid, setIsFormValid] = useState(false);
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    setIsFormValid(name.trim() !== '' && stakeLimit !== '');
+  }, [name, stakeLimit]);
 
   const handleGameReturn = () => {
     navigate(`/table/${tableId}`);
@@ -26,17 +68,6 @@ export function InitialPage() {
     const newStakeLimit = event.target.value;
     setStakeLimit(newStakeLimit);
   };
-
-  const handleCreateTable = () => {
-    window.scrollTo(0, 0);
-    postData(getServerUrl().newtableUrl, {}, token).then((id) =>
-      navigate(`/table/lobby/${id}/?create=1`)
-    );
-  };
-
-  useEffect(() => {
-    setIsFormValid(name.trim() !== '' && stakeLimit !== '');
-  }, [name, stakeLimit]);
 
   const joinGame = async () => {
     try {
@@ -85,6 +116,13 @@ export function InitialPage() {
     }
   };
 
+  const handleCreateTable = () => {
+    window.scrollTo(0, 0);
+    postData(getServerUrl().newtableUrl, {}, token).then((id) =>
+      navigate(`/table/lobby/${id}/?create=1`)
+    );
+  };
+
   const handleRulesButton = () => {
     window.scrollTo(0, 0);
     navigate('/rules');
@@ -96,8 +134,8 @@ export function InitialPage() {
       document.documentElement.clientWidth ||
       document.body.clientWidth;
 
-    const computerScreenWidthThreshold = 768;
-    return screenWidth >= computerScreenWidthThreshold;
+    const screenWidthThreshold = 768;
+    return screenWidth >= screenWidthThreshold;
   };
 
   return (
@@ -118,27 +156,11 @@ export function InitialPage() {
             "JOIN GAME".
           </p>
           {token && tableId && (
-            <div>
-              <p style={{ color: 'darkred' }}>
-                You are still Logged onto a game, To Join a new game, log out
-                first or rejoin by pressing button
-              </p>
-              <button
-                className="btn btn-secondary"
-                style={{ background: 'darkgreen', marginRight: '10px' }}
-                onClick={handleGameReturn}
-              >
-                Return to Game
-              </button>
-
-              <button
-                style={{ background: 'darkred' }}
-                className="btn btn-secondary"
-                onClick={logOutOfGame}
-              >
-                Leave Game
-              </button>
-            </div>
+            <StatusMessage
+              message="To Join a new game, log out first or rejoin by pressing button"
+              onReturn={handleGameReturn}
+              onLeave={logOutOfGame}
+            />
           )}
           {!token && (
             <div>
@@ -177,14 +199,11 @@ export function InitialPage() {
             </button>
           )}
           {token && tableId && (
-            <div>
-              <p style={{ color: 'darkred' }}>
-                To Create A Game, You must Log out First!
-              </p>
-              <button className="btn btn-secondary" onClick={logOutOfGame}>
-                Leave Game
-              </button>
-            </div>
+            <StatusMessage
+              message="To Create A Game, You must Log out First!!"
+              onLeave={logOutOfGame}
+              onReturn={null}
+            />
           )}
           <h3 className="mt-5">SINGLEPLAYER MODE</h3>
           <p>
@@ -227,14 +246,11 @@ export function InitialPage() {
             </div>
           )}
           {token && tableId && (
-            <div>
-              <p style={{ color: 'darkred' }}>
-                To Play SinglePlayer, You must Log out First!
-              </p>
-              <button className="btn btn-secondary" onClick={logOutOfGame}>
-                Leave Game
-              </button>
-            </div>
+            <StatusMessage
+              message="To Play SinglePlayer, You must Log out First!"
+              onLeave={logOutOfGame}
+              onReturn={null}
+            />
           )}
 
           <h3 className="mt-5">RULES</h3>
