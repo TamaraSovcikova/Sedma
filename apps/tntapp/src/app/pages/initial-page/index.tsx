@@ -192,36 +192,51 @@ export function InitialPage() {
             enter your player's name and stake count to reach and get ready to
             play!
           </p>
-          <div className="stake-input-container mb-1">
-            <label className="stake-label" htmlFor="username-input">
-              Set a goal stake count:
-            </label>
-            <input
-              type="number"
-              className="form-control stake-input"
-              name="stakes count"
-              placeholder="Stake Count"
-              value={stakeLimit}
-              onChange={handleStakeLimitChange}
-              required
-            />
-          </div>
-          <div className="input-group mt-1 mb-3">
-            <input
-              className="form-control"
-              placeholder="Enter Name"
-              value={name}
-              maxLength={11}
-              onChange={(e) => setName(e.target.value)}
-            />
-            <button
-              className="btn btn-secondary"
-              disabled={!isFormValid}
-              onClick={startSinglePlayer}
-            >
-              SINGLEPLAYER GAME
-            </button>
-          </div>
+          {!token && (
+            <div>
+              <div className="stake-input-container mb-1">
+                <label className="stake-label" htmlFor="username-input">
+                  Set a goal stake count:
+                </label>
+                <input
+                  type="number"
+                  className="form-control stake-input"
+                  name="stakes count"
+                  placeholder="Stake Count"
+                  value={stakeLimit}
+                  onChange={handleStakeLimitChange}
+                  required
+                />
+              </div>
+              <div className="input-group mt-1 mb-3">
+                <input
+                  className="form-control"
+                  placeholder="Enter Name"
+                  value={name}
+                  maxLength={11}
+                  onChange={(e) => setName(e.target.value)}
+                />
+                <button
+                  className="btn btn-secondary"
+                  disabled={!isFormValid}
+                  onClick={startSinglePlayer}
+                >
+                  SINGLEPLAYER GAME
+                </button>
+              </div>
+            </div>
+          )}
+          {token && tableId && (
+            <div>
+              <p style={{ color: 'darkred' }}>
+                To Play SinglePlayer, You must Log out First!
+              </p>
+              <button className="btn btn-secondary" onClick={logOutOfGame}>
+                Leave Game
+              </button>
+            </div>
+          )}
+
           <h3 className="mt-5">RULES</h3>
           <p>
             There are many variations of Sedma out there, so click here to find
