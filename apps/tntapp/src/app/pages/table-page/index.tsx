@@ -22,6 +22,7 @@ import { EndGameResultsPopup } from './components/end-game-results-popup';
 import { StakesReachedPopup } from './components/stakes-reached-popup';
 import { RoundResultsPopup } from './components/round-results-popup';
 import { PlayAgainPopup } from './components/play-again-popup';
+import { DisconnectPopup } from './components/disconnect-popup';
 
 interface ChairProps {
   chairPosition: string;
@@ -626,29 +627,11 @@ export function TablePage() {
         />
       )}
       {disconnectRequest && (
-        <div className="resultsPopup">
-          <div className="resultsBox">
-            <h2>Are you sure you want to leave?</h2>
-            {isOwner && (
-              <p
-                style={{
-                  fontSize: '15px',
-                  color: 'red',
-                }}
-              >
-                WARNING: Table will be deleted!
-              </p>
-            )}
-            <div className="button-container">
-              <button className="button play-button" onClick={handleResume}>
-                Back
-              </button>
-              <button className="button leave-button" onClick={handleLeave}>
-                Leave
-              </button>
-            </div>
-          </div>
-        </div>
+        <DisconnectPopup
+          onResume={handleResume}
+          onLeave={handleLeave}
+          isOwner={isOwner}
+        />
       )}
     </div>
   );
