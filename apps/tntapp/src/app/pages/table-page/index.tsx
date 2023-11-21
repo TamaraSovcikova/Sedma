@@ -23,72 +23,7 @@ import { StakesReachedPopup } from './components/stakes-reached-popup';
 import { RoundResultsPopup } from './components/round-results-popup';
 import { PlayAgainPopup } from './components/play-again-popup';
 import { DisconnectPopup } from './components/disconnect-popup';
-
-interface ChairProps {
-  chairPosition: string;
-  playerName: string;
-  lastPlayedCard: CardData;
-  currentPlayer: boolean;
-  winningPlayer: boolean;
-  bodyColor: string;
-}
-
-function Chair(props: ChairProps) {
-  const {
-    chairPosition,
-    playerName,
-    lastPlayedCard,
-    currentPlayer,
-    winningPlayer,
-    bodyColor,
-  } = props;
-  return (
-    <div className={`chair ${chairPosition}`}>
-      {currentPlayer && (
-        <img
-          src="https://cdn-icons-png.flaticon.com/512/116/116145.png"
-          alt="sunglasses"
-          style={{
-            width: '50px',
-            height: '50px',
-            background: 'transparent',
-            top: '-30px',
-            position: 'absolute',
-            zIndex: '3',
-            left: '-0.5px',
-          }}
-        />
-      )}
-      {winningPlayer && (
-        <img
-          src="https://clipart-library.com/newimages/crown-clip-art-18.png"
-          alt="crown"
-          style={{
-            width: '50px',
-            height: '50px',
-            background: 'transparent',
-            top: '-60px',
-            position: 'absolute',
-            left: '-1px',
-          }}
-        />
-      )}
-      {playerName && (
-        <div>
-          <div className="player on-chair"></div>
-          <div
-            className="player body"
-            style={{ backgroundColor: bodyColor }}
-          ></div>
-        </div>
-      )}
-      <div className="name">{playerName}</div>
-      <div className="on-chair last-played-card ">
-        <ShowCard key="lastPCard1" card={lastPlayedCard} size="small" />
-      </div>
-    </div>
-  );
-}
+import { Chair } from './components/chair';
 
 export function TablePage() {
   const params = useParams();
@@ -117,7 +52,6 @@ export function TablePage() {
   const { logout } = useAuth();
   const navigate = useNavigate();
 
-  console.log('data', data);
   const { token } = useAuth();
 
   const { sendJsonMessage, lastJsonMessage } = useWebSocket<MessageBase>(
@@ -620,13 +554,7 @@ export function TablePage() {
         />
       )}
       {data.playAgain && (
-        <PlayAgainPopup
-          onPlay={handleStartGame}
-          onLeave={() => {
-            logout();
-            navigate('/');
-          }}
-        />
+        <PlayAgainPopup onPlay={handleStartGame} onLeave={handleLeave} />
       )}
       {disconnectRequest && (
         <DisconnectPopup
