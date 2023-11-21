@@ -5,6 +5,11 @@
     position: relative;
 }
 
+.header p {
+    font-size: 15px;
+    margin-bottom: 0;
+    margin-top: -10px;
+}
 
 .table {
     position: absolute;

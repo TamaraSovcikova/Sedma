@@ -423,7 +423,7 @@ export function TablePage() {
             dangerouslySetInnerHTML={{ __html: popupMessage }}
           ></div>
         )}
-
+        <p>Round: {data.round} </p>
         <div className="top-right-menu">
           <div
             className={`icon ${menuOpen ? 'active' : ''}`}
