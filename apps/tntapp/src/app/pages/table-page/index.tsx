@@ -388,6 +388,10 @@ export function TablePage() {
       </div>
     );
   if (!data || playerIdx === undefined) return <div>Unknown Player</div>;
+  const topPlayerIdx = (playerIdx + 2) % 4;
+  const leftPlayerIdx = (playerIdx + 1) % 4;
+  const rightPlayerIdx = (playerIdx + 3) % 4;
+
   return (
     <div>
       <div className="header">
@@ -489,33 +493,31 @@ export function TablePage() {
       <div className="table">
         <Chair
           chairPosition="top"
-          playerName={data.players[(playerIdx + 2) % 4].name}
-          lastPlayedCard={data.lastPlayedCards[(playerIdx + 2) % 4]}
-          currentPlayer={data.currentPlayer === (playerIdx + 2) % 4}
-          winningPlayer={
-            data.players[(playerIdx + 2) % 4].id === data.winningPlayerId
-          }
-          bodyColor={data.players[(playerIdx + 2) % 4].bodyColor}
+          playerName={data.players[topPlayerIdx].name}
+          lastPlayedCard={data.lastPlayedCards[topPlayerIdx]}
+          currentPlayer={data.currentPlayer === topPlayerIdx}
+          winningPlayer={data.players[topPlayerIdx].id === data.winningPlayerId}
+          bodyColor={data.players[topPlayerIdx].bodyColor}
         />
         <Chair
           chairPosition="left"
-          playerName={data.players[(playerIdx + 1) % 4].name}
-          lastPlayedCard={data.lastPlayedCards[(playerIdx + 1) % 4]}
-          currentPlayer={data.currentPlayer === (playerIdx + 1) % 4}
+          playerName={data.players[leftPlayerIdx].name}
+          lastPlayedCard={data.lastPlayedCards[leftPlayerIdx]}
+          currentPlayer={data.currentPlayer === leftPlayerIdx}
           winningPlayer={
-            data.players[(playerIdx + 1) % 4].id === data.winningPlayerId
+            data.players[leftPlayerIdx].id === data.winningPlayerId
           }
-          bodyColor={data.players[(playerIdx + 1) % 4].bodyColor}
+          bodyColor={data.players[leftPlayerIdx].bodyColor}
         />
         <Chair
           chairPosition="right"
-          playerName={data.players[(playerIdx + 3) % 4].name}
-          lastPlayedCard={data.lastPlayedCards[(playerIdx + 3) % 4]}
-          currentPlayer={data.currentPlayer === (playerIdx + 3) % 4}
+          playerName={data.players[rightPlayerIdx].name}
+          lastPlayedCard={data.lastPlayedCards[rightPlayerIdx]}
+          currentPlayer={data.currentPlayer === rightPlayerIdx}
           winningPlayer={
-            data.players[(playerIdx + 3) % 4].id === data.winningPlayerId
+            data.players[rightPlayerIdx].id === data.winningPlayerId
           }
-          bodyColor={data.players[(playerIdx + 3) % 4].bodyColor}
+          bodyColor={data.players[rightPlayerIdx].bodyColor}
         />
         <div className="chair bottom">
           <div className="player on-chair"></div>
