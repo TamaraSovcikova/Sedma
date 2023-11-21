@@ -18,6 +18,10 @@ import {
   MessageTableData,
   TableData,
 } from '@tnt-react/ws-messages';
+import { EndGameResultsPopup } from './components/end-game-results-popup';
+import { StakesReachedPopup } from './components/stakes-reached-popup';
+import { RoundResultsPopup } from './components/round-results-popup';
+import { PlayAgainPopup } from './components/play-again-popup';
 
 interface ChairProps {
   chairPosition: string;
@@ -320,6 +324,9 @@ export function TablePage() {
 
   const isOwner = data?.ownerOfTableId === token;
   const playerCount = data?.players.filter((p) => p.name !== '').length;
+  const roundWinner = data?.players.find(
+    (p) => p.id === data.winningPlayerId
+  )?.name;
 
   const handleLeave = () => {
     if (!id || !data || playerIdx === undefined) return;
@@ -583,107 +590,40 @@ export function TablePage() {
         </div>
       )}
       {showResults && (
-        <div className="resultsPopup">
-          <div className="resultsBox">
-            <button className="closeButton" onClick={handleCloseResults}>
-              X
-            </button>
-            <h2>Round Results</h2>
-            <p>
-              Deal winner :{' '}
-              <span className="dynamicData">
-                {data.players.find((p) => p.id === data.winningPlayerId)?.name}
-              </span>
-            </p>
-            <p>
-              Their team:{' '}
-              <span className="dynamicData">{data.teamWonRound}</span>
-            </p>
-            <p>
-              Points Collected:{' '}
-              <span className="dynamicData">{data.wonPoints}</span>
-            </p>
-            {data.round === 8 && (
-              <p className="lastDealBonus">
-                Last deal bonus <span className="dynamicData2">10</span>
-              </p>
-            )}
-          </div>
-        </div>
+        <RoundResultsPopup
+          onClose={handleCloseResults}
+          dealWinnerName={roundWinner}
+          dealWinnerTeam={data.teamWonRound}
+          wonPoints={data.wonPoints}
+          isLastRound={data.round === 8}
+        />
       )}
       {showEndGameResults && (
-        <div className="resultsPopup" style={{ zIndex: 101 }}>
-          <div className="resultsBox">
-            <button className="closeButton" onClick={handleCloseEndGameResults}>
-              X
-            </button>
-            <h2>GAME FINISHED</h2>
-            <p>
-              Game-winning Team!:{' '}
-              <span className="dynamicData"> {data.teamWonRound}</span>{' '}
-            </p>
-            <p>
-              Points Collected:{' '}
-              <span className="dynamicData">{data.winningTeamPoints}</span>
-            </p>
-            <p>
-              Stakes to HIT:{' '}
-              <span className="dynamicData">{data.finalStakeCount}</span>
-            </p>
-            <p>
-              Team A stake number:{' '}
-              <span className="dynamicData">{data.teamAStakeCount}</span>
-            </p>
-            <p>
-              Team B stake number:{' '}
-              <span className="dynamicData">{data.teamBStakeCount}</span>
-            </p>
-          </div>
-        </div>
+        <EndGameResultsPopup
+          onClose={handleCloseEndGameResults}
+          teamWonRound={data.teamWonRound}
+          winningTeamPoints={data.winningTeamPoints}
+          finalStakeCount={data.finalStakeCount}
+          teamAStakeCount={data.teamAStakeCount}
+          teamBStakeCount={data.teamBStakeCount}
+        />
       )}
       {data.stakesReached && (
-        <div className="resultsPopup" style={{ zIndex: 102 }}>
-          <div className="resultsBox">
-            <button className="closeButton" onClick={handleStakesReached}>
-              X
-            </button>
-            <h2>CONGRATS!</h2>
-            <h5>Game has finished!</h5>
-            <p>
-              Team who won the game!:{' '}
-              <span className="dynamicData"> {whoWon()}</span>{' '}
-            </p>
-            <p>
-              Their stake count :{' '}
-              <span className="dynamicData">{winningStakeCount()}</span>
-            </p>
-            <p>
-              Stakes to HIT:{' '}
-              <span className="dynamicData">{data.finalStakeCount}</span>
-            </p>
-          </div>
-        </div>
+        <StakesReachedPopup
+          onClose={handleStakesReached}
+          winningTeam={whoWon()}
+          winningStakeCount={winningStakeCount()}
+          finalStakeCount={data.finalStakeCount}
+        />
       )}
       {data.playAgain && (
-        <div className="resultsPopup">
-          <div className="resultsBox" style={{ minHeight: '220px' }}>
-            <h2>Do you wish to stay and play another game?</h2>
-            <div className="button-container">
-              <button className="button play-button" onClick={handleStartGame}>
-                Lets Play!
-              </button>
-              <button
-                className="button leave-button"
-                onClick={() => {
-                  logout();
-                  navigate('/');
-                }}
-              >
-                Leave
-              </button>
-            </div>
-          </div>
-        </div>
+        <PlayAgainPopup
+          onPlay={handleStartGame}
+          onLeave={() => {
+            logout();
+            navigate('/');
+          }}
+        />
       )}
       {disconnectRequest && (
         <div className="resultsPopup">
