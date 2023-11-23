@@ -24,6 +24,7 @@ import { RoundResultsPopup } from './components/round-results-popup';
 import { PlayAgainPopup } from './components/play-again-popup';
 import { DisconnectPopup } from './components/disconnect-popup';
 import { Chair } from './components/chair';
+import { Chat } from './components/chat';
 
 export function TablePage() {
   const params = useParams();
@@ -331,25 +332,13 @@ export function TablePage() {
       <div className="header">
         <h1 className="name-header">{data.players[playerIdx].name}</h1>
         {chatOpen && (
-          <div className="chat-popup" ref={chatContainerRef}>
-            <div className="chat-messages">
-              {receivedMessages.map((msg, index) => (
-                <div key={index} className="chat-message">
-                  <p className="message-username">{msg.username}</p>
-                  <p className="message-text">{msg.message}</p>
-                </div>
-              ))}
-            </div>
-            <div className="chat-input">
-              <input
-                type="text"
-                placeholder="Type your message..."
-                value={inputMessage}
-                onChange={(e) => setInputMessage(e.target.value)}
-              />
-              <button onClick={handleSendMessage}>Send</button>
-            </div>
-          </div>
+          <Chat
+            chatContainerReference={chatContainerRef}
+            recievedMessages={receivedMessages}
+            inputMessage={inputMessage}
+            onSend={handleSendMessage}
+            setInputMessage={setInputMessage}
+          />
         )}
         {popupMessage && !chatOpen && (
           <div
