@@ -25,6 +25,7 @@ import { PlayAgainPopup } from './components/play-again-popup';
 import { DisconnectPopup } from './components/disconnect-popup';
 import { Chair } from './components/chair';
 import { Chat } from './components/chat';
+import { Menu } from './components/menu';
 
 export function TablePage() {
   const params = useParams();
@@ -316,7 +317,7 @@ export function TablePage() {
         <h2 style={{ marginTop: '20px', marginBottom: '0px' }}>
           Waiting for server connection...
         </h2>
-        <p>Please be pacient</p>
+        <p>Please be patient</p>
         <button className="returnToButton" onClick={() => navigate('/')}>
           Return
         </button>
@@ -347,38 +348,13 @@ export function TablePage() {
           ></div>
         )}
         <p>Round: {data.round} </p>
-        <div className="top-right-menu">
-          <div
-            className={`icon ${menuOpen ? 'active' : ''}`}
-            onClick={toggleMenu}
-          >
-            <i className="fas fa-ellipsis-v"></i>
-          </div>
-          {menuOpen && (
-            <div className="dropdown-menu">
-              <div className="menu-item">
-                <i
-                  id="chat"
-                  className="fas fa-comment"
-                  onClick={toggleChat}
-                ></i>
-                {unopenedMessage > 0 && (
-                  <div className="message-count">{unopenedMessage}</div>
-                )}
-              </div>
-              <div className="menu-item">
-                <i id="settings" className="fas fa-cog"></i>
-              </div>
-              <div className="menu-item">
-                <i
-                  id="disconnect"
-                  className="fas fa-sign-out-alt"
-                  onClick={handleDisconnect}
-                ></i>
-              </div>
-            </div>
-          )}
-        </div>
+        <Menu
+          menuOpen={menuOpen}
+          openMenu={toggleMenu}
+          toggleChat={toggleChat}
+          unopenedMessage={unopenedMessage}
+          onDisconnect={handleDisconnect}
+        />
 
         {isOwner && !data.waitingForPlayers && !data.gameInProgress && (
           <button
