@@ -4,7 +4,6 @@ import {
   FaceType,
   CardData,
   MessageBase,
-  GameData,
 } from '@tnt-react/ws-messages';
 import { Card } from './card';
 import { Player } from './player';

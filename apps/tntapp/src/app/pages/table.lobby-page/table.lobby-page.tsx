@@ -4,43 +4,14 @@ import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { fetchData, postData } from '../../lib/api';
 import { getServerUrl } from '../../global';
 import { useAuth } from '../../components/auth/auth-context';
+import { Team } from './components/team';
+import { CustomizationBox } from './components/customization-box';
 
-interface Seat {
+export interface Seat {
   id: number;
   name: string;
   taken: boolean;
 }
-
-interface TeamProps {
-  teamName: string;
-  seats: Seat[];
-  selectedSeatId: number | null;
-  onSeatClick: (seatId: number) => void;
-}
-
-const Team: React.FC<TeamProps> = ({
-  teamName,
-  seats,
-  selectedSeatId,
-  onSeatClick,
-}) => (
-  <div className="team">
-    <h3 className="lobby-sub-header">{teamName}</h3>
-    <div className="row">
-      {seats.map((seat) => (
-        <div
-          key={seat.id}
-          className={`seat ${seat.taken ? 'taken' : ''} ${
-            selectedSeatId === seat.id ? 'selected' : ''
-          }`}
-          onClick={() => !seat.taken && onSeatClick(seat.id)}
-        >
-          {seat.taken ? seat.name : 'Available'}
-        </div>
-      ))}
-    </div>
-  </div>
-);
 
 export function LobbyPage() {
   const params = useParams();
@@ -257,25 +228,6 @@ export function LobbyPage() {
     }
   };
 
-  const colorOptions = [
-    { id: 'red', name: 'Red' },
-    { id: 'blue', name: 'Blue' },
-    { id: 'green', name: 'Green' },
-    { id: 'yellow', name: 'Yellow' },
-    { id: 'gold', name: 'Gold' },
-    { id: 'purple', name: 'Purple' },
-    { id: 'orange', name: 'Orange' },
-    { id: 'pink', name: 'Pink' },
-    { id: 'teal', name: 'Teal' },
-    { id: 'violet', name: 'Violet' },
-    { id: 'cyan', name: 'Cyan' },
-    { id: 'lime', name: 'Lime' },
-    { id: 'indigo', name: 'Indigo' },
-    { id: 'brown', name: 'Brown' },
-    { id: 'grey', name: 'Grey' },
-    { id: 'black', name: 'Black' },
-  ];
-
   const handleColorChange = (colorId: string) => {
     setSelectedColor(colorId);
   };
@@ -351,28 +303,10 @@ export function LobbyPage() {
           </div>
         </div>
       </div>
-      <div className="row justify-content-center mt-4">
-        <div className="col-md-12">
-          <p>SELECT A SHIRT COLOR:</p>
-          <div className="color-options">
-            {colorOptions.map((color) => (
-              <label key={color.id} className="color-option">
-                <input
-                  type="checkbox"
-                  value={color.id}
-                  checked={selectedColor === color.id}
-                  onChange={() => handleColorChange(color.id)}
-                />
-                {color.name}
-                <span
-                  className="color-box"
-                  style={{ backgroundColor: color.id }}
-                ></span>
-              </label>
-            ))}
-          </div>
-        </div>
-      </div>
+      <CustomizationBox
+        selectedColor={selectedColor}
+        onColorChange={handleColorChange}
+      />
       <p className="teamInfo">
         After entering your username and customising your character, please
         select the seat you want to be seated at whilst simultaneously choosing
