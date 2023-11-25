@@ -1,12 +1,14 @@
-import { randomUUID } from 'crypto';
 import { createTable, getTable } from '../lib/game';
 import { addPlayer, deletePlayer } from '../lib/table';
 import debugLog from 'debug';
 import { computerLevel1 } from '../lib/computerPlayer1';
 import expressWs from 'express-ws';
 import { handleWs } from '../lib/wsServer';
+import { v4 as uuidv4 } from 'uuid';
 
 const debug = debugLog('routes');
+
+const generateUUID = () => uuidv4().slice(0, 8);
 
 function extractAuth(req, res, next) {
   const token = req.get('authorization');
@@ -17,13 +19,11 @@ function extractAuth(req, res, next) {
 
 export function createRoutes(app: any) {
   app.use(extractAuth); //middlewere
-
   expressWs(app);
 
   //if route to root found, recieve two parameters and call a function to process it
   app.ws('/', (ws, req) => handleWs(ws));
-
-  app.get('/api', (req, res) => {
+  app.get('/api', (res) => {
     res.json({ message: 'Hello API' });
   });
 
@@ -89,6 +89,26 @@ export function createRoutes(app: any) {
     }
   });
 
+  app.post('/table/loggout/:id', (req, res) => {
+    const data = req.body;
+    const params = req.params;
+    const tableId = params.id;
+    const { token } = data;
+    const table = getTable(tableId);
+    const player = table.players.find((p) => p.id === token);
+
+    const seatPosition: number = table.players.indexOf(player);
+    deletePlayer(player, table, seatPosition);
+    debug(
+      '----------just deleted player: ',
+      player,
+      ' seatPosition ',
+      seatPosition
+    );
+
+    res.sendStatus(200);
+  });
+
   app.post('/table/lobby/data/:id', (req, res) => {
     const data = req.body;
     const params = req.params;
@@ -125,18 +145,28 @@ export function createRoutes(app: any) {
   });
 
   app.post('/table/new', (req, res) => {
-    //create table
-    const newTableID = randomUUID();
+    let newTableID;
+
+    do {
+      newTableID = generateUUID();
+    } while (getTable(newTableID));
+
     createTable(newTableID);
+
     res.json(newTableID);
 
-    debug(`Created new table}`);
+    debug(`Created new table with ID: ${newTableID}`);
   });
 
   app.post('/table/newSinglePlayer', (req, res) => {
     debug('Creating new Single player table');
 
-    const newTableID = randomUUID();
+    let newTableID;
+
+    do {
+      newTableID = generateUUID();
+    } while (getTable(newTableID));
+
     const table = createTable(newTableID);
 
     const stakeLimit = parseInt(req.body.stakeLimit, 10);

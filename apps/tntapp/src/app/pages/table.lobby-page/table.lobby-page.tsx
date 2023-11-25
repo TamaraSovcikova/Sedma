@@ -4,49 +4,20 @@ import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { fetchData, postData } from '../../lib/api';
 import { getServerUrl } from '../../global';
 import { useAuth } from '../../components/auth/auth-context';
+import { Team } from './components/team';
+import { CustomizationBox } from './components/customization-box';
 
-interface Seat {
+export interface Seat {
   id: number;
   name: string;
   taken: boolean;
 }
 
-interface TeamProps {
-  teamName: string;
-  seats: Seat[];
-  selectedSeatId: number | null;
-  onSeatClick: (seatId: number) => void;
-}
-
-const Team: React.FC<TeamProps> = ({
-  teamName,
-  seats,
-  selectedSeatId,
-  onSeatClick,
-}) => (
-  <div className="team">
-    <h3 className="lobby-sub-header">{teamName}</h3>
-    <div className="row">
-      {seats.map((seat) => (
-        <div
-          key={seat.id}
-          className={`seat ${seat.taken ? 'taken' : ''} ${
-            selectedSeatId === seat.id ? 'selected' : ''
-          }`}
-          onClick={() => !seat.taken && onSeatClick(seat.id)}
-        >
-          {seat.taken ? seat.name : 'Available'}
-        </div>
-      ))}
-    </div>
-  </div>
-);
-
 export function LobbyPage() {
   const params = useParams();
   const navigate = useNavigate();
   const id = params.id ?? '0';
-  const { token, setToken } = useAuth();
+  const { token, setToken, setTableId } = useAuth();
   const [newtoken, setNewToken] = useState<string>();
   const [isCreatingTable, setIsCreatingTable] = useState(false);
   const [isUsernameAvailable, setIsUsernameAvailable] = useState(true);
@@ -103,29 +74,33 @@ export function LobbyPage() {
     const newUsername = event.target.value;
     console.log('handling username change');
 
-    if (!username) {
+    try {
+      if (!username) {
+        setUsername(newUsername);
+      }
+
+      if (selectedSeatId) {
+        console.log(
+          'entered, because has selected seat: ',
+          selectedSeatId,
+          'past username: ',
+          username
+        );
+
+        await postData(
+          getServerUrl().deletePlayerUrl(id),
+          { oldUsername: username },
+          token
+        );
+
+        setSeatStatus(selectedSeatId, { name: '', taken: false });
+        setSelectedSeatId(null);
+      }
+
       setUsername(newUsername);
+    } catch (error) {
+      console.error('Error during handleUsernameChange:', error);
     }
-
-    if (selectedSeatId) {
-      console.log(
-        'entered, becuase has selected seat: ',
-        selectedSeatId,
-        'past username: ',
-        username
-      );
-      postData(
-        getServerUrl().deletePlayerUrl(id),
-        {
-          oldUsername: username,
-        },
-        token
-      );
-      setSeatStatus(selectedSeatId, { name: '', taken: false });
-      setSelectedSeatId(null);
-    }
-
-    setUsername(newUsername);
 
     // Clear the previous timer if it exists
     if (usernameInputTimer) {
@@ -210,6 +185,7 @@ export function LobbyPage() {
       );
 
       setToken(newtoken);
+      setTableId(id);
     }
   };
 
@@ -248,25 +224,6 @@ export function LobbyPage() {
     }
   };
 
-  const colorOptions = [
-    { id: 'red', name: 'Red' },
-    { id: 'blue', name: 'Blue' },
-    { id: 'green', name: 'Green' },
-    { id: 'yellow', name: 'Yellow' },
-    { id: 'gold', name: 'Gold' },
-    { id: 'purple', name: 'Purple' },
-    { id: 'orange', name: 'Orange' },
-    { id: 'pink', name: 'Pink' },
-    { id: 'teal', name: 'Teal' },
-    { id: 'violet', name: 'Violet' },
-    { id: 'cyan', name: 'Cyan' },
-    { id: 'lime', name: 'Lime' },
-    { id: 'indigo', name: 'Indigo' },
-    { id: 'brown', name: 'Brown' },
-    { id: 'grey', name: 'Grey' },
-    { id: 'black', name: 'Black' },
-  ];
-
   const handleColorChange = (colorId: string) => {
     setSelectedColor(colorId);
   };
@@ -298,11 +255,14 @@ export function LobbyPage() {
                 value={id}
                 readOnly
               />
-              <button className="btn btn-secondary m-0" onClick={handleCopy}>
+              <button
+                className="btn btn-secondary m-1 p-2"
+                onClick={handleCopy}
+              >
                 Copy
               </button>
               <button
-                className="btn btn-secondary"
+                className="btn btn-secondary m-1"
                 onClick={() => shareViaWhatsApp(id)}
               >
                 <i className="fab fa-whatsapp"></i>
@@ -339,28 +299,10 @@ export function LobbyPage() {
           </div>
         </div>
       </div>
-      <div className="row justify-content-center mt-4">
-        <div className="col-md-12">
-          <p>SELECT A SHIRT COLOR:</p>
-          <div className="color-options">
-            {colorOptions.map((color) => (
-              <label key={color.id} className="color-option">
-                <input
-                  type="checkbox"
-                  value={color.id}
-                  checked={selectedColor === color.id}
-                  onChange={() => handleColorChange(color.id)}
-                />
-                {color.name}
-                <span
-                  className="color-box"
-                  style={{ backgroundColor: color.id }}
-                ></span>
-              </label>
-            ))}
-          </div>
-        </div>
-      </div>
+      <CustomizationBox
+        selectedColor={selectedColor}
+        onColorChange={handleColorChange}
+      />
       <p className="teamInfo">
         After entering your username and customising your character, please
         select the seat you want to be seated at whilst simultaneously choosing

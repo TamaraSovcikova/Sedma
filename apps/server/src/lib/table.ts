@@ -4,7 +4,6 @@ import {
   FaceType,
   CardData,
   MessageBase,
-  GameData,
 } from '@tnt-react/ws-messages';
 import { Card } from './card';
 import { Player } from './player';
@@ -12,6 +11,7 @@ import { Player } from './player';
 import debugLog from 'debug';
 const debug = debugLog('table');
 
+//The table class represents the game table
 export class Table {
   players: Player[];
   deck: Card[] = [];
@@ -92,7 +92,7 @@ export class Table {
       finalStakeCount: this.finalStakeCount,
     };
   }
-
+  /** Send updates to all connected players with the current game state */
   public sendUpdates() {
     const debug2 = debug.extend('sendUpdates');
     for (const p of this.players) {
@@ -243,6 +243,7 @@ export class Table {
     this.players.map((p) => debug(p.name, p.onHand));
   }
 
+  //Making sure the player can play the card they are selecting
   public validateTurn(player: Player, card: CardData): boolean {
     if (!player) {
       throw new Error('Player not found on the table');
@@ -271,7 +272,7 @@ export class Table {
     const cardIdx = player.onHand.findIndex(
       (c) => c.face === card.face && c.suit === card.suit
     );
-    player.onHand.splice(cardIdx, 1);
+    player.onHand.splice(cardIdx, 1); //removing the card from their hand
     player.lastPlayedCard = card;
   }
 
@@ -315,7 +316,7 @@ export class Table {
 
     this.currentPlayer = (this.currentPlayer + 1) % this.players.length;
   }
-
+  //checks if the leadplayer even has the option to pass, if he doesnt it will pass for him automatically
   private leadPlayerHasToPass(): boolean {
     return (
       this.currentPlayer === this.leadPlayer &&
@@ -351,6 +352,7 @@ export class Table {
     const winningTeam = this.players[this.winningPlayer].team;
     this.addWonCardsToTeam(winningTeam);
 
+    //updating the person who won the last round to be the person who starts the next.
     this.leadPlayer = this.winningPlayer;
     this.discardPile = [];
     this.cardToBeat = null;

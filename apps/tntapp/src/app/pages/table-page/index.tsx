@@ -8,84 +8,24 @@ import { useAuth } from '../../components/auth/auth-context';
 import useWebSocket from 'react-use-websocket';
 import {
   CardData,
-  GameData,
   Message,
   MessageBase,
   MessageChat,
   MessageError,
-  MessageGameData,
   MessageLogin,
   MessagePlayCard,
   MessagePlayerIdx,
   MessageTableData,
   TableData,
 } from '@tnt-react/ws-messages';
-
-interface ChairProps {
-  chairPosition: string;
-  playerName: string;
-  lastPlayedCard: CardData;
-  currentPlayer: boolean;
-  winningPlayer: boolean;
-  bodyColor: string;
-}
-
-function Chair(props: ChairProps) {
-  const {
-    chairPosition,
-    playerName,
-    lastPlayedCard,
-    currentPlayer,
-    winningPlayer,
-    bodyColor,
-  } = props;
-  return (
-    <div className={`chair ${chairPosition}`}>
-      {currentPlayer && (
-        <img
-          src="https://cdn-icons-png.flaticon.com/512/116/116145.png"
-          alt="sunglasses"
-          style={{
-            width: '50px',
-            height: '50px',
-            background: 'transparent',
-            top: '-30px',
-            position: 'absolute',
-            zIndex: '3',
-            left: '-0.5px',
-          }}
-        />
-      )}
-      {winningPlayer && (
-        <img
-          src="https://clipart-library.com/newimages/crown-clip-art-18.png"
-          alt="crown"
-          style={{
-            width: '50px',
-            height: '50px',
-            background: 'transparent',
-            top: '-60px',
-            position: 'absolute',
-            left: '-1px',
-          }}
-        />
-      )}
-      {playerName && (
-        <div>
-          <div className="player on-chair"></div>
-          <div
-            className="player body"
-            style={{ backgroundColor: bodyColor }}
-          ></div>
-        </div>
-      )}
-      <div className="name">{playerName}</div>
-      <div className="on-chair last-played-card ">
-        <ShowCard key="lastPCard1" card={lastPlayedCard} size="small" />
-      </div>
-    </div>
-  );
-}
+import { EndGameResultsPopup } from './components/end-game-results-popup';
+import { StakesReachedPopup } from './components/stakes-reached-popup';
+import { RoundResultsPopup } from './components/round-results-popup';
+import { PlayAgainPopup } from './components/play-again-popup';
+import { DisconnectPopup } from './components/disconnect-popup';
+import { Chair } from './components/chair';
+import { Chat } from './components/chat';
+import { Menu } from './components/menu';
 
 export function TablePage() {
   const params = useParams();
@@ -114,7 +54,6 @@ export function TablePage() {
   const { logout } = useAuth();
   const navigate = useNavigate();
 
-  console.log('data', data);
   const { token } = useAuth();
 
   const { sendJsonMessage, lastJsonMessage } = useWebSocket<MessageBase>(
@@ -322,6 +261,9 @@ export function TablePage() {
 
   const isOwner = data?.ownerOfTableId === token;
   const playerCount = data?.players.filter((p) => p.name !== '').length;
+  const roundWinner = data?.players.find(
+    (p) => p.id === data.winningPlayerId
+  )?.name;
 
   const handleLeave = () => {
     if (!id || !data || playerIdx === undefined) return;
@@ -375,37 +317,29 @@ export function TablePage() {
         <h2 style={{ marginTop: '20px', marginBottom: '0px' }}>
           Waiting for server connection...
         </h2>
-        <p>Please be pacient</p>
+        <p>Please be patient</p>
         <button className="returnToButton" onClick={() => navigate('/')}>
           Return
         </button>
       </div>
     );
   if (!data || playerIdx === undefined) return <div>Unknown Player</div>;
+  const topPlayerIdx = (playerIdx + 2) % 4;
+  const leftPlayerIdx = (playerIdx + 1) % 4;
+  const rightPlayerIdx = (playerIdx + 3) % 4;
+
   return (
     <div>
       <div className="header">
         <h1 className="name-header">{data.players[playerIdx].name}</h1>
         {chatOpen && (
-          <div className="chat-popup" ref={chatContainerRef}>
-            <div className="chat-messages">
-              {receivedMessages.map((msg, index) => (
-                <div key={index} className="chat-message">
-                  <p className="message-username">{msg.username}</p>
-                  <p className="message-text">{msg.message}</p>
-                </div>
-              ))}
-            </div>
-            <div className="chat-input">
-              <input
-                type="text"
-                placeholder="Type your message..."
-                value={inputMessage}
-                onChange={(e) => setInputMessage(e.target.value)}
-              />
-              <button onClick={handleSendMessage}>Send</button>
-            </div>
-          </div>
+          <Chat
+            chatContainerReference={chatContainerRef}
+            recievedMessages={receivedMessages}
+            inputMessage={inputMessage}
+            onSend={handleSendMessage}
+            setInputMessage={setInputMessage}
+          />
         )}
         {popupMessage && !chatOpen && (
           <div
@@ -413,39 +347,14 @@ export function TablePage() {
             dangerouslySetInnerHTML={{ __html: popupMessage }}
           ></div>
         )}
-
-        <div className="top-right-menu">
-          <div
-            className={`icon ${menuOpen ? 'active' : ''}`}
-            onClick={toggleMenu}
-          >
-            <i className="fas fa-ellipsis-v"></i>
-          </div>
-          {menuOpen && (
-            <div className="dropdown-menu">
-              <div className="menu-item">
-                <i
-                  id="chat"
-                  className="fas fa-comment"
-                  onClick={toggleChat}
-                ></i>
-                {unopenedMessage > 0 && (
-                  <div className="message-count">{unopenedMessage}</div>
-                )}
-              </div>
-              <div className="menu-item">
-                <i id="settings" className="fas fa-cog"></i>
-              </div>
-              <div className="menu-item">
-                <i
-                  id="disconnect"
-                  className="fas fa-sign-out-alt"
-                  onClick={handleDisconnect}
-                ></i>
-              </div>
-            </div>
-          )}
-        </div>
+        <p>Round: {data.round} </p>
+        <Menu
+          menuOpen={menuOpen}
+          openMenu={toggleMenu}
+          toggleChat={toggleChat}
+          unopenedMessage={unopenedMessage}
+          onDisconnect={handleDisconnect}
+        />
 
         {isOwner && !data.waitingForPlayers && !data.gameInProgress && (
           <button
@@ -483,33 +392,31 @@ export function TablePage() {
       <div className="table">
         <Chair
           chairPosition="top"
-          playerName={data.players[(playerIdx + 2) % 4].name}
-          lastPlayedCard={data.lastPlayedCards[(playerIdx + 2) % 4]}
-          currentPlayer={data.currentPlayer === (playerIdx + 2) % 4}
-          winningPlayer={
-            data.players[(playerIdx + 2) % 4].id === data.winningPlayerId
-          }
-          bodyColor={data.players[(playerIdx + 2) % 4].bodyColor}
+          playerName={data.players[topPlayerIdx].name}
+          lastPlayedCard={data.lastPlayedCards[topPlayerIdx]}
+          currentPlayer={data.currentPlayer === topPlayerIdx}
+          winningPlayer={data.players[topPlayerIdx].id === data.winningPlayerId}
+          bodyColor={data.players[topPlayerIdx].bodyColor}
         />
         <Chair
           chairPosition="left"
-          playerName={data.players[(playerIdx + 1) % 4].name}
-          lastPlayedCard={data.lastPlayedCards[(playerIdx + 1) % 4]}
-          currentPlayer={data.currentPlayer === (playerIdx + 1) % 4}
+          playerName={data.players[leftPlayerIdx].name}
+          lastPlayedCard={data.lastPlayedCards[leftPlayerIdx]}
+          currentPlayer={data.currentPlayer === leftPlayerIdx}
           winningPlayer={
-            data.players[(playerIdx + 1) % 4].id === data.winningPlayerId
+            data.players[leftPlayerIdx].id === data.winningPlayerId
           }
-          bodyColor={data.players[(playerIdx + 1) % 4].bodyColor}
+          bodyColor={data.players[leftPlayerIdx].bodyColor}
         />
         <Chair
           chairPosition="right"
-          playerName={data.players[(playerIdx + 3) % 4].name}
-          lastPlayedCard={data.lastPlayedCards[(playerIdx + 3) % 4]}
-          currentPlayer={data.currentPlayer === (playerIdx + 3) % 4}
+          playerName={data.players[rightPlayerIdx].name}
+          lastPlayedCard={data.lastPlayedCards[rightPlayerIdx]}
+          currentPlayer={data.currentPlayer === rightPlayerIdx}
           winningPlayer={
-            data.players[(playerIdx + 3) % 4].id === data.winningPlayerId
+            data.players[rightPlayerIdx].id === data.winningPlayerId
           }
-          bodyColor={data.players[(playerIdx + 3) % 4].bodyColor}
+          bodyColor={data.players[rightPlayerIdx].bodyColor}
         />
         <div className="chair bottom">
           <div className="player on-chair"></div>
@@ -585,132 +492,41 @@ export function TablePage() {
         </div>
       )}
       {showResults && (
-        <div className="resultsPopup">
-          <div className="resultsBox">
-            <button className="closeButton" onClick={handleCloseResults}>
-              X
-            </button>
-            <h2>Round Results</h2>
-            <p>
-              Deal winner :{' '}
-              <span className="dynamicData">
-                {data.players.find((p) => p.id === data.winningPlayerId)?.name}
-              </span>
-            </p>
-            <p>
-              Their team:{' '}
-              <span className="dynamicData">{data.teamWonRound}</span>
-            </p>
-            <p>
-              Points Collected:{' '}
-              <span className="dynamicData">{data.wonPoints}</span>
-            </p>
-            {data.round === 8 && (
-              <p className="lastDealBonus">
-                Last deal bonus <span className="dynamicData2">10</span>
-              </p>
-            )}
-          </div>
-        </div>
+        <RoundResultsPopup
+          onClose={handleCloseResults}
+          dealWinnerName={roundWinner}
+          dealWinnerTeam={data.teamWonRound}
+          wonPoints={data.wonPoints}
+          isLastRound={data.round === 8}
+        />
       )}
       {showEndGameResults && (
-        <div className="resultsPopup" style={{ zIndex: 101 }}>
-          <div className="resultsBox">
-            <button className="closeButton" onClick={handleCloseEndGameResults}>
-              X
-            </button>
-            <h2>GAME FINISHED</h2>
-            <p>
-              Game-winning Team!:{' '}
-              <span className="dynamicData"> {data.teamWonRound}</span>{' '}
-            </p>
-            <p>
-              Points Collected:{' '}
-              <span className="dynamicData">{data.winningTeamPoints}</span>
-            </p>
-            <p>
-              Stakes to HIT:{' '}
-              <span className="dynamicData">{data.finalStakeCount}</span>
-            </p>
-            <p>
-              Team A stake number:{' '}
-              <span className="dynamicData">{data.teamAStakeCount}</span>
-            </p>
-            <p>
-              Team B stake number:{' '}
-              <span className="dynamicData">{data.teamBStakeCount}</span>
-            </p>
-          </div>
-        </div>
+        <EndGameResultsPopup
+          onClose={handleCloseEndGameResults}
+          teamWonRound={data.teamWonRound}
+          winningTeamPoints={data.winningTeamPoints}
+          finalStakeCount={data.finalStakeCount}
+          teamAStakeCount={data.teamAStakeCount}
+          teamBStakeCount={data.teamBStakeCount}
+        />
       )}
       {data.stakesReached && (
-        <div className="resultsPopup" style={{ zIndex: 102 }}>
-          <div className="resultsBox">
-            <button className="closeButton" onClick={handleStakesReached}>
-              X
-            </button>
-            <h2>CONGRATS!</h2>
-            <h5>Game has finished!</h5>
-            <p>
-              Team who won the game!:{' '}
-              <span className="dynamicData"> {whoWon()}</span>{' '}
-            </p>
-            <p>
-              Their stake count :{' '}
-              <span className="dynamicData">{winningStakeCount()}</span>
-            </p>
-            <p>
-              Stakes to HIT:{' '}
-              <span className="dynamicData">{data.finalStakeCount}</span>
-            </p>
-          </div>
-        </div>
+        <StakesReachedPopup
+          onClose={handleStakesReached}
+          winningTeam={whoWon()}
+          winningStakeCount={winningStakeCount()}
+          finalStakeCount={data.finalStakeCount}
+        />
       )}
       {data.playAgain && (
-        <div className="resultsPopup">
-          <div className="resultsBox" style={{ minHeight: '220px' }}>
-            <h2>Do you wish to stay and play another game?</h2>
-            <div className="button-container">
-              <button className="button play-button" onClick={handleStartGame}>
-                Lets Play!
-              </button>
-              <button
-                className="button leave-button"
-                onClick={() => {
-                  logout();
-                  navigate('/');
-                }}
-              >
-                Leave
-              </button>
-            </div>
-          </div>
-        </div>
+        <PlayAgainPopup onPlay={handleStartGame} onLeave={handleLeave} />
       )}
       {disconnectRequest && (
-        <div className="resultsPopup">
-          <div className="resultsBox">
-            <h2>Are you sure you want to leave?</h2>
-            {isOwner && (
-              <p
-                style={{
-                  fontSize: '15px',
-                  color: 'red',
-                }}
-              >
-                WARNING: Table will be deleted!
-              </p>
-            )}
-            <div className="button-container">
-              <button className="button play-button" onClick={handleResume}>
-                Back
-              </button>
-              <button className="button leave-button" onClick={handleLeave}>
-                Leave
-              </button>
-            </div>
-          </div>
-        </div>
+        <DisconnectPopup
+          onResume={handleResume}
+          onLeave={handleLeave}
+          isOwner={isOwner}
+        />
       )}
     </div>
   );

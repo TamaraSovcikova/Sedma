@@ -14,8 +14,9 @@ export const getServerUrl = () => ({
   lobbyUrl: (id: string) => `${url}/table/lobby/${id}`,
   newtableUrl: `${url}/table/new`,
   singlePlayerTableUrl: `${url}/table/newSinglePlayer`,
-  exitTableUrl: (id: string) => `${url}/table/exists/${id}`,
+  existsTableUrl: (id: string) => `${url}/table/exists/${id}`,
   checkUsernameUrl: (id: string) => `${url}/table/newUsername/${id}`,
   tabledata: (id: string) => `${url}/table/lobby/data/${id}`,
   deletePlayerUrl: (id: string) => `${url}/table/deletePlayer/${id}`,
+  playerLogOutUrl: (id: string) => `${url}/table/loggout/${id}`,
 });

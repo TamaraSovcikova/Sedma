@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { ReactEventHandler, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '../../styles/inicial-page.css';
@@ -6,17 +6,61 @@ import { postData } from '../../lib/api';
 import { getServerUrl } from '../../global';
 import { useAuth } from '../../components/auth/auth-context';
 
-//TODO: moxt the close button of showresults into box
+interface StatusMessageProps {
+  message: string;
+  onReturn: ReactEventHandler | null;
+  onLeave: ReactEventHandler;
+  returnColor?: string;
+  leaveColor?: string;
+}
+
+export function StatusMessage({
+  message,
+  onReturn,
+  onLeave,
+  returnColor = 'darkgreen',
+  leaveColor = 'gray',
+}: StatusMessageProps) {
+  return (
+    <div>
+      <p style={{ color: 'darkred' }}>{message}</p>
+      {onReturn && (
+        <button
+          className="btn btn-secondary"
+          style={{ background: returnColor, marginRight: '10px' }}
+          onClick={onReturn}
+        >
+          Return to Game
+        </button>
+      )}
+      <button
+        className="btn btn-secondary"
+        style={{ background: leaveColor }}
+        onClick={onLeave}
+      >
+        Leave Game
+      </button>
+    </div>
+  );
+}
 
 export function InitialPage() {
-  const [tableID, setTableID] = useState<string>('');
-  const [error, setError] = useState<boolean>(false);
-  const [name, setName] = useState<string>('');
-  const { token, logout, setToken } = useAuth();
+  const { token, logout, setToken, tableId, setTableId } = useAuth();
+  const [tableID, setTableID] = useState('');
+  const [error, setError] = useState(false);
+  const [name, setName] = useState('');
   const [stakeLimit, setStakeLimit] = useState('');
   const [isFormValid, setIsFormValid] = useState(false);
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    setIsFormValid(name.trim() !== '' && stakeLimit !== '');
+  }, [name, stakeLimit]);
+
+  const handleGameReturn = () => {
+    navigate(`/table/${tableId}`);
+  };
 
   const handleStakeLimitChange = (
     event: React.ChangeEvent<HTMLInputElement>
@@ -25,20 +69,9 @@ export function InitialPage() {
     setStakeLimit(newStakeLimit);
   };
 
-  const handleCreateTable = () => {
-    window.scrollTo(0, 0);
-    postData(getServerUrl().newtableUrl, {}, token).then((id) =>
-      navigate(`/table/lobby/${id}/?create=1`)
-    );
-  };
-
-  useEffect(() => {
-    setIsFormValid(name.trim() !== '' && stakeLimit !== '');
-  }, [name, stakeLimit]);
-
   const joinGame = async () => {
     try {
-      const response = await fetch(getServerUrl().exitTableUrl(tableID));
+      const response = await fetch(getServerUrl().existsTableUrl(tableID));
       if (response.status === 200) {
         setError(false);
         window.scrollTo(0, 0);
@@ -55,6 +88,20 @@ export function InitialPage() {
     }
   };
 
+  const logOutOfGame = () => {
+    logout();
+
+    if (tableId)
+      postData(
+        getServerUrl().playerLogOutUrl(tableId),
+        {
+          token: token,
+        },
+        token
+      );
+    console.log('handleLoggout');
+  };
+
   const startSinglePlayer = () => {
     if (isFormValid) {
       postData(
@@ -63,9 +110,17 @@ export function InitialPage() {
         token
       ).then(({ tableId, playerId }) => {
         setToken(playerId);
+        setTableId(tableId);
         navigate(`/table/${tableId}`);
       });
     }
+  };
+
+  const handleCreateTable = () => {
+    window.scrollTo(0, 0);
+    postData(getServerUrl().newtableUrl, {}, token).then((id) =>
+      navigate(`/table/lobby/${id}/?create=1`)
+    );
   };
 
   const handleRulesButton = () => {
@@ -79,8 +134,8 @@ export function InitialPage() {
       document.documentElement.clientWidth ||
       document.body.clientWidth;
 
-    const computerScreenWidthThreshold = 768;
-    return screenWidth >= computerScreenWidthThreshold;
+    const screenWidthThreshold = 768;
+    return screenWidth >= screenWidthThreshold;
   };
 
   return (
@@ -93,11 +148,6 @@ export function InitialPage() {
       </div>
       <div className="row">
         <div className="col-lg-4 align-self-start">
-          {token && (
-            <button className="btn btn-secondary" onClick={logout}>
-              Exit previous game
-            </button>
-          )}
           <h1 className="mt-12">SEDMA</h1>
           <h5 className="mt-1">Welcome to the world of Sedma!</h5>
           <p>
@@ -105,21 +155,32 @@ export function InitialPage() {
             someone, enter their game ID in the input field below and click
             "JOIN GAME".
           </p>
-          <div className="input-group mt-5 mb-3">
-            <input
-              className="form-control"
-              placeholder="Enter ID"
-              value={tableID}
-              onChange={(e) => setTableID(e.target.value)}
+          {token && tableId && (
+            <StatusMessage
+              message="To Join a new game, log out first or rejoin by pressing button"
+              onReturn={handleGameReturn}
+              onLeave={logOutOfGame}
             />
-            <button className="btn btn-secondary" onClick={joinGame}>
-              JOIN GAME
-            </button>
-          </div>
-          {error && (
-            <p className="text-danger">
-              The entered table ID does not exist. Please try again.
-            </p>
+          )}
+          {!token && (
+            <div>
+              <div className="input-group mt-5 mb-3">
+                <input
+                  className="form-control"
+                  placeholder="Enter ID"
+                  value={tableID}
+                  onChange={(e) => setTableID(e.target.value)}
+                />
+                <button className="btn btn-secondary" onClick={joinGame}>
+                  JOIN GAME
+                </button>
+              </div>
+              {error && (
+                <p className="text-danger">
+                  The entered table ID does not exist. Please try again.
+                </p>
+              )}
+            </div>
           )}
           <div className="mt-5 separator"></div>
           <h3 className="mt-5">CREATE GAME</h3>
@@ -129,48 +190,69 @@ export function InitialPage() {
             enjoy the thrill of playing Sedma. Simply click the "Click to Create
             Game" button below to get started.
           </p>
-          <button
-            className="mt-3 btn btn-primary createGameButton"
-            onClick={handleCreateTable}
-          >
-            Click to Create Game
-          </button>
+          {!token && (
+            <button
+              className="mt-3 btn btn-primary createGameButton"
+              onClick={handleCreateTable}
+            >
+              Click to Create Game
+            </button>
+          )}
+          {token && tableId && (
+            <StatusMessage
+              message="To Create A Game, You must Log out First!!"
+              onLeave={logOutOfGame}
+              onReturn={null}
+            />
+          )}
           <h3 className="mt-5">SINGLEPLAYER MODE</h3>
           <p>
             In case you want to play a relaxing game on your own, feel free to
             enter your player's name and stake count to reach and get ready to
             play!
           </p>
-          <div className="stake-input-container mb-1">
-            <label className="stake-label" htmlFor="username-input">
-              Set a goal stake count:
-            </label>
-            <input
-              type="number"
-              className="form-control stake-input"
-              name="stakes count"
-              placeholder="Stake Count"
-              value={stakeLimit}
-              onChange={handleStakeLimitChange}
-              required
+          {!token && (
+            <div>
+              <div className="stake-input-container mb-1">
+                <label className="stake-label" htmlFor="username-input">
+                  Set a goal stake count:
+                </label>
+                <input
+                  type="number"
+                  className="form-control stake-input"
+                  name="stakes count"
+                  placeholder="Stake Count"
+                  value={stakeLimit}
+                  onChange={handleStakeLimitChange}
+                  required
+                />
+              </div>
+              <div className="input-group mt-1 mb-3">
+                <input
+                  className="form-control"
+                  placeholder="Enter Name"
+                  value={name}
+                  maxLength={11}
+                  onChange={(e) => setName(e.target.value)}
+                />
+                <button
+                  className="btn btn-secondary"
+                  disabled={!isFormValid}
+                  onClick={startSinglePlayer}
+                >
+                  SINGLEPLAYER GAME
+                </button>
+              </div>
+            </div>
+          )}
+          {token && tableId && (
+            <StatusMessage
+              message="To Play SinglePlayer, You must Log out First!"
+              onLeave={logOutOfGame}
+              onReturn={null}
             />
-          </div>
-          <div className="input-group mt-1 mb-3">
-            <input
-              className="form-control"
-              placeholder="Enter Name"
-              value={name}
-              maxLength={11}
-              onChange={(e) => setName(e.target.value)}
-            />
-            <button
-              className="btn btn-secondary"
-              disabled={!isFormValid}
-              onClick={startSinglePlayer}
-            >
-              SINGLEPLAYER GAME
-            </button>
-          </div>
+          )}
+
           <h3 className="mt-5">RULES</h3>
           <p>
             There are many variations of Sedma out there, so click here to find

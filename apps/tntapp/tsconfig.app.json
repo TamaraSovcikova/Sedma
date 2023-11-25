@@ -10,7 +10,8 @@
   },
   "files": [
     "../../node_modules/@nx/react/typings/cssmodule.d.ts",
-    "../../node_modules/@nx/react/typings/image.d.ts"
+    "../../node_modules/@nx/react/typings/image.d.ts",
+    "./src/app/components/auth/auth-context.tsx"
   ],
   "exclude": [
     "jest.config.ts",
