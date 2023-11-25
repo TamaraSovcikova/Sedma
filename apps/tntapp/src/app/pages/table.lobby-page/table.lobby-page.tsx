@@ -182,14 +182,10 @@ export function LobbyPage() {
         getServerUrl().tabledata(id),
         { isCreatingTable, username, stakeLimit, selectedColor },
         token
-      )
-        .then(() => {
-          setToken(newtoken);
-          setTableId(id);
-        })
-        .catch((error) => {
-          console.error('Error during postData:', error);
-        });
+      );
+
+      setToken(newtoken);
+      setTableId(id);
     }
   };
 
