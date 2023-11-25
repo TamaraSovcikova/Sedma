@@ -1,7 +1,5 @@
 # Online Sedma Card Game
-
-![Page-screenshot](apps/tntapp/src/assets/inicial-page.png)
-![Gameplay-screenshot](apps/tntapp/src/assets/sunglasses-example.png)
+<img src="apps/tntapp/src/assets/inicial-page.png" alt="Page Screenshot" width="500" />
 
 ## Introduction
 
@@ -16,16 +14,17 @@ In the digital age, where complex virtual reality and 3D games dominate, traditi
 Sedma is a traditional Czech 4-card trick-and-draw game played in fixed partnerships. The game revolves around capturing tricks and scoring points. The most powerful cards are the Sevens, beating all others. Aces and Tens are scoring cards, each worth 10 points. The objective is to accumulate at least 50 points in a deal. Players strategically play cards to maximize their score, and the game continues until a set number of stakes are reached.
 
 ## Gameplay Overview
-
+ <img src="apps/tntapp/src/assets/sunglasses-example.png" alt="Gameplay Screenshot" width="200" />
+ 
 - Players take turns playing one card at a time.
 - Tricks are won by playing higher-ranked cards or trump cards.
 - The team that wins a trick collects the cards and adds up the points.
 - The game continues with players drawing new cards and playing tricks until all cards are played.
 - The team with at least 50 points wins the deal, converting the win into a set number of stakes.
 
-## Wanting a taste?
+## Want to give it a try?
 
-1. Go to [http](https://sedma.spv99.com/).
+1. Go to [sedma.spv99.com](https://sedma.spv99.com/).
 2. Enjoy playing Sedma remotely with friends and family!
 
 ## Contribution
