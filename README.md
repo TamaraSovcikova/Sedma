@@ -1,5 +1,8 @@
 # Online Sedma Card Game
 
+![Page-screenshot](apps/tntapp/src/assets/inicial-page.png)
+![Gameplay-screenshot](apps/tntapp/src/assets/sunglasses-example.png)
+
 ## Introduction
 
 Playing card games is a cherished way to connect with loved ones and strengthen relationships. Inspired by the simplicity and joy of traditional card games, the Online Sedma Card Game is designed to bring families together, even across long distances. This project aims to provide a user-friendly and accessible platform for playing Sedma, a traditional Czech card game.
