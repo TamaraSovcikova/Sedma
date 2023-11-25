@@ -20,11 +20,10 @@ Sedma is a traditional Czech 4-card trick-and-draw game played in fixed partners
 - The game continues with players drawing new cards and playing tricks until all cards are played.
 - The team with at least 50 points wins the deal, converting the win into a set number of stakes.
 
-## Getting Started
+## Wanting a taste?
 
-1. Clone the repository.
-2. Open the `index.html` file in a web browser.
-3. Enjoy playing Sedma remotely with friends and family!
+1. Go to [http](https://sedma.spv99.com/)2.
+2. Enjoy playing Sedma remotely with friends and family!
 
 ## Contribution
 
