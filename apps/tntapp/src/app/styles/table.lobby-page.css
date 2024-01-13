@@ -40,8 +40,14 @@
 
 .row {
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   margin-bottom: 10px;
+}
+
+.teamRow {
+  display: flex;
+  justify-content: center !important;
+  
 }
 
 .seat {

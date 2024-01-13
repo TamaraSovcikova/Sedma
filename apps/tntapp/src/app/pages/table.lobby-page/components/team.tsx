@@ -15,7 +15,7 @@ export const Team: React.FC<TeamProps> = ({
 }) => (
   <div className="team">
     <h3 className="lobby-sub-header">{teamName}</h3>
-    <div className="row">
+    <div className="row teamRow">
       {seats.map((seat) => (
         <div
           key={seat.id}
