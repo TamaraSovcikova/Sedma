@@ -367,9 +367,9 @@ export function LobbyPage() {
         your teamate. Pick any of the 'Available' slots.
       </p>
       <div className="row justify-content-center mt-4">
-        <div className="col-md-8">
+        <div className="col-12">
           <div className="row teams-container">
-            <div className="col-md-6 team">
+            <div className="col-6 team">
               <Team
                 teamName="Team A"
                 seats={[seats[0], seats[2]]}
@@ -377,7 +377,7 @@ export function LobbyPage() {
                 onSeatClick={handleSeatClick}
               />
             </div>
-            <div className="col-md-6 team">
+            <div className="col-6 team">
               <Team
                 teamName="Team B"
                 seats={[seats[1], seats[3]]}

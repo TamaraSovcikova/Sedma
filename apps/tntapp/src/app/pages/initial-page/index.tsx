@@ -6,8 +6,6 @@ import { postData } from '../../lib/api';
 import { getServerUrl } from '../../global';
 import { useAuth } from '../../components/auth/auth-context';
 
-//TODO: moxt the close button of showresults into box
-
 export function InitialPage() {
   const [tableID, setTableID] = useState<string>('');
   const [error, setError] = useState<boolean>(false);
@@ -38,7 +36,9 @@ export function InitialPage() {
 
   const joinGame = async () => {
     try {
-      const response = await fetch(getServerUrl().exitTableUrl(tableID));
+      const response = await fetch(
+        getServerUrl().checkIfTableExistsUrl(tableID)
+      );
       if (response.status === 200) {
         setError(false);
         window.scrollTo(0, 0);
