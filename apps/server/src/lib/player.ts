@@ -28,8 +28,8 @@ export class Player {
 
   constructor(name: string) {
     this.name = name;
-    this.id = randomUUID();
-    this.bodyColor = 'black';
+    this.id = randomUUID(); // Generates a unique ID for the player
+    this.bodyColor = 'black'; // Default body color
   }
 
   public getName() {

@@ -18,4 +18,5 @@ export const getServerUrl = () => ({
   checkUsernameUrl: (id: string) => `${url}/table/newUsername/${id}`,
   tabledata: (id: string) => `${url}/table/lobby/data/${id}`,
   deletePlayerUrl: (id: string) => `${url}/table/deletePlayer/${id}`,
+  playerLogOutUrl: (id: string) => `${url}/table/loggout/${id}`,
 });
