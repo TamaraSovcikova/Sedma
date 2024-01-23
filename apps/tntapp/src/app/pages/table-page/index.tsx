@@ -173,6 +173,7 @@ export function TablePage() {
   const handleStartGame = () => {
     if (!isOwner) return;
     if (!id) return;
+    setPlayAgain(false);
     const message: MessageBase = {
       type: 'startGame',
       tableId: id,
@@ -227,6 +228,7 @@ export function TablePage() {
     console.log('handleStakesNotReached');
   };
   const handleStakesReached = () => {
+    setStakesReached(false);
     setPlayAgain(true);
   };
 
