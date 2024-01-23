@@ -17,7 +17,9 @@ type MessageType =
   | 'showEndGameResults'
   | 'askGameContinue'
   | 'gameData'
-  | 'startingGame';
+  | 'startingGame'
+  | 'stakesReached'
+  | 'letsPlayAgain';
 
 export interface MessageBase {
   type: MessageType;
@@ -64,8 +66,6 @@ export interface TableData {
   wonPoints: number;
   teamAStakeCount: number;
   teamBStakeCount: number;
-  stakesReached: boolean;
-  playAgain: boolean;
   isFirstDeal: number;
   winningTeamPoints: number;
   ownerOfTableId: string;

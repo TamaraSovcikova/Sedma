@@ -18,10 +18,12 @@ export class Table {
   id: string;
   /** player who is currently winning the game */
   winningPlayer = 0;
-  /** person who won the last game /starts the round */
+  /** player who won the last game /starts the round */
   leadPlayer = 0;
-  /** the person whos turn it is */
+  /** player whos turn it is */
   currentPlayer = 0;
+  /** player who created the table */
+  ownerOfTable: Player = undefined;
   discardPile: Card[] = [];
   cardToBeat: CardData | null = null;
   winningTeamPoints = 0;
@@ -30,17 +32,14 @@ export class Table {
   totalCollectedCardsA: Card[] = [];
   totalCollectedCardsB: Card[] = [];
   waitingForPlayers = true;
-  ownerOfTable: Player = undefined;
   gameInProgress = false;
   round = 0;
   teamAStakeCount = 0;
   teamBStakeCount = 0;
-  finalStakeCount = 1; // set to 1 as base;
+  finalStakeCount = 1; // set to 1 as default;
   teamWonRound = '';
-  stakesReached = false;
   /* count of points collected at the end of the deal */
   wonPoints = 0;
-  playAgain = false;
   isFirstDeal = 0;
 
   constructor(id: string) {
@@ -84,8 +83,6 @@ export class Table {
       wonPoints: this.wonPoints,
       teamAStakeCount: this.teamAStakeCount,
       teamBStakeCount: this.teamBStakeCount,
-      stakesReached: this.stakesReached,
-      playAgain: this.playAgain,
       isFirstDeal: this.isFirstDeal,
       winningTeamPoints: this.winningTeamPoints,
       ownerOfTableId: this.ownerOfTable.id,
@@ -112,8 +109,6 @@ export class Table {
     this.teamAStakeCount = 0;
     this.teamBStakeCount = 0;
     this.teamWonRound = '';
-    this.stakesReached = false;
-    this.playAgain = false;
 
     this.setPlayersToReady();
 
@@ -132,7 +127,7 @@ export class Table {
       this.handOutCards();
       this.sendUpdates();
     }
-    this.playIfAutoplay();
+    this.playIfAutoplay(); //HERE
   }
 
   private initializeGame(): void {
@@ -295,7 +290,7 @@ export class Table {
     }
 
     this.sendUpdates();
-    this.playIfAutoplay();
+    this.playIfAutoplay(); //HERE
   }
 
   private checkIfCardToBeatBet(player: Player, card: CardData): void {
@@ -522,15 +517,17 @@ export class Table {
   public closeEndGameResults(playerIdx: number) {
     this.playerIsReady(playerIdx);
 
-    if (this.checkStakeCount()) {
-      debug('THE STAKE COUNT HAS BEEN REACHED! END OF GAME!');
-      this.stakesReached = true;
-      this.sendUpdates();
-    } else {
-      debug('The stake count has not been reached yet');
+    if (this.allPlayersReady) {
+      if (this.checkStakeCount()) {
+        debug('THE STAKE COUNT HAS BEEN REACHED! END OF GAME!');
+        this.setStakesReached();
+        this.sendUpdates();
+      } else {
+        debug('The stake count has not been reached yet');
 
-      this.askGameContinue();
-      this.sendUpdates();
+        this.askGameContinue();
+        this.sendUpdates();
+      }
     }
   }
 
@@ -545,11 +542,28 @@ export class Table {
     }
   }
 
-  public wantContinue() {
-    this.stakesReached = false;
-    this.playAgain = true;
-    this.sendUpdates();
+  private setStakesReached() {
+    for (const p of this.players) {
+      const messageData: MessageBase = {
+        type: 'stakesReached',
+        tableId: this.id,
+      };
+
+      if (p.ws) p.ws.send(JSON.stringify(messageData));
+    }
   }
+
+  private letsPlayAgain() {
+    for (const p of this.players) {
+      const messageData: MessageBase = {
+        type: 'letsPlayAgain',
+        tableId: this.id,
+      };
+
+      if (p.ws) p.ws.send(JSON.stringify(messageData));
+    }
+  }
+
   public playerIsReady(playerIdx: number) {
     this.players[playerIdx].isReadyToPlay = true;
   }

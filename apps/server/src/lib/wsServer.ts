@@ -98,10 +98,6 @@ export function processMessage(ws: ws, message: MessageBase) {
     const table = getTable(message.tableId);
     table.setUpGame();
   }
-  if (message.type === 'handleStakesReached') {
-    const table = getTable(message.tableId);
-    table.wantContinue();
-  }
   if (message.type === 'handleLeave') {
     const m: MessagePlayerIdx = message as MessagePlayerIdx;
     const table = getTable(m.tableId);

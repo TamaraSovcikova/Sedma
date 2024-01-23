@@ -10,15 +10,15 @@ export type AutoPlay = (table: Table, playerIdx: number) => void;
 
 export class Player {
   name: string;
-  onHand: Card[] = [];
-  lastPlayedCard?: Card;
+  onHand: Card[] = []; // cards the player has on hand
+  lastPlayedCard?: Card; // the last card the player played
   id: string;
-  cardsWon: Card[] = [];
-  collectedPoints = 0;
+  cardsWon: Card[] = []; //collection of the cards from the won deals
+  collectedPoints = 0; // the points counted up from the cardsWon
   team: string;
-  ws: ws.WebSocket | null = null;
+  ws: ws.WebSocket | null = null; //websocket connection
   connected: boolean;
-  isReadyToPlay: boolean;
+  isReadyToPlay: boolean; //symbolizes whether or not the player has a popup open
   bodyColor: string;
   /**measures the level of computer inteligence used.
    * 0 - human

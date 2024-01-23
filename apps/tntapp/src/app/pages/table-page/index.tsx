@@ -50,6 +50,8 @@ export function TablePage() {
   const [showEndGameResults, setShowEndGameResults] = useState(false);
   const [askGameContinue, setAskGameContinue] = useState(false);
   const [waitingForOwner, setWaitingForOwner] = useState(true);
+  const [playAgain, setPlayAgain] = useState(false);
+  const [stakesReached, setStakesReached] = useState(false);
 
   const { logout } = useAuth();
   const navigate = useNavigate();
@@ -124,6 +126,12 @@ export function TablePage() {
       }
       if (lastJsonMessage?.type === 'startingGame') {
         setWaitingForOwner(false);
+      }
+      if (lastJsonMessage?.type === 'letsPlayAgain') {
+        setPlayAgain(true);
+      }
+      if (lastJsonMessage?.type === 'stakesReached') {
+        setStakesReached(true);
       }
     }
   }, [lastJsonMessage, token, setIsLoading, data, logout, navigate]);
@@ -219,13 +227,7 @@ export function TablePage() {
     console.log('handleStakesNotReached');
   };
   const handleStakesReached = () => {
-    if (!id || !data) return;
-    const message: MessageBase = {
-      type: 'handleStakesReached',
-      tableId: id,
-    };
-    sendJsonMessage(message);
-    console.log('handleStakesReached');
+    setPlayAgain(true);
   };
 
   const canPass = () => {
@@ -267,6 +269,7 @@ export function TablePage() {
 
   const handleLeave = () => {
     if (!id || !data || playerIdx === undefined) return;
+    setPlayAgain(false);
 
     const message: MessagePlayerIdx = {
       type: 'handleLeave',
@@ -510,7 +513,7 @@ export function TablePage() {
           teamBStakeCount={data.teamBStakeCount}
         />
       )}
-      {data.stakesReached && (
+      {stakesReached && (
         <StakesReachedPopup
           onClose={handleStakesReached}
           winningTeam={whoWon()}
@@ -518,7 +521,7 @@ export function TablePage() {
           finalStakeCount={data.finalStakeCount}
         />
       )}
-      {data.playAgain && (
+      {playAgain && (
         <PlayAgainPopup onPlay={handleStartGame} onLeave={handleLeave} />
       )}
       {disconnectRequest && (

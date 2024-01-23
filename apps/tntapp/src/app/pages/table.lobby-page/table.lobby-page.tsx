@@ -80,13 +80,6 @@ export function LobbyPage() {
       }
 
       if (selectedSeatId) {
-        console.log(
-          'entered, because has selected seat: ',
-          selectedSeatId,
-          'past username: ',
-          username
-        );
-
         await postData(
           getServerUrl().deletePlayerUrl(id),
           { oldUsername: username },
