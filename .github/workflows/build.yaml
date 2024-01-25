@@ -86,5 +86,6 @@ jobs:
           username: ${{ secrets.DEPLOY_HOST_USERNAME }}
           key: ${{ secrets.DEPLOY_HOST_SSH_KEY }}
           # cd is change directory to /home/username, plays script
-          script: cd ~/
+          script: |
+            cd ~/
             sudo deploy-compose.sh deploy
