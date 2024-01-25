@@ -127,7 +127,7 @@ export class Table {
       this.handOutCards();
       this.sendUpdates();
     }
-    this.playIfAutoplay(); //HERE
+    this.playIfAutoplay();
   }
 
   private initializeGame(): void {
@@ -290,7 +290,7 @@ export class Table {
     }
 
     this.sendUpdates();
-    this.playIfAutoplay(); //HERE
+    this.playIfAutoplay();
   }
 
   private checkIfCardToBeatBet(player: Player, card: CardData): void {

@@ -7,6 +7,7 @@ declare global {
 
 const url = window.serverApi ?? 'http://localhost:3000';
 const wsUrl = window.serverWs ?? 'ws://localhost:3000';
+//configuration for client
 
 export const getServerUrl = () => ({
   serverUrl: `${url}/api`,

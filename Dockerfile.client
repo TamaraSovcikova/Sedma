@@ -1,2 +1,5 @@
 FROM nginx
 COPY ./dist/apps/tntapp/* /usr/share/nginx/html
+# nginx is a package / hub.docer.com - is a webserver, that ensures that when a client sends a HTTP request, the server will respond. (IS A HTTP SERVER) 
+# so it makes copy of nginx image and then copies project in. 
+# uses dits/ apps folder, which is the final version that it copies

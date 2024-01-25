@@ -21,11 +21,9 @@ export const computerLevel1: AutoPlay = (table: Table, playerIdx: number) => {
   const findCard = player.onHand.find(
     (c) => c.face === table.cardToBeat?.face || c.face === 'seven'
   );
-
   debug(
     `Playing turn: tableId=${table.id}, playerIdx=${playerIdx}, onHand=${player.onHand}`
   );
-
   // Play the selected card or the first card in hand if no match is found
   table.playCard(player.id, findCard || player.onHand[0]);
 };

@@ -8,7 +8,7 @@ export function RulesPage() {
   return (
     <div className="container mt-5 p-0">
       <div className="row justify-content-center p-0">
-        <div className=" col-lg-6 col-sm-4 p-3">
+        <div className=" col-lg-8 col-md-10 p-2">
           <button
             className="btn btn-secondary returnButton"
             onClick={handleReturn}
@@ -109,10 +109,10 @@ export function RulesPage() {
               also own the pile pesonalised looks.
             </p>
             <img
-              src="../../../assets/crown-example.png"
+              src="/assets/crown-example.png"
               alt="crown example"
               className="mb-5"
-              style={{ width: '100%', alignItems: 'center' }}
+              style={{ width: '60%', alignItems: 'center' }}
             />
             <h4>We use sunglasses to symbolise who's turn it is to play</h4>
             <p>
@@ -121,10 +121,10 @@ export function RulesPage() {
               our turn to pick a card to play.
             </p>
             <img
-              src="../../../assets/sunglasses-example.png"
+              src="/assets/sunglasses-example.png"
               alt="sunglasses example"
               className="mb-5"
-              style={{ width: '100%', alignItems: 'center' }}
+              style={{ width: '60%', alignItems: 'center' }}
             />
           </div>
           <button

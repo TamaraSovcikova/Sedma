@@ -8,7 +8,7 @@ import { getConfig } from './global';
 const debug = debugLog('main');
 debugLog.enable('* routes -wsServer table -table.sendUpdates -computerPlayer1');
 
-const port = getConfig().port;
+const port = getConfig().port; //HERE is a centralization of environment variables - to be able to track which are in use
 
 const app = express();
 

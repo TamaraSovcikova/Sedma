@@ -1,12 +1,13 @@
 # Description: Dockerfile for server
 
 FROM node:19-slim
+# takes docker image (computer) where node version 19 is installed
 
 RUN mkdir -p /server
-
+# creates folder and then navigates to folder /server 
 WORKDIR /server
 
-# copy project package files
+# copy project package files the '.' means current folder so the /server
 COPY package.json .
 COPY package-lock.json .
 
@@ -16,12 +17,13 @@ RUN npm install --production
 # copy server files
 COPY dist/apps/server .
 
-# expose port 3000
+# expose port 3000 is opened on firewall
 EXPOSE 3000
-EXPOSE 4500
 
 # making sure container starts from the right folder
 WORKDIR /server
 
-# run server
+# run server - command node with parameter main.js
 ENTRYPOINT ["node", "main.js"]
+
+
