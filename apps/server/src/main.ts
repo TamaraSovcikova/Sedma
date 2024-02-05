@@ -2,13 +2,17 @@ import express from 'express';
 import cors from 'cors';
 import bodyParser from 'body-parser';
 import { createRoutes } from './routes/routes';
-import debugLog from 'debug';
 import { getConfig } from './global';
+import debugLog from 'debug';
 
+//debug module
 const debug = debugLog('main');
-debugLog.enable('* routes -wsServer table -table.sendUpdates -computerPlayer1');
+debugLog.enable(
+  '* routes table -wsServer  -table.sendUpdates -computerPlayer1'
+);
 
-const port = getConfig().port; //HERE is a centralization of environment variables - to be able to track which are in use
+//Centralization of environment variables
+const port = getConfig().port;
 
 const app = express();
 

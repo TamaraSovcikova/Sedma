@@ -1,5 +1,5 @@
 name: Build
-# Here
+
 on:
   push:
     branches:
@@ -32,13 +32,13 @@ jobs:
         # prepare a build package for docker
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-        # to log in - need secrets. - account of docker hub
+
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_PASSWORD }}
-          # create docker image for client - make from dockerfile. client
+
       - name: Dockerize client
         uses: docker/build-push-action@v5
         with:
@@ -46,7 +46,6 @@ jobs:
           context: .
           push: true
           tags: tamarasov/sedma-client:latest, tamarasov/sedma-client:sha-${{steps.get_short_sha.outputs.SHORT_SHA}}
-          #  from steps go to id step get short sha - and use the github output for variable
 
       - name: Dockerize server
         uses: docker/build-push-action@v5
@@ -56,14 +55,12 @@ jobs:
           push: true
           tags: tamarasov/sedma-server:latest, tamarasov/sedma-server:sha-${{steps.get_short_sha.outputs.SHORT_SHA}}
 
-      # the project is build, docker images are uploaded to docker hub
   deploy:
     # waits until build is finished
     needs: build
     runs-on: ubuntu-latest
 
     steps:
-      # checkout - take code from repository github
       - name: Checkout code
         uses: actions/checkout@v4
 
@@ -71,21 +68,18 @@ jobs:
         # made by a random appleboy to copy specified file to target server
         uses: appleboy/scp-action@v0.1.4
         with:
-          # knows it should connect to host stated, and other variables
           host: ${{ secrets.DEPLOY_HOST }}
           username: ${{ secrets.DEPLOY_HOST_USERNAME }}
           key: ${{ secrets.DEPLOY_HOST_SSH_KEY }}
-          # copy docker compose yaml to the target -> /deploy '~' means home folder shortcut for /home/username
           source: 'docker-compose.yaml'
           target: '~/.deploy/'
-          # in germany there is a provider called Hetzner who offers application hosting service (docker container)
+
       - name: Run docker-compose up on production server
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.DEPLOY_HOST }}
           username: ${{ secrets.DEPLOY_HOST_USERNAME }}
           key: ${{ secrets.DEPLOY_HOST_SSH_KEY }}
-          # cd is change directory to /home/username, plays script
           script: |
             cd ~/
             sudo deploy-compose.sh deploy

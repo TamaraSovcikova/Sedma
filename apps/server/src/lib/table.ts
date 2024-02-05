@@ -201,9 +201,13 @@ export class Table {
 
   public assignTeams() {
     this.players[0].team = 'A';
-    this.players[1].team = 'B';
+    debug(this.players[0].getName(), 'is on Team ' + this.players[0].team);
     this.players[2].team = 'A';
+    debug(this.players[2].getName(), 'is on Team ' + this.players[2].team);
+    this.players[1].team = 'B';
+    debug(this.players[1].getName(), 'is on Team ' + this.players[1].team);
     this.players[3].team = 'B';
+    debug(this.players[3].getName(), 'is on Team ' + this.players[3].team);
   }
 
   public deckHasCards(): boolean {

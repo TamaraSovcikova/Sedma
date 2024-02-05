@@ -1,19 +1,17 @@
 version: "3.9"
 name: sedma
-# This is instructions for docker to what to do. 
+
 services:
   server:
-  # it restarts after evern error and is created form the image stated below 
+  # it restarts after every error and is created form the image stated below 
     restart: always
     image: tamarasov/sedma-server:latest
-    environment: 
-    # the environment variables are used by a service that automaically manages letsencrypt certificates - creates docker container and sets the following environment variables
+    environment:     
       - VIRTUAL_HOST=api.sedma.spv99.com
       - VIRTUAL_PORT=3000
       - LETSENCRYPT_HOST=api.sedma.spv99.com
-      # the 3 top are used by the Hetzner service, the three below are mine. 
-      - CLIENT_URL=https://sedma.spv99.com 
-      # creates variable called client url 
+      # top 3 are used by Hetzner service, the three below are mine. 
+      - CLIENT_URL=https://sedma.spv99.com     
       - PORT=3000
       - DEBUG=${DEBUG}
 
@@ -40,7 +38,7 @@ services:
     networks:
       - proxy-net
 
-# declares that the network proxy net exists and was created externally so that it doesnt need to be created.
+# declares the existance of proxy net, stating it was created externally, so doen't need to be created.
 networks:  
   proxy-net:
     name: proxy-net
