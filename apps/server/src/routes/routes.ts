@@ -1,4 +1,4 @@
-import { createTable, getTable } from '../lib/game';
+import { createTable, deleteTable, getTable } from '../lib/game';
 import { addPlayer, deletePlayer } from '../lib/table';
 import debugLog from 'debug';
 import { computerLevel1 } from '../lib/computerPlayer1';
@@ -205,5 +205,10 @@ export function createRoutes(app: any) {
     debug('table data:', data);
 
     res.send(data);
+  });
+  app.get('/table/delete/:id', (req, res) => {
+    const params = req.params;
+    const id = params.id;
+    if (getTable(id)) deleteTable(id);
   });
 }

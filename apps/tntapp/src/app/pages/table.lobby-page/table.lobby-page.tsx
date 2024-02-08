@@ -190,6 +190,9 @@ export function LobbyPage() {
   };
 
   const handleReturn = () => {
+    if (isCreatingTable) {
+      fetchData(getServerUrl().leavingLobby(id), token);
+    }
     navigate('/');
   };
 
