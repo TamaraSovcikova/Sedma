@@ -52,6 +52,7 @@ export function TablePage() {
   const [waitingForOwner, setWaitingForOwner] = useState(true);
   const [playAgain, setPlayAgain] = useState(false);
   const [stakesReached, setStakesReached] = useState(false);
+  const [playerHasDisconnected, setPlayerHasDisconnected] = useState(false);
 
   const { logout } = useAuth();
   const navigate = useNavigate();
@@ -132,6 +133,12 @@ export function TablePage() {
       }
       if (lastJsonMessage?.type === 'stakesReached') {
         setStakesReached(true);
+      }
+      if (lastJsonMessage?.type === 'disconnectingPlayer') {
+        setPlayerHasDisconnected(true);
+        setTimeout(() => {
+          setPlayerHasDisconnected(false);
+        }, 2000);
       }
     }
   }, [lastJsonMessage, token, setIsLoading, data, logout, navigate]);
@@ -496,6 +503,12 @@ export function TablePage() {
           </p>
         </div>
       )}
+      {playerHasDisconnected && (
+        <div className="disconnectPopup">
+          <h3>A Player has Disconnected</h3>
+          <p>Game is terminating</p>
+        </div>
+      )}
       {showResults && (
         <RoundResultsPopup
           onClose={handleCloseResults}
@@ -531,6 +544,7 @@ export function TablePage() {
           onResume={handleResume}
           onLeave={handleLeave}
           isOwner={isOwner}
+          gameIsInProgress={data.gameInProgress}
         />
       )}
     </div>

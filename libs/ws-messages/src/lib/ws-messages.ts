@@ -19,7 +19,8 @@ type MessageType =
   | 'gameData'
   | 'startingGame'
   | 'stakesReached'
-  | 'letsPlayAgain';
+  | 'letsPlayAgain'
+  | 'disconnectingPlayer';
 
 export interface MessageBase {
   type: MessageType;

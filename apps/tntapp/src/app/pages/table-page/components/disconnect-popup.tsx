@@ -2,6 +2,7 @@ interface DisconnectPopupProps {
   onResume: () => void;
   onLeave: () => void;
   isOwner: boolean;
+  gameIsInProgress: boolean;
 }
 
 export function DisconnectPopup(props: DisconnectPopupProps) {
@@ -17,6 +18,16 @@ export function DisconnectPopup(props: DisconnectPopupProps) {
             }}
           >
             WARNING: Table will be deleted!
+          </p>
+        )}
+        {!props.isOwner && props.gameIsInProgress && (
+          <p
+            style={{
+              fontSize: '15px',
+              color: 'red',
+            }}
+          >
+            WARNING: This will cause the game to terminate for other players!
           </p>
         )}
         <div className="button-container">

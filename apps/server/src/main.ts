@@ -7,9 +7,7 @@ import debugLog from 'debug';
 
 //debug module
 const debug = debugLog('main');
-debugLog.enable(
-  '* routes table -wsServer  -table.sendUpdates -computerPlayer1'
-);
+debugLog.enable('* routes table -wsServer  -table.sendUpdates computerPlayer1');
 
 //Centralization of environment variables
 const port = getConfig().port;
