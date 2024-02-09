@@ -1,3 +1,4 @@
 FROM nginx
+# including my own nginx.config file to ensure that the server uses my custom configuration
 COPY nginx.conf /etc/nginx/nginx.conf   
 COPY ./dist/apps/tntapp/ /usr/share/nginx/html

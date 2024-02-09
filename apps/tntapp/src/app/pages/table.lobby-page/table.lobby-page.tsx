@@ -27,6 +27,15 @@ export function LobbyPage() {
   const [query] = useSearchParams();
 
   const [isFormValid, setIsFormValid] = useState(false);
+  const [username, setUsername] = useState('');
+  const [seats, setSeats] = useState<Seat[]>([
+    { id: 1, name: '', taken: false },
+    { id: 2, name: '', taken: false },
+    { id: 3, name: '', taken: false },
+    { id: 4, name: '', taken: false },
+  ]);
+  const [selectedSeatId, setSelectedSeatId] = useState<number | null>(null);
+  let usernameInputTimer: string | number | NodeJS.Timeout | undefined;
 
   useEffect(() => {
     const create = query.get('create');
@@ -56,17 +65,24 @@ export function LobbyPage() {
           setSeats(seats);
         })
         .catch((err) => console.log('Table does not exist', err));
-  }, [id, token]);
 
-  const [username, setUsername] = useState('');
-  const [seats, setSeats] = useState<Seat[]>([
-    { id: 1, name: '', taken: false },
-    { id: 2, name: '', taken: false },
-    { id: 3, name: '', taken: false },
-    { id: 4, name: '', taken: false },
-  ]);
-  const [selectedSeatId, setSelectedSeatId] = useState<number | null>(null);
-  let usernameInputTimer: string | number | NodeJS.Timeout | undefined;
+    //Making sure to update the page, checking for any changes by paking a poll every 3 seconds
+    const intervalId = setInterval(() => {
+      fetchData(getServerUrl().lobbyUrl(id), token)
+        .then((d: string[]) => {
+          const seatsData = d.map((n, idx) => ({
+            id: idx + 1,
+            name: n ? n : '',
+            taken: n ? true : false,
+          }));
+          setSeats(seatsData);
+        })
+        .catch((err) => console.log('Error fetching seats:', err));
+    }, 3000);
+
+    // Cleanup interval on component unmount
+    return () => clearInterval(intervalId);
+  }, [id, token]);
 
   const handleUsernameChange = async (
     event: React.ChangeEvent<HTMLInputElement>
