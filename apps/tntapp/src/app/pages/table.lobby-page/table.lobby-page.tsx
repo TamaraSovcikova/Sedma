@@ -212,30 +212,6 @@ export function LobbyPage() {
     navigate('/');
   };
 
-  function shareViaWhatsApp(tableId: string) {
-    const message = `Join our Sedma game! Table ID: ${tableId}`;
-    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
-    window.open(whatsappUrl, '_blank');
-  }
-
-  const handleCopy = () => {
-    const inputElement = document.getElementById(
-      'table-id-input'
-    ) as HTMLInputElement;
-    const textToCopy = inputElement?.value || '';
-
-    if (textToCopy) {
-      const textArea = document.createElement('textarea');
-      textArea.value = textToCopy;
-      document.body.appendChild(textArea);
-      textArea.select();
-      document.execCommand('copy');
-      document.body.removeChild(textArea);
-    } else {
-      alert('ERROR NO ID');
-    }
-  };
-
   const handleColorChange = (colorId: string) => {
     setSelectedColor(colorId);
   };
@@ -251,36 +227,6 @@ export function LobbyPage() {
       <div className="row justify-content-center mt-5">
         <div className="col-md-8">
           <h2 className="lobby-header text-center">JOIN A GAME OF SEDMA</h2>
-        </div>
-        <div className="row justify-content-center mt-4">
-          <div className="col-md-12">
-            <p className="tableID-text">
-              Your Unique Table ID, send it to your friends to let them join!
-            </p>
-            <div className="input-group mt-5 mb-3">
-              <input
-                id="table-id-input"
-                type="text"
-                className="form-control"
-                name="Table ID"
-                placeholder="Table ID"
-                value={id}
-                readOnly
-              />
-              <button
-                className="btn btn-secondary m-1 p-2"
-                onClick={handleCopy}
-              >
-                Copy
-              </button>
-              <button
-                className="btn btn-secondary m-1"
-                onClick={() => shareViaWhatsApp(id)}
-              >
-                <i className="fab fa-whatsapp"></i>
-              </button>
-            </div>
-          </div>
         </div>
         <div className="mt-5 separator"></div>
       </div>

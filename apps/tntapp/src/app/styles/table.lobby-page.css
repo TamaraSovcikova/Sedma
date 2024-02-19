@@ -118,10 +118,6 @@ button:hover {
 .username-input-error {
   border: 1px solid red;
 }
-.tableID-text{
-  margin-bottom: -50px;
-  font-size: 10px;
-}
 
 .teamInfo{
   font-size: 10px;

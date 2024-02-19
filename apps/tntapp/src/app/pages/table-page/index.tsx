@@ -316,6 +316,30 @@ export function TablePage() {
       setInputMessage('');
     }
   };
+  function shareViaWhatsApp(tableId: string | undefined) {
+    const message = `Join our Sedma game! Table ID: ${tableId}`;
+    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+    window.open(whatsappUrl, '_blank');
+  }
+
+  const handleCopy = () => {
+    const inputElement = document.getElementById(
+      'table-id-input'
+    ) as HTMLInputElement;
+    const textToCopy = inputElement?.value || '';
+
+    if (textToCopy) {
+      const textArea = document.createElement('textarea');
+      textArea.value = textToCopy;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+    } else {
+      alert('ERROR NO ID');
+    }
+  };
+
   const myBodyColor =
     data && playerIdx !== undefined
       ? data.players[playerIdx].bodyColor
@@ -335,6 +359,7 @@ export function TablePage() {
         </button>
       </div>
     );
+
   if (!data || playerIdx === undefined) return <div>Unknown Player</div>;
   const topPlayerIdx = (playerIdx + 2) % 4;
   const leftPlayerIdx = (playerIdx + 1) % 4;
@@ -388,16 +413,43 @@ export function TablePage() {
         )}
         <div></div>
         {data.waitingForPlayers && (
-          <div className="info-message">
-            <p className="centreMessage">
-              {' '}
-              Waiting for players to join : {playerCount}/4{' '}
-            </p>
+          <div>
+            <div className="info-message">
+              <p> Waiting for players to join : {playerCount}/4 </p>
+            </div>
+            <div className="tableID-popup">
+              <p className="tableID-text">
+                Your Unique Table ID, send it to your friends to let them join!
+              </p>
+              <div className="input-group mt-2 justify-content-center">
+                <input
+                  id="table-id-input"
+                  type="text"
+                  className="form-control"
+                  name="Table ID"
+                  placeholder="Table ID"
+                  value={id}
+                  readOnly
+                />
+                <button
+                  className="btn btn-secondary m-1 p-2"
+                  onClick={handleCopy}
+                >
+                  Copy
+                </button>
+                <button
+                  className="btn btn-secondary m-1"
+                  onClick={() => shareViaWhatsApp(id)}
+                >
+                  <i className="fab fa-whatsapp"></i>
+                </button>
+              </div>
+            </div>
           </div>
         )}
         {!isOwner && waitingForOwner && !data.waitingForPlayers && (
           <div className="info-message">
-            <p className="centreMessage">Waiting for Owner to Start Game</p>
+            <p>Waiting for Owner to Start Game</p>
           </div>
         )}
       </div>

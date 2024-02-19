@@ -153,13 +153,20 @@
     display: flex;
     justify-content: center;
     align-items: flex-start;  
+    padding: 20px;
 }
 
-.centreMessage {
-    margin: 45px;
-    align-items: center;
-    
+.tableID-popup {
+    z-index: 2;
+    position: absolute;
+    bottom: 10%;
+    display: flex;
+   justify-content: center;  
+   flex-wrap: wrap;    
+   width: 100%;  
+   padding: 10px;
 }
+
 .disconnectPopup {
     position: fixed;
     top: 50%;
