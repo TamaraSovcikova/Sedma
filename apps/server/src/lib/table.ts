@@ -41,6 +41,7 @@ export class Table {
   /* count of points collected at the end of the deal */
   wonPoints = 0;
   isFirstDeal = 0;
+  lastAccessTime: Date;
 
   constructor(id: string) {
     this.players = [
@@ -50,6 +51,11 @@ export class Table {
       new Player(''),
     ];
     this.id = id;
+    this.lastAccessTime = new Date();
+  }
+
+  public updateLastAccessTime(): void {
+    this.lastAccessTime = new Date();
   }
 
   private getPlayerList(): { name: string; id: string; bodyColor: string }[] {
@@ -150,6 +156,8 @@ export class Table {
     this.round = 0;
 
     this.resetPlayers();
+    // Update last access time when starting the game
+    this.updateLastAccessTime();
   }
 
   public allPlayersReady() {

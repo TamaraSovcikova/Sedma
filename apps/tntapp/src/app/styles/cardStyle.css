@@ -14,16 +14,6 @@
     background-color: transparent !important;    
 }
 
-.card-corner-bottom-right {
-    position: absolute;
-    right: 4px;
-    transform: rotate(180deg);
-    margin: 0px !important;
-    padding: 0px !important;
-    background-color: transparent !important;
-
-}
-
 .card-suit {
     position: absolute;
     top: 50%;
