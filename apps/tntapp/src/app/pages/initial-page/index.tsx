@@ -1,5 +1,5 @@
 import { ReactEventHandler, useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '../../styles/inicial-page.css';
 import { postData } from '../../lib/api';
@@ -51,8 +51,17 @@ export function InitialPage() {
   const [name, setName] = useState('');
   const [stakeLimit, setStakeLimit] = useState('');
   const [isFormValid, setIsFormValid] = useState(false);
+  const [query] = useSearchParams();
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    // Parse tableId from URL query parameter
+    const paramTableId = query.get('tableId');
+    if (paramTableId) {
+      setTableID(paramTableId);
+    }
+  }, [query]);
 
   useEffect(() => {
     setIsFormValid(name.trim() !== '' && stakeLimit !== '');

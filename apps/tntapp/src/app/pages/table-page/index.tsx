@@ -316,9 +316,13 @@ export function TablePage() {
       setInputMessage('');
     }
   };
+
   function shareViaWhatsApp(tableId: string | undefined) {
     const message = `Join our Sedma game! Table ID: ${tableId}`;
-    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+    const landingPageUrl = `https://sedma.spv99.com/?tableId=${tableId}`;
+    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(
+      message
+    )}%0A%0A${encodeURIComponent(landingPageUrl)}`;
     window.open(whatsappUrl, '_blank');
   }
 
