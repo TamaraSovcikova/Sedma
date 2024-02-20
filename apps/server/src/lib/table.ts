@@ -94,7 +94,7 @@ export class Table {
       winningTeamPoints: this.winningTeamPoints,
       ownerOfTableId: this.ownerOfTable.id,
       finalStakeCount: this.finalStakeCount,
-      everyoneReady: this.everyoneReady,
+      everyoneReady: this.allPlayersReady(),
     };
   }
   /** Send updates to all connected players with the current game state */
@@ -117,7 +117,6 @@ export class Table {
     this.teamAStakeCount = 0;
     this.teamBStakeCount = 0;
     this.teamWonRound = '';
-    this.everyoneReady = true;
 
     this.setPlayersToReady();
 
@@ -234,7 +233,6 @@ export class Table {
 
   public handOutCards(): void {
     // Gives each player the amount of cards they are missing
-    this.everyoneReady = false;
     if (this.deck.length <= 3) return;
     debug('deck has', this.deck.length, ' cards');
 
