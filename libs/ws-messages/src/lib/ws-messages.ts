@@ -20,7 +20,8 @@ type MessageType =
   | 'startingGame'
   | 'stakesReached'
   | 'letsPlayAgain'
-  | 'disconnectingPlayer';
+  | 'disconnectingPlayer'
+  | 'playerStay';
 
 export interface MessageBase {
   type: MessageType;
@@ -71,6 +72,7 @@ export interface TableData {
   winningTeamPoints: number;
   ownerOfTableId: string;
   finalStakeCount: number;
+  everyoneReady: boolean;
 }
 
 export interface GameData {

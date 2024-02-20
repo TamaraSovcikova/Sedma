@@ -167,6 +167,13 @@
    padding: 10px;
 }
 
+.fa-comment:before {
+    margin-right: 10px;
+}
+.fa-sign-out-alt::before {
+    margin-right: 10px;
+}
+
 .disconnectPopup {
     position: fixed;
     top: 50%;
@@ -320,7 +327,7 @@
 }
 
 .icon.active {
-    color: #000000;
+    color: #414141;
 }
 
 .dropdown-menu {
@@ -333,7 +340,7 @@
     gap: 10px;
     backdrop-filter: blur(10%);  
     animation: fadeIn 0.4s ease-in-out;
-    background-color: rgba(0, 0, 0, 0.7);
+    background-color: rgba(25, 25, 25, 0.084);
     align-items: flex-start;
     width: auto;
     min-width: fit-content;

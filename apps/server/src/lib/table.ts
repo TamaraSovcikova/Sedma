@@ -33,6 +33,7 @@ export class Table {
   totalCollectedCardsB: Card[] = [];
   waitingForPlayers = true;
   gameInProgress = false;
+  everyoneReady = true;
   round = 0;
   teamAStakeCount = 0;
   teamBStakeCount = 0;
@@ -93,6 +94,7 @@ export class Table {
       winningTeamPoints: this.winningTeamPoints,
       ownerOfTableId: this.ownerOfTable.id,
       finalStakeCount: this.finalStakeCount,
+      everyoneReady: this.everyoneReady,
     };
   }
   /** Send updates to all connected players with the current game state */
@@ -115,6 +117,7 @@ export class Table {
     this.teamAStakeCount = 0;
     this.teamBStakeCount = 0;
     this.teamWonRound = '';
+    this.everyoneReady = true;
 
     this.setPlayersToReady();
 
@@ -231,6 +234,7 @@ export class Table {
 
   public handOutCards(): void {
     // Gives each player the amount of cards they are missing
+    this.everyoneReady = false;
     if (this.deck.length <= 3) return;
     debug('deck has', this.deck.length, ' cards');
 
@@ -497,9 +501,9 @@ export class Table {
   }
 
   public closeResults(playerIdx: number): void {
-    this.playerIsReady(playerIdx);
+    this.players[playerIdx].isReadyToPlay = true;
 
-    if (this.allPlayersReady) {
+    if (this.players[playerIdx] === this.ownerOfTable) {
       this.setUpNewDeal();
     }
 
@@ -527,9 +531,9 @@ export class Table {
   }
 
   public closeEndGameResults(playerIdx: number) {
-    this.playerIsReady(playerIdx);
+    this.players[playerIdx].isReadyToPlay = true;
 
-    if (this.allPlayersReady) {
+    if (this.players[playerIdx] === this.ownerOfTable) {
       if (this.checkStakeCount()) {
         debug('THE STAKE COUNT HAS BEEN REACHED! END OF GAME!');
         this.setStakesReached();
@@ -555,20 +559,11 @@ export class Table {
   }
 
   private setStakesReached() {
+    this.setPlayersNotReady();
+    this.gameInProgress = false;
     for (const p of this.players) {
       const messageData: MessageBase = {
         type: 'stakesReached',
-        tableId: this.id,
-      };
-
-      if (p.ws) p.ws.send(JSON.stringify(messageData));
-    }
-  }
-
-  private letsPlayAgain() {
-    for (const p of this.players) {
-      const messageData: MessageBase = {
-        type: 'letsPlayAgain',
         tableId: this.id,
       };
 

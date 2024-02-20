@@ -26,6 +26,7 @@ import { DisconnectPopup } from './components/disconnect-popup';
 import { Chair } from './components/chair';
 import { Chat } from './components/chat';
 import { Menu } from './components/menu';
+import { postData } from '../../lib/api';
 
 export function TablePage() {
   const params = useParams();
@@ -177,10 +178,26 @@ export function TablePage() {
     sendJsonMessage(message);
     console.log(c, 'handlePlayCard');
   };
+
+  const handlePlayerStays = () => {
+    setPlayAgain(false);
+    setWaitingForOwner(true);
+
+    if (!id || playerIdx === undefined) return;
+
+    const message: MessagePlayerIdx = {
+      type: 'playerStay',
+      tableId: id,
+      playerIdx: playerIdx,
+    };
+    sendJsonMessage(message);
+    console.log('handlePlayerStays');
+  };
+
   const handleStartGame = () => {
     if (!isOwner) return;
     if (!id) return;
-    setPlayAgain(false);
+
     const message: MessageBase = {
       type: 'startGame',
       tableId: id,
@@ -216,6 +233,7 @@ export function TablePage() {
   const handleCloseEndGameResults = () => {
     if (!id || playerIdx === undefined) return;
     setShowEndGameResults(false);
+
     const message: MessagePlayerIdx = {
       type: 'closeEndGameResults',
       tableId: id,
@@ -224,9 +242,13 @@ export function TablePage() {
     sendJsonMessage(message);
     console.log('handleCloseEndGameResults');
   };
+
   const handleStakesNotReached = () => {
-    if (!id) return;
     setAskGameContinue(false);
+
+    if (!id) return;
+    if (!isOwner) return;
+
     const message: MessageBase = {
       type: 'handleStakesNotReached',
       tableId: id,
@@ -397,14 +419,18 @@ export function TablePage() {
           onDisconnect={handleDisconnect}
         />
 
-        {isOwner && !data.waitingForPlayers && !data.gameInProgress && (
-          <button
-            onClick={handleStartGame}
-            className="btn btn-secondary startGameButton"
-          >
-            TAP TO START GAME
-          </button>
-        )}
+        {isOwner &&
+          !data.waitingForPlayers &&
+          !data.gameInProgress &&
+          data.everyoneReady && (
+            <button
+              onClick={handleStartGame}
+              className="btn btn-secondary startGameButton"
+            >
+              TAP TO START GAME
+            </button>
+          )}
+
         {askGameContinue && (
           <button
             onClick={handleStakesNotReached}
@@ -415,7 +441,16 @@ export function TablePage() {
             TAP TO CONTINUE
           </button>
         )}
-        <div></div>
+
+        {isOwner &&
+          !data.waitingForPlayers &&
+          !data.gameInProgress &&
+          !data.everyoneReady && (
+            <div className="info-message">
+              <p>Please wait till everyone is ready</p>
+            </div>
+          )}
+
         {data.waitingForPlayers && (
           <div>
             <div className="info-message">
@@ -453,7 +488,7 @@ export function TablePage() {
         )}
         {!isOwner && waitingForOwner && !data.waitingForPlayers && (
           <div className="info-message">
-            <p>Waiting for Owner to Start Game</p>
+            <p>Waiting for Owner to continue</p>
           </div>
         )}
       </div>
@@ -574,7 +609,7 @@ export function TablePage() {
           isLastRound={data.round === 8}
         />
       )}
-      {showEndGameResults && (
+      {showEndGameResults && !showResults && (
         <EndGameResultsPopup
           onClose={handleCloseEndGameResults}
           teamWonRound={data.teamWonRound}
@@ -584,7 +619,7 @@ export function TablePage() {
           teamBStakeCount={data.teamBStakeCount}
         />
       )}
-      {stakesReached && (
+      {stakesReached && !showEndGameResults && (
         <StakesReachedPopup
           onClose={handleStakesReached}
           winningTeam={whoWon()}
@@ -593,7 +628,7 @@ export function TablePage() {
         />
       )}
       {playAgain && (
-        <PlayAgainPopup onPlay={handleStartGame} onLeave={handleLeave} />
+        <PlayAgainPopup onPlay={handlePlayerStays} onLeave={handleLeave} />
       )}
       {disconnectRequest && (
         <DisconnectPopup

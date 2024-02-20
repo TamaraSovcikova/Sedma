@@ -206,6 +206,7 @@ export function createRoutes(app: any) {
 
     res.send(data);
   });
+
   app.get('/table/delete/:id', (req, res) => {
     const params = req.params;
     const id = params.id;

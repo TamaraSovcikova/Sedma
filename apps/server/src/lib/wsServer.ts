@@ -130,4 +130,11 @@ export function processMessage(ws: ws, message: MessageBase) {
           p.ws.send(JSON.stringify(chatMessage));
       });
   }
+  if (message.type === 'playerStay') {
+    const m: MessagePlayerIdx = message as MessagePlayerIdx;
+    const table = getTable(m.tableId);
+    table.players[m.playerIdx].isReadyToPlay = true;
+
+    if (table.allPlayersReady) table.everyoneReady = true;
+  }
 }
