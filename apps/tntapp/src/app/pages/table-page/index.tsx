@@ -139,7 +139,7 @@ export function TablePage() {
         setPlayerHasDisconnected(true);
         setTimeout(() => {
           setPlayerHasDisconnected(false);
-        }, 2000);
+        }, 3000);
       }
     }
   }, [lastJsonMessage, token, setIsLoading, data, logout, navigate]);

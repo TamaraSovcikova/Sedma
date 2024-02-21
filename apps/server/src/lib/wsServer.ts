@@ -106,7 +106,6 @@ export function processMessage(ws: ws, message: MessageBase) {
     table.playerDisconnect(m.playerIdx);
 
     if (isOwner) deleteTable(message.tableId);
-    table.gameInProgress = false;
 
     if (table.gameInProgress) {
       const disconnectMessage: MessageBase = {
@@ -118,7 +117,9 @@ export function processMessage(ws: ws, message: MessageBase) {
           if (p.autoplay === null && p.name !== '')
             p.ws.send(JSON.stringify(disconnectMessage));
         });
+      table.resetGame();
     }
+    table.gameInProgress = false;
   }
   if (message.type === 'chatMessage') {
     const chatMessage = message as unknown as MessageChat;

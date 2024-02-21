@@ -9,6 +9,7 @@ import { Card } from './card';
 import { Player } from './player';
 
 import debugLog from 'debug';
+import { table } from 'console';
 const debug = debugLog('table');
 
 //The table class represents the game table
@@ -42,7 +43,6 @@ export class Table {
   /* count of points collected at the end of the deal */
   wonPoints = 0;
   isFirstDeal = 0;
-  lastAccessTime: Date;
 
   constructor(id: string) {
     this.players = [
@@ -52,11 +52,6 @@ export class Table {
       new Player(''),
     ];
     this.id = id;
-    this.lastAccessTime = new Date();
-  }
-
-  public updateLastAccessTime(): void {
-    this.lastAccessTime = new Date();
   }
 
   private getPlayerList(): { name: string; id: string; bodyColor: string }[] {
@@ -112,6 +107,25 @@ export class Table {
       if (p.ws) p.ws.send(JSON.stringify(messageData));
     }
   }
+  public resetGame(): void {
+    this.teamAStakeCount = 0;
+    this.teamBStakeCount = 0;
+    this.teamWonRound = '';
+    this.discardPile = [];
+    this.cardToBeat = null;
+    this.teamAPoints = 0;
+    this.teamBPoints = 0;
+    this.totalCollectedCardsA = [];
+    this.totalCollectedCardsB = [];
+    this.wonPoints = 0;
+    this.round = 0;
+
+    this.resetPlayers();
+    this.leadPlayer = this.players.indexOf(this.ownerOfTable);
+    this.currentPlayer = this.leadPlayer;
+
+    this.sendUpdates();
+  }
 
   public startGame(): void {
     this.teamAStakeCount = 0;
@@ -156,10 +170,9 @@ export class Table {
     this.totalCollectedCardsB = [];
     this.wonPoints = 0;
     this.round = 0;
+    this.isFirstDeal = 0;
 
     this.resetPlayers();
-    // Update last access time when starting the game
-    this.updateLastAccessTime();
   }
 
   public allPlayersReady() {
@@ -174,10 +187,13 @@ export class Table {
     if (count === 4) return true;
     else return false;
   }
+  
   public resetPlayers() {
     for (const player of this.players) {
       player.collectedPoints = 0;
       player.cardsWon = [];
+      player.onHand = [];
+      player.lastPlayedCard = null;
     }
   }
 
