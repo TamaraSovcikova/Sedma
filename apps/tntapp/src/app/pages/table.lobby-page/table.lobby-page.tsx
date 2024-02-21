@@ -262,9 +262,8 @@ export function LobbyPage() {
         onColorChange={handleColorChange}
       />
       <p className="teamInfo">
-        After entering your username and customising your character, please
-        select the seat you want to be seated at whilst simultaneously choosing
-        your teamate. Pick any of the 'Available' slots.
+        After selecting a username, select a seat and your teamate. Pick any of
+        the 'Available' slots.
       </p>
       <div className="row justify-content-center mt-4">
         <div className="col-12">
