@@ -9,7 +9,6 @@ import { Card } from './card';
 import { Player } from './player';
 
 import debugLog from 'debug';
-import { table } from 'console';
 const debug = debugLog('table');
 
 //The table class represents the game table
@@ -359,9 +358,8 @@ export class Table {
 
   public canPlayCard(card: CardData) {
     if (this.leadPlayer === this.currentPlayer && this.isFirstDeal > 0) {
-      if (this.winningPlayer === this.currentPlayer) return true;
-      else if (card.face === this.cardToBeat.face || card.face === 'seven')
-        return true; //if not winning player but still played card
+      if (card.face === this.cardToBeat.face || card.face === 'seven')
+        return true;
       else {
         debug('cannot play this card!', this.currentPlayer, card);
         return false;

@@ -1,3 +1,5 @@
+import { useState } from 'react';
+
 interface RoundResultsPopupProps {
   onClose: () => void;
   dealWinnerName: string | undefined;
@@ -7,6 +9,8 @@ interface RoundResultsPopupProps {
 }
 
 export function RoundResultsPopup(props: RoundResultsPopupProps) {
+  const [points] = useState(props.wonPoints);
+
   return (
     <div className="resultsPopup">
       <div className="resultsBox">
@@ -23,8 +27,7 @@ export function RoundResultsPopup(props: RoundResultsPopupProps) {
           <span className="dynamicData">{props.dealWinnerTeam}</span>
         </p>
         <p>
-          Points Collected:{' '}
-          <span className="dynamicData">{props.wonPoints}</span>
+          Points Collected: <span className="dynamicData">{points}</span>
         </p>
         {props.isLastRound && (
           <p className="lastDealBonus">
