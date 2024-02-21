@@ -26,7 +26,7 @@ import { DisconnectPopup } from './components/disconnect-popup';
 import { Chair } from './components/chair';
 import { Chat } from './components/chat';
 import { Menu } from './components/menu';
-import { postData } from '../../lib/api';
+import { TIMEOUT } from 'dns';
 
 export function TablePage() {
   const params = useParams();
@@ -54,6 +54,7 @@ export function TablePage() {
   const [playAgain, setPlayAgain] = useState(false);
   const [stakesReached, setStakesReached] = useState(false);
   const [playerHasDisconnected, setPlayerHasDisconnected] = useState(false);
+  const [popupTimer, setPopupTimer] = useState<NodeJS.Timeout>();
 
   const { logout } = useAuth();
   const navigate = useNavigate();
@@ -157,15 +158,22 @@ export function TablePage() {
         setUnopenedMessage((prevUnopenedMessage) => prevUnopenedMessage + 1);
         setPopupMessage(formattedMessage);
 
-        const popupTimer = setTimeout(() => {
-          setPopupMessage(null);
-        }, 2000);
-
-        return () => clearTimeout(popupTimer);
+        setPopupTimer(
+          setTimeout(() => {
+            setPopupMessage(null);
+          }, 2000)
+        );
       }
     }
     setLastReceivedMessage(null);
-  }, [chatOpen, data, lastReceivedMessage, playerIdx, receivedMessages]);
+  }, [
+    chatOpen,
+    data,
+    lastReceivedMessage,
+    playerIdx,
+    receivedMessages,
+    popupMessage,
+  ]);
 
   const handlePlayCard = (c: CardData) => {
     if (!id) return;

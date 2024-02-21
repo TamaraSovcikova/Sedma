@@ -187,7 +187,7 @@ export class Table {
     if (count === 4) return true;
     else return false;
   }
-  
+
   public resetPlayers() {
     for (const player of this.players) {
       player.collectedPoints = 0;
@@ -313,7 +313,7 @@ export class Table {
 
     this.sendUpdates();
 
-    if (this.leadPlayerHasToPass()) {
+    if (this.leadPlayerHasToPass() && this.players[this.leadPlayer].autoplay) {
       this.endRound();
       debug('Automatic passing');
       return;
@@ -474,35 +474,30 @@ export class Table {
   }
 
   public calculateStakes(): void {
-    const { teamAPoints, teamBPoints, totalCollectedCardsA } = this;
+    const {
+      teamAPoints,
+      teamBPoints,
+      totalCollectedCardsA,
+      totalCollectedCardsB,
+    } = this;
     const winningTeam = teamAPoints > teamBPoints ? 'A' : 'B';
     this.calculateWinningTeamPoints(teamAPoints, teamBPoints);
 
-    if (teamAPoints >= 90 || teamBPoints >= 90) {
-      const isTeamAWinner = winningTeam === 'A';
-      const stakeCount = isTeamAWinner
-        ? totalCollectedCardsA.length === 32
-          ? 3
-          : 2
-        : 0;
-
-      this.teamWonRound = `Team ${winningTeam}`;
-
-      if (isTeamAWinner) {
-        this.teamAStakeCount += stakeCount;
-      } else {
-        this.teamBStakeCount += stakeCount;
-      }
+    if (winningTeam === 'A') {
+      if (totalCollectedCardsA.length === 32) {
+        this.teamAStakeCount += 3;
+      } else if (teamAPoints == 90) {
+        this.teamAStakeCount += 2;
+      } else this.teamAStakeCount++;
     } else {
-      this.teamWonRound = winningTeam === 'A' ? 'Team A' : 'Team B';
-      const stakeCount = totalCollectedCardsA.length === 32 ? 3 : 1;
-
-      if (winningTeam === 'A') {
-        this.teamAStakeCount += stakeCount;
-      } else {
-        this.teamBStakeCount += stakeCount;
-      }
+      if (totalCollectedCardsB.length === 32) {
+        this.teamBStakeCount += 3;
+      } else if (teamBPoints == 90) {
+        this.teamBStakeCount += 2;
+      } else this.teamBStakeCount++;
     }
+
+    this.teamWonRound = `Team ${winningTeam}`;
   }
 
   public checkStakeCount() {
@@ -620,7 +615,7 @@ export class Table {
     if (seat.name === '') {
       this.players[seatPosition] = player;
       player.isReadyToPlay = true;
-    } else throw new Error('seat position is occupied');
+    }
     if (this.players.length > 0) this.sendUpdates();
   }
 
