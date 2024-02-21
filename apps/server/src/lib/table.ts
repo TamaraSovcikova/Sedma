@@ -603,6 +603,7 @@ export class Table {
     const seat = this.players[seatPosition];
     if (seat.name === '') {
       this.players[seatPosition] = player;
+      player.isReadyToPlay = true;
     } else throw new Error('seat position is occupied');
     if (this.players.length > 0) this.sendUpdates();
   }
