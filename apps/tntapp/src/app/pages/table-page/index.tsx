@@ -439,7 +439,7 @@ export function TablePage() {
             </button>
           )}
 
-        {askGameContinue && (
+        {askGameContinue && !showEndGameResults && (
           <button
             onClick={handleStakesNotReached}
             className="btn btn-secondary startGameButton"

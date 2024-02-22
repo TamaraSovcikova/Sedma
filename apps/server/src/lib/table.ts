@@ -484,14 +484,18 @@ export class Table {
     if (winningTeam === 'A') {
       if (totalCollectedCardsA.length === 32) {
         this.teamAStakeCount += 3;
+        return;
       } else if (teamAPoints == 90) {
         this.teamAStakeCount += 2;
+        return;
       } else this.teamAStakeCount++;
     } else {
       if (totalCollectedCardsB.length === 32) {
         this.teamBStakeCount += 3;
+        return;
       } else if (teamBPoints == 90) {
         this.teamBStakeCount += 2;
+        return;
       } else this.teamBStakeCount++;
     }
 
@@ -510,7 +514,7 @@ export class Table {
   public closeResults(playerIdx: number): void {
     this.players[playerIdx].isReadyToPlay = true;
 
-    if (this.players[playerIdx] === this.ownerOfTable) {
+    if (this.players.filter((p) => p.isReadyToPlay === true).length === 1) {
       this.setUpNewDeal();
     }
 
@@ -520,7 +524,10 @@ export class Table {
   private setUpNewDeal() {
     this.players.forEach((p) => (p.lastPlayedCard = null));
 
-    if (this.isLastRound()) {
+    if (
+      this.isLastRound() &&
+      this.players.filter((p) => p.isReadyToPlay === true).length === 1
+    ) {
       const winningTeam = this.players[this.leadPlayer].team;
 
       winningTeam === 'A' ? (this.teamAPoints += 10) : (this.teamBPoints += 10);

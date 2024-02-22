@@ -96,6 +96,7 @@ export function processMessage(ws: ws, message: MessageBase) {
   }
   if (message.type === 'handleStakesNotReached') {
     const table = getTable(message.tableId);
+
     table.setUpGame();
   }
   if (message.type === 'handleLeave') {
@@ -105,7 +106,10 @@ export function processMessage(ws: ws, message: MessageBase) {
     const isOwner = table.players[m.playerIdx].id === table.ownerOfTable.id;
     table.playerDisconnect(m.playerIdx);
 
-    if (isOwner) deleteTable(message.tableId);
+    if (isOwner) {
+      deleteTable(message.tableId);
+      return;
+    }
 
     if (table.gameInProgress) {
       const disconnectMessage: MessageBase = {
@@ -135,7 +139,6 @@ export function processMessage(ws: ws, message: MessageBase) {
     const m: MessagePlayerIdx = message as MessagePlayerIdx;
     const table = getTable(m.tableId);
     table.players[m.playerIdx].isReadyToPlay = true;
-
-    if (table.allPlayersReady) table.everyoneReady = true;
+    table.sendUpdates();
   }
 }

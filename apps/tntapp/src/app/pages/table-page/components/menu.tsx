@@ -18,12 +18,12 @@ export function Menu(props: MenuProps) {
       {props.menuOpen && (
         <div className="dropdown-menu">
           <div className="menu-item">
-            <i id="chat" className="fas fa-comment" onClick={props.toggleChat}>
-              Chat
-            </i>
             {props.unopenedMessage > 0 && (
               <div className="message-count">{props.unopenedMessage}</div>
             )}
+            <i id="chat" className="fas fa-comment" onClick={props.toggleChat}>
+              Chat
+            </i>
           </div>
           <div className="menu-item">
             <i

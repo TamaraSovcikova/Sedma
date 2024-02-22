@@ -10,6 +10,7 @@ interface RoundResultsPopupProps {
 
 export function RoundResultsPopup(props: RoundResultsPopupProps) {
   const [points] = useState(props.wonPoints);
+  const [bonus] = useState(props.isLastRound);
 
   return (
     <div className="resultsPopup">
@@ -29,7 +30,7 @@ export function RoundResultsPopup(props: RoundResultsPopupProps) {
         <p>
           Points Collected: <span className="dynamicData">{points}</span>
         </p>
-        {props.isLastRound && (
+        {bonus && (
           <p className="lastDealBonus">
             Last deal bonus <span className="dynamicData2">10</span>
           </p>
