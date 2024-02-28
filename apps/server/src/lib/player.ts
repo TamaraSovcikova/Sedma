@@ -44,6 +44,7 @@ export class Player {
     this.ws = ws;
     this.connected = true;
   }
+
   public disconnect() {
     this.connected = false;
     const message: MessageForcePlayerDisconnect = {
@@ -56,6 +57,7 @@ export class Player {
     return this.onHand.length > 0;
   }
 
+  //counts up the points from the cards in the discard pile
   public collectWonCards(playedCards: Card[]): void {
     this.cardsWon.push(...playedCards);
     this.collectedPoints = this.cardsWon.reduce(
@@ -68,6 +70,7 @@ export class Player {
     return this.onHand.length < 4;
   }
 
+  //takes the card from the top of the pile
   public getCard(pile: Card[]): void {
     for (let i = 0; i < 4 - this.onHand.length; i++) {
       if (pile.length > 0) {

@@ -8,47 +8,48 @@ import { v4 as uuidv4 } from 'uuid';
 
 const debug = debugLog('routes');
 
-const generateUUID = () => uuidv4().slice(0, 8);
+const generateUUID = () => uuidv4().slice(0, 8); // Function to generate UUID
 
+// Middleware to extract authorization token from request header
 function extractAuth(req, res, next) {
-  const token = req.get('authorization');
+  const token = req.get('authorization'); // Extracting token from request header
   debug('token', token);
   req.user = { id: token };
-  next();
+  next(); // Calling next middleware
 }
 
+// Function to create routes for the application
 export function createRoutes(app: any) {
-  app.use(extractAuth); //middlewere
-  expressWs(app);
+  app.use(extractAuth); // Using authorization extraction middleware
+  expressWs(app); // Adding WebSocket support to Express
 
-  //if route to root found, recieve two parameters and call a function to process it
-  app.ws('/', (ws, req) => handleWs(ws));
+  app.ws('/', (ws, req) => handleWs(ws)); // Handling WebSocket connections at root
+
   app.get('/api', (res) => {
-    res.json({ message: 'Hello API' });
+    // Handling GET request to '/api' endpoint
+    res.json({ message: 'Hello API' }); // Sending JSON response
   });
 
+  // POST route to delete a player from a table
   app.post('/table/deletePlayer/:id', (req, res) => {
+    // Handling delete player request
+    // Extracting data and parameters from request
     const data = req.body;
     const params = req.params;
     const tableId = params.id;
     const { oldUsername } = data;
-    const table = getTable(tableId);
+    const table = getTable(tableId); // Retrieving table based on ID
     const oldPlayer = table.players.find((p) => p.name === oldUsername);
 
     const seatPosition: number = table.players.indexOf(oldPlayer);
-    deletePlayer(oldPlayer, table, seatPosition);
-    debug(
-      '----------just deleted player: ',
-      oldPlayer,
-      ' seatPosition ',
-      seatPosition
-    );
+    deletePlayer(oldPlayer, table, seatPosition); // Deleting player from table
 
-    res.sendStatus(200);
+    res.sendStatus(200); // Sending success status
   });
 
+  // POST route to check if a username is available
   app.post('/table/newUsername/:id', (req, res) => {
-    console.log('entered');
+    // Handling new username availability check request
     const params = req.params;
     const tableId = params.id;
     const { username } = req.body;
@@ -65,17 +66,20 @@ export function createRoutes(app: any) {
     }
   });
 
+  // GET route to retrieve lobby players of a table
   app.get('/table/Lobby/:id', (req, res) => {
+    // Handling request to fetch lobby players
     const params = req.params;
     const tableId = params.id;
     const table = getTable(tableId);
     debug('found table: ', table);
     if (table !== null) {
-      const response = table.players.map((p) => p.name);
-      res.json(response);
-    } else res.status(404).send('not found');
+      const response = table.players.map((p) => p.name); // Extracting player names
+      res.json(response); // Sending JSON response
+    } else res.status(404).send('not found'); // Sending 404 if table not found
   });
 
+  // GET route to check if a table exists
   app.get('/table/exists/:id', (req, res) => {
     const params = req.params;
     const tableId = params.id;
@@ -83,12 +87,14 @@ export function createRoutes(app: any) {
     const existingTableId = getTable(tableId).id;
 
     if (existingTableId === tableId) {
-      res.status(200).json({ message: 'Table found' });
+      // Checking if table exists
+      res.status(200).json({ message: 'Table found' }); // Sending success response
     } else {
-      res.status(404).json({ message: 'Table not found' });
+      res.status(404).json({ message: 'Table not found' }); // Sending error response
     }
   });
 
+  // POST route to log out a player from a table
   app.post('/table/loggout/:id', (req, res) => {
     const data = req.body;
     const params = req.params;
@@ -98,7 +104,7 @@ export function createRoutes(app: any) {
     const player = table.players.find((p) => p.id === token);
 
     const seatPosition: number = table.players.indexOf(player);
-    deletePlayer(player, table, seatPosition);
+    deletePlayer(player, table, seatPosition); // Deleting player from table
     debug(
       '----------just deleted player: ',
       player,
@@ -106,9 +112,10 @@ export function createRoutes(app: any) {
       seatPosition
     );
 
-    res.sendStatus(200);
+    res.sendStatus(200); // Sending success status
   });
 
+  // POST route to update lobby data of a table
   app.post('/table/lobby/data/:id', (req, res) => {
     const data = req.body;
     const params = req.params;
@@ -120,9 +127,10 @@ export function createRoutes(app: any) {
 
     if (isCreatingTable) table.finalStakeCount = parseInt(stakeLimit, 10);
 
-    res.sendStatus(200);
+    res.sendStatus(200); // Sending success status
   });
 
+  // POST route to join the lobby of a table
   app.post('/table/Lobby/:id', (req, res) => {
     const data = req.body;
     const params = req.params;
@@ -135,29 +143,31 @@ export function createRoutes(app: any) {
       const copyPlayer = table.players.find((p) => p.name === username);
       const seatPosition: number = table.players.indexOf(copyPlayer);
       debug('seatposition', seatPosition);
-      deletePlayer(copyPlayer, table, seatPosition);
+      deletePlayer(copyPlayer, table, seatPosition); // Deleting existing player with same name
       debug('deleted ', copyPlayer, 'at seat', seatPosition);
     }
-    const player = addPlayer(username, table, seatId - 1);
+    const player = addPlayer(username, table, seatId - 1); // Adding player to table
     debug('adding player to table: ', table, getTable(tableId));
 
-    res.status(200).json({ id: player.id });
+    res.status(200).json({ id: player.id }); // Sending player ID as response
   });
 
+  // POST route to create a new table
   app.post('/table/new', (req, res) => {
     let newTableID;
 
     do {
-      newTableID = generateUUID();
+      newTableID = generateUUID(); // Generating new table ID
     } while (getTable(newTableID));
 
-    createTable(newTableID);
+    createTable(newTableID); // Creating new table
 
-    res.json(newTableID);
+    res.json(newTableID); // Sending new table ID as response
 
     debug(`Created new table with ID: ${newTableID}`);
   });
 
+  // POST route to create a new single player table
   app.post('/table/newSinglePlayer', (req, res) => {
     debug('Creating new Single player table');
 
@@ -167,16 +177,18 @@ export function createRoutes(app: any) {
       newTableID = generateUUID();
     } while (getTable(newTableID));
 
-    const table = createTable(newTableID);
+    const table = createTable(newTableID); // Creating new table
 
     const stakeLimit = parseInt(req.body.stakeLimit, 10);
     table.finalStakeCount = stakeLimit;
 
+    //Adding players 1-4 to the table
     const p1 = addPlayer(req.body.name, table, 0);
     const p2 = addPlayer('Player 2', table, 1);
     const p3 = addPlayer('Player 3', table, 2);
     const p4 = addPlayer('Player 4', table, 3);
 
+    //setting players 2,3 and 4 as computer players, and connecting them to the table
     p2.setAutoPlay(computerLevel1);
     p2.connectPlayer(null);
     p3.setAutoPlay(computerLevel1);
@@ -185,9 +197,10 @@ export function createRoutes(app: any) {
     p4.connectPlayer(null);
 
     debug('Created new SinglePlayer table:', table);
-    res.json({ tableId: newTableID, playerId: p1.id });
+    res.json({ tableId: newTableID, playerId: p1.id }); // Sending table and player ID as response
   });
 
+  // GET route to fetch data of a table
   app.get('/table/:id', (req, res) => {
     const params = req.params;
     const id = params.id;
@@ -204,12 +217,13 @@ export function createRoutes(app: any) {
     const data = { players, lastPlayedCards, hand };
     debug('table data:', data);
 
-    res.send(data);
+    res.send(data); // Sending table data as response
   });
 
+  // GET route to delete a table
   app.get('/table/delete/:id', (req, res) => {
     const params = req.params;
     const id = params.id;
-    if (getTable(id)) deleteTable(id);
+    if (getTable(id)) deleteTable(id); // Deleting table if exists
   });
 }

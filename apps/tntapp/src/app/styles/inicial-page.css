@@ -88,15 +88,4 @@ h4,h5 {
     font-family: 'Cinzel-Regular';
     src: url(../fonts/CinzelDecorative-Regular.ttf);
 }
-@font-face {
-    font-family: 'Cormorant-Italic';
-    src: url(../fonts/Cormorant-Italic-VariableFont_wght.ttf);
-}
-@font-face {
-    font-family: 'Cormorant';
-    src: url(../fonts/Cormorant-VariableFont_wght.ttf);
-}
-@font-face {
-    font-family: 'Foldit';
-    src: url(../fonts/Foldit-VariableFont_wght.ttf);
-}
+
