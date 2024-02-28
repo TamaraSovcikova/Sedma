@@ -16,6 +16,7 @@ const images = {
 
 export function ShowCard(props: ShowCardProps) {
   const { card, onPlay } = props;
+  //Handling rendering of different size of cards
   const [sizeX, sizeY] = props.size === 'small' ? [55, 75] : [90, 120];
   const cardFontSize = props.size === 'small' ? '17px' : '22px';
   const topText = props.size === 'small' ? '-15px' : '-7px';

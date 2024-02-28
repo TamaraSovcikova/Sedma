@@ -81,10 +81,6 @@ h4,h5 {
     src: url(../fonts/CinzelDecorative-Black.ttf);
 }
 @font-face {
-    font-family: 'Cinzel-Bold';
-    src: url(../fonts/CinzelDecorative-Bold.ttf);
-}
-@font-face {
     font-family: 'Cinzel-Regular';
     src: url(../fonts/CinzelDecorative-Regular.ttf);
 }
