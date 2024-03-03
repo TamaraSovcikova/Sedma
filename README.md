@@ -4,11 +4,15 @@
 
 ## Introduction
 
-Playing card games is a cherished way to connect with loved ones and strengthen relationships. Inspired by the simplicity and joy of traditional card games, the Online Sedma Card Game is designed to bring families together, even across long distances. This project aims to provide a user-friendly and accessible platform for playing Sedma, a traditional Czech card game.
+This is an A Level Computer Science NEA project, showcasing an online Czech card game WebApp. It enables users to connect with others and enjoy games of Sedma collaboratively. Additionally, players have the option to engage in single-player mode for solo enjoyment.
 
 ## Project Background
 
-In the digital age, where complex virtual reality and 3D games dominate, traditional card games still hold a special place in people's hearts. This project is motivated by the need to bridge the physical gap and enable remote enjoyment of Sedma. By incorporating principles of interface design and usability, the goal is to create a platform that preserves the simplicity and joy of the game.
+In the digital age, where complex virtual reality and 3D games dominate, traditional card games still hold a special place in people's hearts. This project is motivated by the need to bridge the physical gap and enable remote enjoyment of Sedma. The goal was to create a platform that preserves the simplicity and joy of the game.
+
+## Project Structure
+
+This project is structured with distinct client and server components. The client side employs React to manage the user interface, rendering various components for interaction. Meanwhile, the server side, powered by Express.js, governs the game logic and facilitates communication among players, utilizing a REST API and Websockets connection when necessary.
 
 ## Sedma Explanation
 
@@ -32,3 +36,5 @@ Sedma is a traditional Czech 4-card trick-and-draw game played in fixed partners
 ## License
 
 This project is licensed under the [MIT License](LICENSE).
+
+Copyright (c) 2024 Tamara Sovcikova
