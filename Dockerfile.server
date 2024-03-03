@@ -8,15 +8,15 @@ WORKDIR /server
 COPY package.json .
 COPY package-lock.json .
 
-# install dependencies
+# Install dependencies
 RUN npm install --production
-# copy server files
+# Copy server files
 COPY dist/apps/server .
 EXPOSE 3000
 
 WORKDIR /server
 
-# run server
+# Run server
 ENTRYPOINT ["node", "main.js"]
 
 

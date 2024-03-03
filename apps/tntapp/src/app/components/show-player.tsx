@@ -17,6 +17,7 @@ export function ShowPlayer(props: ShowPlayerProps) {
       <div>
         {current ? <strong>Player</strong> : 'Player'} {player.name}
       </div>
+      {/* Rendering out cards the player has onhand */}
       {player.hand.map((card, index) => (
         <ShowCard
           key={index}

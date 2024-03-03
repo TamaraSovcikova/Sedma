@@ -3,7 +3,7 @@ name: sedma
 
 services:
   server:
-  # it restarts after every error and is created form the image stated below 
+  # Restarts after every error and is created form the image stated below 
     restart: always
     image: tamarasov/sedma-server:latest
     environment:     
@@ -38,7 +38,7 @@ services:
     networks:
       - proxy-net
 
-# declares the existance of proxy net, stating it was created externally, so doen't need to be created.
+# declares the existance of proxy net, stating it was created externally, so doesn't need to be created.
 networks:  
   proxy-net:
     name: proxy-net

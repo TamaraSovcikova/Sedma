@@ -1,3 +1,4 @@
+// Extend the Window interface to include custom properties for server URLs
 declare global {
   interface Window {
     serverApi?: string | null;
@@ -5,10 +6,11 @@ declare global {
   }
 }
 
+// Define default server URLs if not provided by the Window object
 const url = window.serverApi ?? 'http://localhost:3000';
 const wsUrl = window.serverWs ?? 'ws://localhost:3000';
-//configuration for client
 
+// Configuration for client-side server URLs
 export const getServerUrl = () => ({
   serverUrl: `${url}/api`,
   tableUrl: wsUrl,

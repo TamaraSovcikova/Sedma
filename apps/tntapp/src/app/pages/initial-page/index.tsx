@@ -1,76 +1,47 @@
-import { ReactEventHandler, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '../../styles/inicial-page.css';
 import { postData } from '../../lib/api';
 import { getServerUrl } from '../../global';
 import { useAuth } from '../../components/auth/auth-context';
-
-interface StatusMessageProps {
-  message: string;
-  onReturn: ReactEventHandler | null;
-  onLeave: ReactEventHandler;
-  returnColor?: string;
-  leaveColor?: string;
-}
-
-export function StatusMessage({
-  message,
-  onReturn,
-  onLeave,
-  returnColor = 'darkgreen',
-  leaveColor = 'gray',
-}: StatusMessageProps) {
-  return (
-    <div>
-      <p style={{ color: 'darkred' }}>{message}</p>
-      {onReturn && (
-        <button
-          className="btn btn-secondary"
-          style={{ background: returnColor, marginRight: '10px' }}
-          onClick={onReturn}
-        >
-          Return to Game
-        </button>
-      )}
-      <button
-        className="btn btn-secondary"
-        style={{ background: leaveColor }}
-        onClick={onLeave}
-      >
-        Leave Game
-      </button>
-    </div>
-  );
-}
+import { StatusMessage } from './components/status-message';
 
 export function InitialPage() {
+  // Retrieving authentication and table ID related states and functions using custom hook useAuth
   const { token, logout, setToken, tableId, setTableId } = useAuth();
+
+  // State variables for managing input fields and form validation
   const [tableID, setTableID] = useState('');
   const [error, setError] = useState(false);
   const [name, setName] = useState('');
   const [stakeLimit, setStakeLimit] = useState('');
   const [isFormValid, setIsFormValid] = useState(false);
+
+  // Custom hook for accessing query parameters in the URL
   const [query] = useSearchParams();
 
   const navigate = useNavigate();
 
+  // Effect hook to parse tableId from URL query parameter
   useEffect(() => {
-    // Parse tableId from URL query parameter
     const paramTableId = query.get('tableId');
     if (paramTableId) {
       setTableID(paramTableId);
     }
   }, [query]);
 
+  // Effect hook to check form validation status
   useEffect(() => {
     setIsFormValid(name.trim() !== '' && stakeLimit !== '');
   }, [name, stakeLimit]);
 
+  // Handler for returning to the game
   const handleGameReturn = () => {
     navigate(`/table/${tableId}`);
   };
 
+  // Handler for changing stake limit input
   const handleStakeLimitChange = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
@@ -78,11 +49,12 @@ export function InitialPage() {
     setStakeLimit(newStakeLimit);
   };
 
+  // Function to join a game
   const joinGame = async () => {
     try {
       const response = await fetch(
         getServerUrl().checkIfTableExistsUrl(tableID)
-      );
+      ); //Checking if the table they are trying to join exists
       if (response.status === 200) {
         setError(false);
         window.scrollTo(0, 0);
@@ -99,20 +71,19 @@ export function InitialPage() {
     }
   };
 
+  // Handler to log out of the game
   const logOutOfGame = () => {
     logout();
-
     if (tableId)
       postData(
         getServerUrl().playerLogOutUrl(tableId),
-        {
-          token: token,
-        },
+        { token: token },
         token
       );
     console.log('handleLoggout');
   };
 
+  // Function to start a single-player game
   const startSinglePlayer = () => {
     if (isFormValid) {
       postData(
@@ -127,6 +98,7 @@ export function InitialPage() {
     }
   };
 
+  // Handler for creating a new game
   const handleCreateTable = () => {
     window.scrollTo(0, 0);
     postData(getServerUrl().newtableUrl, {}, token).then((id) =>
@@ -134,17 +106,18 @@ export function InitialPage() {
     );
   };
 
+  // Handler for navigating to rules page
   const handleRulesButton = () => {
     window.scrollTo(0, 0);
     navigate('/rules');
   };
 
+  // Function to check if the user is playing on a computer based on screen width
   const isPlayingOnComputer = () => {
     const screenWidth =
       window.innerWidth ||
       document.documentElement.clientWidth ||
       document.body.clientWidth;
-
     const screenWidthThreshold = 768;
     return screenWidth >= screenWidthThreshold;
   };

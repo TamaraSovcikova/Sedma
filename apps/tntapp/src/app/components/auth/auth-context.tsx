@@ -6,6 +6,7 @@ import React, {
   useState,
 } from 'react';
 
+// Defining type for UserContext
 interface UserContextType {
   token?: string;
   setToken: (token?: string) => void;
@@ -13,8 +14,10 @@ interface UserContextType {
   tableId?: string;
   setTableId: (tableId?: string) => void;
 }
+
+// Custom hook to use authentication context
 export const useAuth = () => {
-  const context = useContext(UserContext);
+  const context = useContext(UserContext); // Using context hook
   return (
     context ?? {
       token: undefined,
@@ -32,6 +35,7 @@ export const useAuth = () => {
   );
 };
 
+// Creating UserContext
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
 function storeToken(token: string) {
@@ -50,6 +54,7 @@ function deleteTableId() {
   localStorage.removeItem('tableId');
 }
 
+// UserContextProvider component
 export const UserContextProvider: React.FC<{
   children: ReactNode | ReactNode[];
 }> = ({ children }) => {
@@ -57,15 +62,15 @@ export const UserContextProvider: React.FC<{
   const [tableId, setTableId] = useState<string>();
 
   useEffect(() => {
-    const storedToken = localStorage.getItem('userToken');
+    const storedToken = localStorage.getItem('userToken'); // Retrieving token from localStorage
     if (storedToken) {
       setToken(storedToken);
     }
-    const storedTableId = localStorage.getItem('tableId');
+    const storedTableId = localStorage.getItem('tableId'); // Retrieving table ID from localStorage
     if (storedTableId) {
       setTableId(storedTableId);
     }
-  }, []);
+  }, []); // Running effect only on mount
 
   return (
     <UserContext.Provider
@@ -80,9 +85,9 @@ export const UserContextProvider: React.FC<{
           }
         },
         logout: () => {
-          deleteToken();
-          setToken(undefined);
-          deleteTableId();
+          deleteToken(); // Deleting token from localStorage
+          setToken(undefined); // Clearing token state
+          deleteTableId(); // Deleting table ID from localStorage
         },
         tableId,
         setTableId: (tableId?: string) => {

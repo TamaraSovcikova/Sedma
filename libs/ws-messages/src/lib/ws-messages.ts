@@ -1,3 +1,4 @@
+// Define the possible types of messages that can be exchanged between client and server
 type MessageType =
   | 'login'
   | 'playCard'
@@ -53,6 +54,7 @@ export interface Message {
   message: string;
 }
 
+// Define the structure of table data representing the state of the table
 export interface TableData {
   players: { name: string; id: string | undefined; bodyColor: string }[];
   hand: CardData[];
@@ -92,7 +94,9 @@ export interface MessageError extends MessageBase {
   error: string;
 }
 
+// Define the possible types of suits for a card
 export type SuitType = 'heart' | 'leaf' | 'acorn' | 'bell';
+// Define the possible types of faces for a card
 export type FaceType =
   | 'seven'
   | 'eight'

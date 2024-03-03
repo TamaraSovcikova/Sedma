@@ -10,6 +10,7 @@ export function DisconnectPopup(props: DisconnectPopupProps) {
     <div className="resultsPopup">
       <div className="resultsBox">
         <h2>Are you sure you want to leave?</h2>
+        {/* Only shows for the owner */}
         {props.isOwner && (
           <p
             style={{

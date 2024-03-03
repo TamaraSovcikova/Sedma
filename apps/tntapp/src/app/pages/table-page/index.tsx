@@ -26,7 +26,6 @@ import { DisconnectPopup } from './components/disconnect-popup';
 import { Chair } from './components/chair';
 import { Chat } from './components/chat';
 import { Menu } from './components/menu';
-import { TIMEOUT } from 'dns';
 
 export function TablePage() {
   const params = useParams();
@@ -61,6 +60,7 @@ export function TablePage() {
 
   const { token } = useAuth();
 
+  // Setting up WebSocket connection and message handling.
   const { sendJsonMessage, lastJsonMessage } = useWebSocket<MessageBase>(
     getServerUrl().tableUrl,
     {
@@ -75,9 +75,13 @@ export function TablePage() {
     }
   );
 
+  // Handle side effects related to WebSocket messages and state changes.
   useEffect(() => {
+    // Handling different types of messages received from the server.
     if (lastJsonMessage !== null) {
       console.log(lastJsonMessage, 'this is the last message');
+
+      //Processing data updates about Table from the server
       if (lastJsonMessage.type === 'tableData') {
         const d: MessageTableData = lastJsonMessage as MessageTableData;
         setData(d.data);
@@ -87,16 +91,22 @@ export function TablePage() {
         } else setPlayerIdx(undefined);
         setIsLoading(false);
       }
+
+      // Handling login failure message.
       if (lastJsonMessage.type === 'loginFailure') {
         setIsLoading(true);
         setErrorMessage('Could not Login');
         setTimeout(() => setErrorMessage(undefined), 3000);
       }
+
+      // Handling error message
       if (lastJsonMessage.type === 'error') {
         const m: MessageError = lastJsonMessage as MessageError;
         setErrorMessage(m.error);
         setTimeout(() => setErrorMessage(undefined), 3000);
       }
+
+      // Handling forced player disconnect message.
       if (lastJsonMessage.type === 'forcePlayerDisconnect') {
         console.log('leaving table');
         setKickedOut(true);
@@ -106,6 +116,7 @@ export function TablePage() {
           navigate('/');
         }, 1500);
       }
+      // Handling incoming chat message.
       if (lastJsonMessage?.type === 'chatMessage') {
         console.log('Received chat message:', lastJsonMessage);
         const newMessage = lastJsonMessage as MessageChat;
@@ -118,24 +129,31 @@ export function TablePage() {
         ]);
         setLastReceivedMessage(newMessage);
       }
+
       if (lastJsonMessage?.type === 'showResults') {
         setShowResults(true);
       }
+
       if (lastJsonMessage?.type === 'showEndGameResults') {
         setShowEndGameResults(true);
       }
+
       if (lastJsonMessage?.type === 'askGameContinue') {
         setAskGameContinue(true);
       }
+
       if (lastJsonMessage?.type === 'startingGame') {
         setWaitingForOwner(false);
       }
+
       if (lastJsonMessage?.type === 'letsPlayAgain') {
         setPlayAgain(true);
       }
+
       if (lastJsonMessage?.type === 'stakesReached') {
         setStakesReached(true);
       }
+
       if (lastJsonMessage?.type === 'disconnectingPlayer') {
         setPlayerHasDisconnected(true);
         setTimeout(() => {
@@ -145,6 +163,7 @@ export function TablePage() {
     }
   }, [lastJsonMessage, token, setIsLoading, data, logout, navigate]);
 
+  // useEffect hook to handle showing popup messages and updating unopened message count.
   useEffect(() => {
     if (lastReceivedMessage && data && playerIdx !== undefined) {
       const formattedMessage = `<strong>${lastReceivedMessage.username}</strong><br>${lastReceivedMessage.message}`;
@@ -175,6 +194,7 @@ export function TablePage() {
     popupMessage,
   ]);
 
+  //Player playes a card, message sent to server
   const handlePlayCard = (c: CardData) => {
     if (!id) return;
     const message: MessagePlayCard = {
@@ -187,6 +207,7 @@ export function TablePage() {
     console.log(c, 'handlePlayCard');
   };
 
+  //Player chooses to stay connected to the table, message sent to server
   const handlePlayerStays = () => {
     setPlayAgain(false);
     setWaitingForOwner(true);
@@ -214,6 +235,7 @@ export function TablePage() {
     console.log('handleStartGame');
   };
 
+  //Message about player passing their turn
   const handlePlayerPass = () => {
     if (!id) return;
     const message: MessageBase = {
@@ -224,6 +246,7 @@ export function TablePage() {
     console.log('handlePlayerPass');
   };
 
+  //Message about closing popup results
   const handleCloseResults = () => {
     setShowResults(false);
 
@@ -238,6 +261,7 @@ export function TablePage() {
     console.log('handleCloseResults');
   };
 
+  //Message about closing end game popup results
   const handleCloseEndGameResults = () => {
     if (!id || playerIdx === undefined) return;
     setShowEndGameResults(false);
@@ -269,17 +293,21 @@ export function TablePage() {
     setPlayAgain(true);
   };
 
+  //Checking if its a round after the first deal
   const canPass = () => {
     if (data?.isFirstDeal) {
       return data?.isFirstDeal > 0;
     }
   };
 
+  //Checking if player is the leadPlayer
   const isLeadPlayer = () => {
     if (data?.leadPlayerId === token) {
       return true;
     } else return false;
   };
+
+  //Checking to see if player is the current player
   const isCurrentPlayer = () => {
     return data?.players[data.currentPlayer].id === token;
   };
@@ -289,6 +317,7 @@ export function TablePage() {
       if (data?.teamAStakeCount > data?.teamBStakeCount) return 'TEAM A';
       else return 'TEAM B';
   };
+
   const winningStakeCount = () => {
     if (data)
       if (data?.teamAStakeCount > data?.teamBStakeCount)
@@ -306,6 +335,7 @@ export function TablePage() {
     (p) => p.id === data.winningPlayerId
   )?.name;
 
+  //Player is leaving table
   const handleLeave = () => {
     if (!id || !data || playerIdx === undefined) return;
     setPlayAgain(false);
@@ -326,11 +356,14 @@ export function TablePage() {
   const toggleMenu = () => {
     setMenuOpen(!menuOpen);
   };
+
+  //Toggle opening and closing of the chat
   const toggleChat = () => {
     setChatOpen(!chatOpen);
     setUnopenedMessage(0);
   };
 
+  //Player is sending a chat message
   const handleSendMessage = () => {
     if (inputMessage && id && playerIdx !== undefined) {
       const newMessage: MessageChat = {
@@ -347,6 +380,7 @@ export function TablePage() {
     }
   };
 
+  //Using whatsapp to share link to the table
   function shareViaWhatsApp(tableId: string | undefined) {
     const message = `Join our Sedma game! Table ID: ${tableId}`;
     const landingPageUrl = `https://sedma.spv99.com/?tableId=${tableId}`;
@@ -356,6 +390,7 @@ export function TablePage() {
     window.open(whatsappUrl, '_blank');
   }
 
+  //Copy to the clipboard
   const handleCopy = () => {
     const inputElement = document.getElementById(
       'table-id-input'
@@ -381,6 +416,7 @@ export function TablePage() {
 
   const shouldShowButton = isLeadPlayer() && canPass() && isCurrentPlayer();
 
+  //Handing the case when client didn't yet recieve table data from the server
   if (isLoading)
     return (
       <div>

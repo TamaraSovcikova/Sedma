@@ -14,7 +14,9 @@ export function Chat(props: ChatProps) {
   return (
     <div className="chat-popup" ref={props.chatContainerReference}>
       <div className="chat-messages">
+        {/* Mapping over the receivedMessages array to render each message. */}
         {props.recievedMessages.map((msg, index) => (
+          // Each message is wrapped in a div with a unique key for React's reconciliation.
           <div key={index} className="chat-message">
             <p className="message-username">{msg.username}</p>
             <p className="message-text">{msg.message}</p>

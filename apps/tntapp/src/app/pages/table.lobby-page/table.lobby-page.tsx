@@ -37,11 +37,13 @@ export function LobbyPage() {
   const [selectedSeatId, setSelectedSeatId] = useState<number | null>(null);
   let usernameInputTimer: string | number | NodeJS.Timeout | undefined;
 
+  //Checking the query parameters to check if player is in creating mode
   useEffect(() => {
     const create = query.get('create');
     if (create === '1') setIsCreatingTable(true);
   }, [query]);
 
+  //If player already has a token, it should connect them directly to the game, skipping the lobby page
   useEffect(() => {
     console.log('lobby page token: ', token);
     if (token) {
@@ -49,39 +51,42 @@ export function LobbyPage() {
     }
   }, [navigate, id, token]);
 
+  //Maping the seating arrangement based on data from server
   useEffect(() => {
-    if (id)
-      fetchData(getServerUrl().lobbyUrl(id), token)
-        .then((d: string[]) => {
-          const seats = d.map((n, idx) => {
-            const seat = {
-              id: idx + 1,
-              name: n ? n : '',
-              taken: n ? true : false,
-            };
-            return seat;
-          });
+    let mounted = true;
+    if (!id) return;
 
+    const fetchDataAndUpdateSeats = async () => {
+      try {
+        const data = await fetchData(getServerUrl().lobbyUrl(id), token);
+        const seats = data.map((n: string, idx: number) => ({
+          id: idx + 1,
+          name: n || '',
+          taken: !!n,
+        }));
+        if (mounted) {
           setSeats(seats);
-        })
-        .catch((err) => console.log('Table does not exist', err));
+        }
+      } catch (err) {
+        console.log('Error fetching data:', err);
+      }
+    };
 
-    //Making sure to update the page, checking for any changes by paking a poll every 3 seconds
-    const intervalId = setInterval(() => {
-      fetchData(getServerUrl().lobbyUrl(id), token)
-        .then((d: string[]) => {
-          const seatsData = d.map((n, idx) => ({
-            id: idx + 1,
-            name: n ? n : '',
-            taken: n ? true : false,
-          }));
-          setSeats(seatsData);
-        })
-        .catch((err) => console.log('Error fetching seats:', err));
-    }, 3000);
+    if (id) {
+      fetchDataAndUpdateSeats();
+      //Making sure to update the page, checking for any changes by paking a poll every 3 seconds
+      const intervalId = setInterval(fetchDataAndUpdateSeats, 3000);
 
-    // Cleanup interval on component unmount
-    return () => clearInterval(intervalId);
+      return () => {
+        // Cleanup interval on component unmount
+        clearInterval(intervalId);
+        mounted = false;
+      };
+    }
+
+    return () => {
+      mounted = false;
+    };
   }, [id, token]);
 
   const handleUsernameChange = async (
@@ -92,16 +97,19 @@ export function LobbyPage() {
 
     try {
       if (!username) {
+        // Setting the new username if the previous username was empty
         setUsername(newUsername);
       }
 
       if (selectedSeatId) {
+        // Removing the player from the selected seat if it's already taken
         await postData(
           getServerUrl().deletePlayerUrl(id),
           { oldUsername: username },
           token
         );
 
+        // Updating the seat status and resetting the selected seat
         setSeatStatus(selectedSeatId, { name: '', taken: false });
         setSelectedSeatId(null);
       }
@@ -142,25 +150,29 @@ export function LobbyPage() {
   };
 
   const handleSeatClick = async (seatId: number) => {
-    //first has to check if not taken , then clear the previous or at least try
+    // Check if username is available and not empty
     if (!username || !isUsernameAvailable) return;
-    console.log(seatId);
+
+    // If the seat is not taken, clear the previously selected seat
     if (!seats[seatId - 1].taken)
       if (selectedSeatId !== null) {
         setSeatStatus(selectedSeatId, { name: '', taken: false });
       }
 
+    // Set the status of the clicked seat and update the selected seat ID
     setSeatStatus(seatId, { name: username, taken: true });
     setSelectedSeatId(seatId);
 
+    // Send player data to the server
     const result = await postData(
       getServerUrl().lobbyUrl(id),
       { username, seatId },
       token
     );
-    console.log('result: ', result);
+
     console.log('Sending over the player', username, seatId);
 
+    // Update token with the new token received from the server
     setNewToken(result.id);
   };
 
@@ -168,14 +180,17 @@ export function LobbyPage() {
     seatId: number,
     status: { name: string; taken: boolean }
   ) => {
+    // Update the seats array using the previous state
     setSeats((prevSeats) =>
       prevSeats.map((seat) =>
+        // If the seat ID matches the given seatId, update its status; otherwise, keep the seat unchanged
         seat.id === seatId ? { ...seat, ...status } : seat
       )
     );
   };
 
   useEffect(() => {
+    // Check if username is not empty, a seat is selected, and stake limit is provided if creating a table
     setIsFormValid(
       username.trim() !== '' &&
         selectedSeatId !== null &&
@@ -184,20 +199,22 @@ export function LobbyPage() {
   }, [username, selectedSeatId, stakeLimit, isCreatingTable]);
 
   const handleContinue = async () => {
+    // Proceed only if the form is valid (all neccessary fields filled out)
     if (isFormValid) {
-      console.log(`${username} just chose a seat and is ready to play`);
-
+      // Send data to the server
       postData(
         getServerUrl().tabledata(id),
         { isCreatingTable, username, stakeLimit, selectedColor },
         token
       );
 
+      // Update token and table ID
       setToken(newtoken);
       setTableId(id);
     }
   };
 
+  // Handle change event when stake limit input value changes
   const handleStakeLimitChange = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
@@ -206,9 +223,11 @@ export function LobbyPage() {
   };
 
   const handleReturn = () => {
+    // If a table is being created, notify the server about leaving the lobby
     if (isCreatingTable) {
       fetchData(getServerUrl().leavingLobby(id), token);
     }
+    // Navigate the user back to the landing page
     navigate('/');
   };
 

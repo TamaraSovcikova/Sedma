@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 export function RulesPage() {
   const navigate = useNavigate();
 
+  //Will navigate player back to the landing page
   const handleReturn = () => navigate('/');
 
   return (
