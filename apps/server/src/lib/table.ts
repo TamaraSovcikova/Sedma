@@ -529,7 +529,10 @@ export class Table {
   public closeResults(playerIdx: number): void {
     this.players[playerIdx].isReadyToPlay = true;
 
-    if (this.players.filter((p) => p.isReadyToPlay === true).length === 1) {
+    if (
+      this.players.filter((p) => !p.autoplay && p.isReadyToPlay === true)
+        .length === 1
+    ) {
       this.setUpNewDeal();
     }
 
@@ -543,7 +546,8 @@ export class Table {
     //Check is game is ending (e.g is the last round)
     if (
       this.isLastRound() &&
-      this.players.filter((p) => p.isReadyToPlay === true).length === 1
+      this.players.filter((p) => !p.autoplay && p.isReadyToPlay === true)
+        .length === 1
     ) {
       const winningTeam = this.players[this.leadPlayer].team;
 
